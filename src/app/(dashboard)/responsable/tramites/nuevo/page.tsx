@@ -1,3 +1,4 @@
+// src/app/(dashboard)/responsable/tramites/nuevo/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,7 +9,8 @@ import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import Textarea from '@/components/ui/Textarea';
 import FileUpload from '@/components/ui/FileUpload';
-import { ArrowLeft, Send, Loader2 } from 'lucide-react';
+import WorkerSelector from '@/components/ui/WorkerSelector';
+import { ArrowLeft, Send, Loader2, AlertCircle, FileText, PenTool, Info } from 'lucide-react';
 import Link from 'next/link';
 import { getWorkers } from '@/lib/api/usuarios';
 import { getDocumentTypes } from '@/lib/api/document-type';
@@ -20,7 +22,6 @@ interface SendDocumentForm {
     mensaje: string;
     id_destinatario: string;
     titulo_documento: string;
-    descripcion_documento: string;
     id_tipo_documento: string;
     file: File | null;
 }
@@ -47,7 +48,6 @@ export default function SendDocumentPage() {
         mensaje: '',
         id_destinatario: '',
         titulo_documento: '',
-        descripcion_documento: '',
         id_tipo_documento: '',
         file: null,
     });
@@ -62,11 +62,14 @@ export default function SendDocumentPage() {
                     getDocumentTypes(),
                 ]);
 
+                console.log('✅ Trabajadores cargados:', workersData.length);
+                console.log('✅ Tipos de documento cargados:', documentTypesData.length);
+
                 setWorkers(workersData);
                 setDocumentTypes(documentTypesData);
             } catch (error) {
-                console.error('Error loading data:', error);
-                setApiError('Error al cargar los datos necesarios');
+                console.error('❌ Error loading data:', error);
+                setApiError('Error al cargar los datos necesarios. Por favor, recargue la página.');
             } finally {
                 setIsLoadingData(false);
             }
@@ -113,33 +116,41 @@ export default function SendDocumentPage() {
         try {
             setIsLoading(true);
 
-            // Crear FormData para envío multipart
-            const submitFormData = new FormData();
-            submitFormData.append('asunto', formData.asunto);
-            if (formData.mensaje) {
-                submitFormData.append('mensaje', formData.mensaje);
-            }
-            submitFormData.append('id_destinatario', formData.id_destinatario);
-            submitFormData.append('titulo_documento', formData.titulo_documento);
-            if (formData.descripcion_documento) {
-                submitFormData.append('descripcion_documento', formData.descripcion_documento);
-            }
-            submitFormData.append('id_tipo_documento', formData.id_tipo_documento);
+            // Paso 1: Subir el documento
+            const documentFormData = new FormData();
+            documentFormData.append('titulo', formData.titulo_documento);
+            documentFormData.append('id_tipo', formData.id_tipo_documento);
             if (formData.file) {
-                submitFormData.append('file', formData.file);
+                documentFormData.append('file', formData.file);
             }
 
-            // Enviar a través del endpoint de trámites
-            await apiClient.post('/tramites', submitFormData, {
+            console.log('📤 Subiendo documento...');
+            const documentResponse = await apiClient.post('/documentos/upload', documentFormData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
 
+            const documentoCreado = documentResponse.data;
+            console.log('✅ Documento subido:', documentoCreado.id_documento);
+
+            // Paso 2: Crear el trámite
+            const tramiteData = {
+                asunto: formData.asunto,
+                mensaje: formData.mensaje || undefined,
+                id_documento: documentoCreado.id_documento,
+                id_receptor: formData.id_destinatario,
+            };
+
+            console.log('📤 Creando trámite...');
+            await apiClient.post('/tramites', tramiteData);
+
+            console.log('✅ Trámite creado exitosamente');
+
             // Redirigir a la lista de trámites con mensaje de éxito
             router.push('/responsable/tramites?success=true');
         } catch (error) {
-            console.error('Error sending document:', error);
+            console.error('❌ Error sending document:', error);
             setApiError(handleApiError(error));
         } finally {
             setIsLoading(false);
@@ -160,6 +171,11 @@ export default function SendDocumentPage() {
             setErrors((prev) => ({ ...prev, file: undefined }));
         }
     };
+
+    // ✅ CORRECCIÓN: Usar id_tipo en lugar de id_tipo_documento.toString()
+    const selectedDocType = documentTypes.find(
+        (dt) => dt.id_tipo === formData.id_tipo_documento
+    );
 
     if (isLoadingData) {
         return (
@@ -192,8 +208,22 @@ export default function SendDocumentPage() {
 
             {/* Error general de API */}
             {apiError && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <p className="text-sm text-red-800">{apiError}</p>
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                        <p className="text-sm font-medium text-red-800">Error</p>
+                        <p className="text-sm text-red-700 mt-1">{apiError}</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Info sobre trabajadores disponibles */}
+            {workers.length === 0 && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <p className="text-sm text-yellow-800">
+                        ⚠️ No hay trabajadores disponibles para enviar documentos.
+                        Contacte al administrador para crear usuarios.
+                    </p>
                 </div>
             )}
 
@@ -215,17 +245,14 @@ export default function SendDocumentPage() {
                             error={errors.asunto}
                             required
                             maxLength={255}
+                            helperText="Resumen breve del documento a enviar"
                         />
 
-                        <Select
-                            label="Destinatario"
-                            placeholder="Seleccione un trabajador"
-                            value={formData.id_destinatario}
-                            onChange={(value) => handleInputChange('id_destinatario', value)}
-                            options={workers.map((worker) => ({
-                                value: worker.id_usuario,
-                                label: `${worker.nombres} ${worker.apellidos} (${worker.correo})`,
-                            }))}
+                        {/* ✅ NUEVO COMPONENTE DE SELECCIÓN */}
+                        <WorkerSelector
+                            workers={workers}
+                            selectedWorkerId={formData.id_destinatario}
+                            onSelect={(workerId) => handleInputChange('id_destinatario', workerId)}
                             error={errors.id_destinatario}
                             required
                         />
@@ -251,6 +278,77 @@ export default function SendDocumentPage() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                        {/* ✅ CORRECCIÓN: Usar id_tipo como value */}
+                        <Select
+                            label="Tipo de Documento"
+                            placeholder="Seleccione un tipo"
+                            value={formData.id_tipo_documento}
+                            onChange={(value) => handleInputChange('id_tipo_documento', value)}
+                            options={documentTypes.map((type) => ({
+                                value: type.id_tipo,
+                                label: type.nombre,
+                            }))}
+                            error={errors.id_tipo_documento}
+                            required
+                        />
+
+                        {/* Info adicional del tipo de documento */}
+                        {selectedDocType && (
+                            <div className="space-y-3">
+                                {/* Badge del tipo de documento */}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        <FileText className="w-3 h-3 mr-1" />
+                                        {selectedDocType.codigo}
+                                    </span>
+                                    {selectedDocType.requiere_firma && (
+                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                            <PenTool className="w-3 h-3 mr-1" />
+                                            Requiere Firma
+                                        </span>
+                                    )}
+                                    {selectedDocType.requiere_respuesta && (
+                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                            Requiere Respuesta
+                                        </span>
+                                    )}
+                                </div>
+
+                                {/* Info detallada */}
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <div className="flex items-start gap-3">
+                                        <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                                        <div className="flex-1">
+                                            <p className="text-sm font-medium text-blue-900 mb-1">
+                                                Información sobre este tipo de documento
+                                            </p>
+                                            {selectedDocType.requiere_firma && (
+                                                <p className="text-sm text-blue-800 mb-2">
+                                                    📝 Este documento requerirá <strong>firma electrónica</strong> del trabajador.
+                                                    El trabajador deberá aceptar los términos antes de firmar.
+                                                </p>
+                                            )}
+                                            {selectedDocType.requiere_respuesta && (
+                                                <p className="text-sm text-blue-800 mb-2">
+                                                    💬 Este documento permite que el trabajador pueda hacer <strong>observaciones</strong> o consultas.
+                                                </p>
+                                            )}
+                                            {!selectedDocType.requiere_firma && !selectedDocType.requiere_respuesta && (
+                                                <p className="text-sm text-blue-800">
+                                                    ℹ️ Este documento es solo <strong>informativo</strong>. No requiere firma ni respuesta.
+                                                </p>
+                                            )}
+                                            {selectedDocType.descripcion && (
+                                                <p className="text-xs text-blue-700 mt-2 italic">
+                                                    {selectedDocType.descripcion}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         <Input
                             label="Título del Documento"
                             placeholder="Ej: Contrato de Trabajo - Juan Pérez"
@@ -259,31 +357,7 @@ export default function SendDocumentPage() {
                             error={errors.titulo_documento}
                             required
                             maxLength={255}
-                        />
-
-                        <Select
-                            label="Tipo de Documento"
-                            placeholder="Seleccione un tipo"
-                            value={formData.id_tipo_documento}
-                            onChange={(value) => handleInputChange('id_tipo_documento', value)}
-                            options={documentTypes.map((type) => ({
-                                value: type.id_tipo_documento,
-                                label: `${type.nombre_tipo}${type.requiere_firma ? ' (Requiere Firma)' : ''}`,
-                            }))}
-                            error={errors.id_tipo_documento}
-                            required
-                        />
-
-                        <Textarea
-                            label="Descripción (Opcional)"
-                            placeholder="Agregue una descripción o notas sobre el documento"
-                            value={formData.descripcion_documento}
-                            onChange={(e) =>
-                                handleInputChange('descripcion_documento', e.target.value)
-                            }
-                            rows={3}
-                            maxLength={500}
-                            showCharCount
+                            helperText="Este será el nombre que verá el trabajador"
                         />
 
                         <FileUpload
@@ -291,10 +365,44 @@ export default function SendDocumentPage() {
                             required
                             onFileSelect={handleFileSelect}
                             error={errors.file}
-                            helperText="Seleccione el archivo PDF que desea enviar"
+                            helperText="Seleccione el archivo PDF que desea enviar (máximo 10MB)"
                         />
                     </CardContent>
                 </Card>
+
+                {/* Resumen antes de enviar */}
+                {formData.id_destinatario && formData.id_tipo_documento && formData.file && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base">Resumen del Envío</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-2 text-sm">
+                                <div className="flex justify-between">
+                                    <span className="text-gray-600">Destinatario:</span>
+                                    <span className="font-medium">
+                                        {workers.find(w => w.id_usuario === formData.id_destinatario)?.nombre_completo ||
+                                            `${workers.find(w => w.id_usuario === formData.id_destinatario)?.apellidos}, ${workers.find(w => w.id_usuario === formData.id_destinatario)?.nombres}`}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-600">Tipo de documento:</span>
+                                    <span className="font-medium">{selectedDocType?.nombre}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-600">Archivo:</span>
+                                    <span className="font-medium">{formData.file.name}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-600">Tamaño:</span>
+                                    <span className="font-medium">
+                                        {(formData.file.size / 1024 / 1024).toFixed(2)} MB
+                                    </span>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Botones de acción */}
                 <div className="flex items-center justify-end gap-4">
@@ -303,7 +411,11 @@ export default function SendDocumentPage() {
                             Cancelar
                         </Button>
                     </Link>
-                    <Button type="submit" isLoading={isLoading} disabled={isLoading}>
+                    <Button
+                        type="submit"
+                        isLoading={isLoading}
+                        disabled={isLoading || workers.length === 0}
+                    >
                         <Send className="w-4 h-4" />
                         {isLoading ? 'Enviando...' : 'Enviar Documento'}
                     </Button>

@@ -1,3 +1,5 @@
+// src/types/index.ts
+
 import { Role, ProcedureState, NotificationType } from '@/lib/constants';
 
 // ==================== AUTH ====================
@@ -13,10 +15,6 @@ export interface AuthResponse {
     user: User;
 }
 
-export interface RefreshTokenDto {
-    refresh_token: string;
-}
-
 // ==================== USER ====================
 export interface User {
     id_usuario: string;
@@ -26,227 +24,161 @@ export interface User {
     correo: string;
     telefono?: string;
     fecha_creacion?: string;
-    fecha_actualizacion?: string;
     roles: string[];
     area?: {
         id_area: string;
         nombre: string;
     };
-}
-
-export interface CreateUserDto {
-    nombre_usuario: string;
-    apellido_usuario: string;
-    email: string;
-    password: string;
-    telefono?: string;
-    id_rol: number;
-    id_area?: number;
-}
-
-export interface UpdateUserDto {
-    nombre_usuario?: string;
-    apellido_usuario?: string;
-    email?: string;
-    password?: string;
-    telefono?: string;
-    id_rol?: number;
-    id_area?: number;
-}
-
-// ==================== ROLE ====================
-export interface RoleType {
-    id_rol: number;
-    nombre_rol: Role;
-    descripcion_rol?: string;
-    fecha_creacion: string;
-    fecha_actualizacion: string;
-}
-
-export interface CreateRoleDto {
-    nombre_rol: Role;
-    descripcion_rol?: string;
-}
-
-export interface UpdateRoleDto {
-    nombre_rol?: Role;
-    descripcion_rol?: string;
-}
-
-// ==================== AREA ====================
-export interface Area {
-    id_area: number;
-    nombre_area: string;
-    descripcion_area?: string;
-    fecha_creacion: string;
-    fecha_actualizacion: string;
-}
-
-export interface CreateAreaDto {
-    nombre_area: string;
-    descripcion_area?: string;
-}
-
-export interface UpdateAreaDto {
-    nombre_area?: string;
-    descripcion_area?: string;
+    nombre_completo?: string;
 }
 
 // ==================== DOCUMENT TYPE ====================
+
 export interface DocumentType {
-    id_tipo_documento: number;
-    nombre_tipo: string;
-    descripcion_tipo?: string;
+    id_tipo: string;
+    codigo: string;
+    nombre: string;
+    descripcion?: string;
     requiere_firma: boolean;
-    fecha_creacion: string;
-    fecha_actualizacion: string;
+    requiere_respuesta: boolean;
+    fecha_creacion?: string;
+    documentos_count?: number;
 }
 
 export interface CreateDocumentTypeDto {
-    nombre_tipo: string;
-    descripcion_tipo?: string;
-    requiere_firma: boolean;
+    codigo: string;
+    nombre: string;
+    descripcion?: string;
+    requiere_firma?: boolean;
+    requiere_respuesta?: boolean;
 }
 
 export interface UpdateDocumentTypeDto {
-    nombre_tipo?: string;
-    descripcion_tipo?: string;
+    codigo?: string;
+    nombre?: string;
+    descripcion?: string;
     requiere_firma?: boolean;
+    requiere_respuesta?: boolean;
 }
 
 // ==================== DOCUMENT ====================
 export interface Document {
-    id_documento: number;
-    titulo_documento: string;
-    descripcion_documento?: string;
-    url_documento: string;
+    id_documento: string;
+    titulo: string;
+    ruta_archivo: string;
+    nombre_archivo: string;
+    extension: string;
+    tamano_bytes: string;
+    id_tipo: string;
     version: number;
-    es_ultima_version: boolean;
-    id_documento_padre?: number;
+    id_documento_anterior?: string;
     fecha_creacion: string;
-    fecha_actualizacion: string;
-    tipo_documento: DocumentType;
+    creado_por: string;
+    tipo: DocumentType;
+    creador?: {
+        id_usuario: string;
+        nombres: string;
+        apellidos: string;
+        correo: string;
+    };
 }
 
-export interface CreateDocumentDto {
-    titulo_documento: string;
-    descripcion_documento?: string;
-    id_tipo_documento: number;
-    file: File;
-}
-
-export interface UpdateDocumentDto {
-    titulo_documento?: string;
-    descripcion_documento?: string;
-    id_tipo_documento?: number;
-    file?: File;
+export interface UploadDocumentoDto {
+    titulo: string;
+    id_tipo: string;
 }
 
 // ==================== PROCEDURE ====================
 export interface Procedure {
-    id_tramite: number;
+    id_tramite: string;
+    codigo: string;
+    id_documento: string;
+    id_remitente: string;
+    id_area_remitente: string;
+    id_receptor: string;
     asunto: string;
     mensaje?: string;
-    estado_actual: ProcedureState;
+    estado: ProcedureState;
+    requiere_firma: boolean;
+    requiere_respuesta: boolean;
     fecha_envio: string;
-    fecha_entrega?: string;
-    fecha_apertura?: string;
-    fecha_lectura?: string;
-    fecha_firma?: string;
-    fecha_creacion: string;
-    fecha_actualizacion: string;
-    remitente: User;
-    destinatario: User;
+    fecha_abierto?: string;
+    fecha_leido?: string;
+    fecha_firmado?: string;
+    fecha_anulado?: string;
+    es_reenvio: boolean;
+    id_tramite_original?: string;
+    motivo_reenvio?: string;
+    numero_version: number;
+    anulado_por?: string;
+    motivo_anulacion?: string;
     documento: Document;
+    remitente: User;
+    receptor: User;
     observaciones?: Observation[];
-    firma_electronica?: ElectronicSignature;
-    historial?: ProcedureHistory[];
+    firma?: ElectronicSignature;
 }
 
 export interface CreateProcedureDto {
     asunto: string;
     mensaje?: string;
-    id_remitente: number;
-    id_destinatario: number;
-    id_documento: number;
+    id_documento: string;
+    id_receptor: string;
 }
 
 export interface UpdateProcedureStateDto {
-    estado_actual: ProcedureState;
+    estado: ProcedureState;
 }
 
 // ==================== OBSERVATION ====================
 export interface Observation {
-    id_observacion: number;
-    contenido_observacion: string;
+    id_observacion: string;
+    id_tramite: string;
+    creado_por: string;
+    tipo: 'CONSULTA' | 'CORRECCION_REQUERIDA' | 'INFORMACION_ADICIONAL';
+    descripcion: string;
     fecha_creacion: string;
-    fecha_actualizacion: string;
-    tramite: Procedure;
-    usuario_observador: User;
+    resuelta: boolean;
+    fecha_resolucion?: string;
+    resuelto_por?: string;
+    respuesta?: string;
 }
 
 export interface CreateObservationDto {
-    contenido_observacion: string;
-    id_tramite: number;
-    id_usuario_observador: number;
+    tipo: 'CONSULTA' | 'CORRECCION_REQUERIDA' | 'INFORMACION_ADICIONAL';
+    descripcion: string;
 }
 
-export interface UpdateObservationDto {
-    contenido_observacion?: string;
+export interface ResponderObservacionDto {
+    respuesta: string;
 }
 
 // ==================== ELECTRONIC SIGNATURE ====================
 export interface ElectronicSignature {
-    id_firma: number;
+    id_firma: string;
+    id_tramite: string;
+    acepta_terminos: boolean;
     ip_address: string;
-    user_agent: string;
-    dispositivo: string;
-    navegador: string;
-    sistema_operativo: string;
+    navegador?: string;
+    dispositivo?: string;
     fecha_firma: string;
-    fecha_creacion: string;
-    tramite: Procedure;
-    firmante: User;
 }
 
 export interface CreateElectronicSignatureDto {
-    id_tramite: number;
-    id_firmante: number;
-}
-
-// ==================== PROCEDURE HISTORY ====================
-export interface ProcedureHistory {
-    id_historial: number;
-    estado_anterior: ProcedureState;
-    estado_nuevo: ProcedureState;
-    fecha_cambio: string;
-    notas?: string;
-    tramite: Procedure;
+    acepta_terminos: boolean;
 }
 
 // ==================== NOTIFICATION ====================
 export interface Notification {
-    id_notificacion: number;
-    tipo_notificacion: NotificationType;
+    id_notificacion: string;
+    id_usuario: string;
+    id_tramite?: string;
+    tipo: string;
     titulo: string;
     mensaje: string;
-    leida: boolean;
-    fecha_lectura?: string;
+    visto: boolean;
     fecha_creacion: string;
-    usuario: User;
-    tramite?: Procedure;
-}
-
-export interface UpdateNotificationDto {
-    leida: boolean;
-}
-
-export interface NotificationEvent {
-    tipo: NotificationType;
-    titulo: string;
-    mensaje: string;
-    id_tramite?: number;
-    id_usuario: number;
+    fecha_visto?: string;
 }
 
 // ==================== PAGINATION ====================
@@ -267,24 +199,26 @@ export interface PaginatedResponse<T> {
 
 // ==================== FILTERS ====================
 export interface UserFilters extends PaginationParams {
-    nombre_usuario?: string;
-    email?: string;
-    id_rol?: number;
-    id_area?: number;
+    search?: string;
+    id_area?: string;
+    id_rol?: string;
+    activo?: boolean;
 }
 
 export interface ProcedureFilters extends PaginationParams {
-    estado_actual?: ProcedureState;
-    id_remitente?: number;
-    id_destinatario?: number;
-    fecha_desde?: string;
-    fecha_hasta?: string;
+    search?: string;
+    id_remitente?: string;
+    id_receptor?: string;
+    id_area_remitente?: string;
+    estado?: ProcedureState;
+    requiere_firma?: boolean;
+    requiere_respuesta?: boolean;
+    es_reenvio?: boolean;
 }
 
 export interface NotificationFilters extends PaginationParams {
-    tipo_notificacion?: NotificationType;
-    leida?: boolean;
-    id_usuario?: number;
+    visto?: boolean;
+    tipo?: string;
 }
 
 // ==================== API RESPONSES ====================
@@ -310,16 +244,11 @@ export interface LoginFormData {
 export interface SendDocumentFormData {
     asunto: string;
     mensaje?: string;
-    id_destinatario: number;
+    id_destinatario: string;
     titulo_documento: string;
     descripcion_documento?: string;
-    id_tipo_documento: number;
+    id_tipo_documento: string;
     file: File;
-}
-
-export interface CreateUserFormData extends Omit<CreateUserDto, 'password'> {
-    password: string;
-    confirmPassword: string;
 }
 
 // ==================== UI STATE ====================
@@ -335,4 +264,46 @@ export interface NotificationState {
     notifications: Notification[];
     unreadCount: number;
     isConnected: boolean;
+}
+
+// ==================== AREAS ====================
+export interface Area {
+    id_area: string;
+    nombre: string;
+    activo: boolean;
+    fecha_creacion?: string;
+    usuarios_count?: number;
+    tramites_count?: number;
+}
+
+export interface CreateAreaDto {
+    nombre: string;
+}
+
+export interface UpdateAreaDto {
+    nombre?: string;
+    activo?: boolean;
+}
+
+// ==================== ROLES ====================
+export interface RoleType {
+    id_rol: string;
+    codigo: string;
+    nombre: string;
+    descripcion?: string;
+    activo: boolean;
+    usuarios_count?: number;
+}
+
+export interface CreateRoleDto {
+    codigo: string;
+    nombre: string;
+    descripcion?: string;
+}
+
+export interface UpdateRoleDto {
+    codigo?: string;
+    nombre?: string;
+    descripcion?: string;
+    activo?: boolean;
 }
