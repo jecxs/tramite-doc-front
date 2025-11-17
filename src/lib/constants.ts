@@ -140,7 +140,7 @@ export const PAGINATION = {
 export const FILE_UPLOAD = {
     MAX_SIZE_MB: 10,
     MAX_SIZE_BYTES: 10 * 1024 * 1024, // 10MB
-    ACCEPTED_TYPES: ['application/pdf'],
+    ACCEPTED_TYPES: ['application/pdf'] as string[],
     ACCEPTED_EXTENSIONS: ['.pdf'],
 } as const;
 
