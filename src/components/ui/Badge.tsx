@@ -31,7 +31,7 @@ export const Badge: React.FC<BadgeProps> = ({
 };
 
 interface ProcedureStateBadgeProps {
-    estado: string; // ✅ Cambiado a string para aceptar cualquier valor de la BD
+    estado: string;
     className?: string;
 }
 
@@ -39,7 +39,7 @@ export const ProcedureStateBadge: React.FC<ProcedureStateBadgeProps> = ({
                                                                             estado,
                                                                             className = '',
                                                                         }) => {
-    // ✅ Verificar si el estado es válido
+
     const isValidState = estado && Object.keys(PROCEDURE_STATE_LABELS).includes(estado);
 
     if (!isValidState) {

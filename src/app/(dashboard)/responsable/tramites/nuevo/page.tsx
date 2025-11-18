@@ -10,17 +10,21 @@ import Select from '@/components/ui/Select';
 import Textarea from '@/components/ui/Textarea';
 import FileUpload from '@/components/ui/FileUpload';
 import WorkerSelector from '@/components/ui/WorkerSelector';
-import { ArrowLeft, Send, Loader2, AlertCircle, FileText, PenTool, Info } from 'lucide-react';
+import MultiWorkerSelector from '@/components/ui/MultiWorkerSelector';
+import { ArrowLeft, Send, Loader2, AlertCircle, FileText, PenTool, Info, Users } from 'lucide-react';
 import Link from 'next/link';
 import { getWorkers } from '@/lib/api/usuarios';
 import { getDocumentTypes } from '@/lib/api/document-type';
 import { User, DocumentType } from '@/types';
 import apiClient, { handleApiError } from '@/lib/api-client';
 
+type SendMode = 'individual' | 'bulk';
+
 interface SendDocumentForm {
     asunto: string;
     mensaje: string;
-    id_destinatario: string;
+    id_destinatario: string; // Para modo individual
+    id_destinatarios: string[]; // Para modo masivo
     titulo_documento: string;
     id_tipo_documento: string;
     file: File | null;
@@ -29,6 +33,7 @@ interface SendDocumentForm {
 interface FormErrors {
     asunto?: string;
     id_destinatario?: string;
+    id_destinatarios?: string;
     titulo_documento?: string;
     id_tipo_documento?: string;
     file?: string;
@@ -42,11 +47,13 @@ export default function SendDocumentPage() {
     const [documentTypes, setDocumentTypes] = useState<DocumentType[]>([]);
     const [errors, setErrors] = useState<FormErrors>({});
     const [apiError, setApiError] = useState<string>('');
+    const [sendMode, setSendMode] = useState<SendMode>('individual');
 
     const [formData, setFormData] = useState<SendDocumentForm>({
         asunto: '',
         mensaje: '',
         id_destinatario: '',
+        id_destinatarios: [],
         titulo_documento: '',
         id_tipo_documento: '',
         file: null,
@@ -61,9 +68,6 @@ export default function SendDocumentPage() {
                     getWorkers(),
                     getDocumentTypes(),
                 ]);
-
-                console.log('✅ Trabajadores cargados:', workersData.length);
-                console.log('✅ Tipos de documento cargados:', documentTypesData.length);
 
                 setWorkers(workersData);
                 setDocumentTypes(documentTypesData);
@@ -85,8 +89,14 @@ export default function SendDocumentPage() {
             newErrors.asunto = 'El asunto es obligatorio';
         }
 
-        if (!formData.id_destinatario) {
-            newErrors.id_destinatario = 'Debe seleccionar un destinatario';
+        if (sendMode === 'individual') {
+            if (!formData.id_destinatario) {
+                newErrors.id_destinatario = 'Debe seleccionar un destinatario';
+            }
+        } else {
+            if (formData.id_destinatarios.length === 0) {
+                newErrors.id_destinatarios = 'Debe seleccionar al menos un destinatario';
+            }
         }
 
         if (!formData.titulo_documento.trim()) {
@@ -134,18 +144,30 @@ export default function SendDocumentPage() {
             const documentoCreado = documentResponse.data;
             console.log('✅ Documento subido:', documentoCreado.id_documento);
 
-            // Paso 2: Crear el trámite
-            const tramiteData = {
-                asunto: formData.asunto,
-                mensaje: formData.mensaje || undefined,
-                id_documento: documentoCreado.id_documento,
-                id_receptor: formData.id_destinatario,
-            };
+            // Paso 2: Crear el trámite (individual o masivo)
+            if (sendMode === 'individual') {
+                const tramiteData = {
+                    asunto: formData.asunto,
+                    mensaje: formData.mensaje || undefined,
+                    id_documento: documentoCreado.id_documento,
+                    id_receptor: formData.id_destinatario,
+                };
 
-            console.log('📤 Creando trámite...');
-            await apiClient.post('/tramites', tramiteData);
+                console.log('📤 Creando trámite individual...');
+                await apiClient.post('/tramites', tramiteData);
+                console.log('✅ Trámite creado exitosamente');
+            } else {
+                const tramiteBulkData = {
+                    asunto: formData.asunto,
+                    mensaje: formData.mensaje || undefined,
+                    id_documento: documentoCreado.id_documento,
+                    id_receptores: formData.id_destinatarios,
+                };
 
-            console.log('✅ Trámite creado exitosamente');
+                console.log('📤 Creando trámites masivos...');
+                const response = await apiClient.post('/tramites/bulk', tramiteBulkData);
+                console.log(`✅ ${response.data.total} trámites creados exitosamente`);
+            }
 
             // Redirigir a la lista de trámites con mensaje de éxito
             router.push('/responsable/tramites?success=true');
@@ -157,9 +179,8 @@ export default function SendDocumentPage() {
         }
     };
 
-    const handleInputChange = (field: keyof SendDocumentForm, value: string) => {
+    const handleInputChange = (field: keyof SendDocumentForm, value: string | string[]) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
-        // Limpiar error del campo al cambiar
         if (errors[field as keyof FormErrors]) {
             setErrors((prev) => ({ ...prev, [field]: undefined }));
         }
@@ -172,10 +193,20 @@ export default function SendDocumentPage() {
         }
     };
 
-    // ✅ CORRECCIÓN: Usar id_tipo en lugar de id_tipo_documento.toString()
     const selectedDocType = documentTypes.find(
         (dt) => dt.id_tipo === formData.id_tipo_documento
     );
+
+    const handleModeChange = (mode: SendMode) => {
+        setSendMode(mode);
+        // Limpiar selecciones al cambiar de modo
+        setFormData(prev => ({
+            ...prev,
+            id_destinatario: '',
+            id_destinatarios: [],
+        }));
+        setErrors({});
+    };
 
     if (isLoadingData) {
         return (
@@ -201,7 +232,7 @@ export default function SendDocumentPage() {
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">Enviar Documento</h1>
                     <p className="text-gray-600 mt-1">
-                        Complete el formulario para enviar un documento a un trabajador
+                        Complete el formulario para enviar un documento
                     </p>
                 </div>
             </div>
@@ -217,17 +248,56 @@ export default function SendDocumentPage() {
                 </div>
             )}
 
-            {/* Info sobre trabajadores disponibles */}
-            {workers.length === 0 && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <p className="text-sm text-yellow-800">
-                        ⚠️ No hay trabajadores disponibles para enviar documentos.
-                        Contacte al administrador para crear usuarios.
-                    </p>
-                </div>
-            )}
-
             <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Selector de Modo de Envío */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Modo de Envío</CardTitle>
+                        <CardDescription>
+                            Elija cómo desea enviar el documento
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-2 gap-4">
+                            <button
+                                type="button"
+                                onClick={() => handleModeChange('individual')}
+                                className={`
+                                    p-4 border-2 rounded-lg transition-all
+                                    ${sendMode === 'individual'
+                                    ? 'border-blue-500 bg-blue-50'
+                                    : 'border-gray-200 hover:border-gray-300'
+                                }
+                                `}
+                            >
+                                <Users className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+                                <p className="font-medium text-gray-900">Individual</p>
+                                <p className="text-sm text-gray-600 mt-1">
+                                    Enviar a un trabajador
+                                </p>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => handleModeChange('bulk')}
+                                className={`
+                                    p-4 border-2 rounded-lg transition-all
+                                    ${sendMode === 'bulk'
+                                    ? 'border-blue-500 bg-blue-50'
+                                    : 'border-gray-200 hover:border-gray-300'
+                                }
+                                `}
+                            >
+                                <Users className="w-8 h-8 mx-auto mb-2 text-green-600" />
+                                <p className="font-medium text-gray-900">Masivo</p>
+                                <p className="text-sm text-gray-600 mt-1">
+                                    Enviar a múltiples trabajadores
+                                </p>
+                            </button>
+                        </div>
+                    </CardContent>
+                </Card>
+
                 {/* Información del Trámite */}
                 <Card>
                     <CardHeader>
@@ -248,18 +318,28 @@ export default function SendDocumentPage() {
                             helperText="Resumen breve del documento a enviar"
                         />
 
-                        {/* ✅ NUEVO COMPONENTE DE SELECCIÓN */}
-                        <WorkerSelector
-                            workers={workers}
-                            selectedWorkerId={formData.id_destinatario}
-                            onSelect={(workerId) => handleInputChange('id_destinatario', workerId)}
-                            error={errors.id_destinatario}
-                            required
-                        />
+                        {/* Selector de Destinatarios según modo */}
+                        {sendMode === 'individual' ? (
+                            <WorkerSelector
+                                workers={workers}
+                                selectedWorkerId={formData.id_destinatario}
+                                onSelect={(workerId) => handleInputChange('id_destinatario', workerId)}
+                                error={errors.id_destinatario}
+                                required
+                            />
+                        ) : (
+                            <MultiWorkerSelector
+                                workers={workers}
+                                selectedWorkerIds={formData.id_destinatarios}
+                                onSelect={(workerIds) => handleInputChange('id_destinatarios', workerIds)}
+                                error={errors.id_destinatarios}
+                                required
+                            />
+                        )}
 
                         <Textarea
                             label="Mensaje (Opcional)"
-                            placeholder="Agregue un mensaje o instrucciones adicionales para el destinatario"
+                            placeholder="Agregue un mensaje o instrucciones adicionales para el/los destinatario(s)"
                             value={formData.mensaje}
                             onChange={(e) => handleInputChange('mensaje', e.target.value)}
                             rows={4}
@@ -278,7 +358,6 @@ export default function SendDocumentPage() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        {/* ✅ CORRECCIÓN: Usar id_tipo como value */}
                         <Select
                             label="Tipo de Documento"
                             placeholder="Seleccione un tipo"
@@ -292,10 +371,8 @@ export default function SendDocumentPage() {
                             required
                         />
 
-                        {/* Info adicional del tipo de documento */}
                         {selectedDocType && (
                             <div className="space-y-3">
-                                {/* Badge del tipo de documento */}
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                         <FileText className="w-3 h-3 mr-1" />
@@ -307,14 +384,8 @@ export default function SendDocumentPage() {
                                             Requiere Firma
                                         </span>
                                     )}
-                                    {selectedDocType.requiere_respuesta && (
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                                            Requiere Respuesta
-                                        </span>
-                                    )}
                                 </div>
 
-                                {/* Info detallada */}
                                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                                     <div className="flex items-start gap-3">
                                         <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
@@ -324,18 +395,7 @@ export default function SendDocumentPage() {
                                             </p>
                                             {selectedDocType.requiere_firma && (
                                                 <p className="text-sm text-blue-800 mb-2">
-                                                    📝 Este documento requerirá <strong>firma electrónica</strong> del trabajador.
-                                                    El trabajador deberá aceptar los términos antes de firmar.
-                                                </p>
-                                            )}
-                                            {selectedDocType.requiere_respuesta && (
-                                                <p className="text-sm text-blue-800 mb-2">
-                                                    💬 Este documento permite que el trabajador pueda hacer <strong>observaciones</strong> o consultas.
-                                                </p>
-                                            )}
-                                            {!selectedDocType.requiere_firma && !selectedDocType.requiere_respuesta && (
-                                                <p className="text-sm text-blue-800">
-                                                    ℹ️ Este documento es solo <strong>informativo</strong>. No requiere firma ni respuesta.
+                                                    📝 Este documento requerirá firma electrónica del trabajador.
                                                 </p>
                                             )}
                                             {selectedDocType.descripcion && (
@@ -357,7 +417,7 @@ export default function SendDocumentPage() {
                             error={errors.titulo_documento}
                             required
                             maxLength={255}
-                            helperText="Este será el nombre que verá el trabajador"
+                            helperText="Este será el nombre que verán los trabajadores"
                         />
 
                         <FileUpload
@@ -370,8 +430,11 @@ export default function SendDocumentPage() {
                     </CardContent>
                 </Card>
 
-                {/* Resumen antes de enviar */}
-                {formData.id_destinatario && formData.id_tipo_documento && formData.file && (
+                {/* Resumen */}
+                {formData.id_tipo_documento && formData.file && (
+                    (sendMode === 'individual' && formData.id_destinatario) ||
+                    (sendMode === 'bulk' && formData.id_destinatarios.length > 0)
+                ) && (
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-base">Resumen del Envío</CardTitle>
@@ -379,10 +442,20 @@ export default function SendDocumentPage() {
                         <CardContent>
                             <div className="space-y-2 text-sm">
                                 <div className="flex justify-between">
-                                    <span className="text-gray-600">Destinatario:</span>
+                                    <span className="text-gray-600">Modo:</span>
                                     <span className="font-medium">
-                                        {workers.find(w => w.id_usuario === formData.id_destinatario)?.nombre_completo ||
-                                            `${workers.find(w => w.id_usuario === formData.id_destinatario)?.apellidos}, ${workers.find(w => w.id_usuario === formData.id_destinatario)?.nombres}`}
+                                        {sendMode === 'individual' ? 'Individual' : 'Masivo'}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-600">
+                                        {sendMode === 'individual' ? 'Destinatario:' : 'Destinatarios:'}
+                                    </span>
+                                    <span className="font-medium">
+                                        {sendMode === 'individual'
+                                            ? workers.find(w => w.id_usuario === formData.id_destinatario)?.nombre_completo
+                                            : `${formData.id_destinatarios.length} trabajadores`
+                                        }
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
@@ -392,12 +465,6 @@ export default function SendDocumentPage() {
                                 <div className="flex justify-between">
                                     <span className="text-gray-600">Archivo:</span>
                                     <span className="font-medium">{formData.file.name}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-600">Tamaño:</span>
-                                    <span className="font-medium">
-                                        {(formData.file.size / 1024 / 1024).toFixed(2)} MB
-                                    </span>
                                 </div>
                             </div>
                         </CardContent>
