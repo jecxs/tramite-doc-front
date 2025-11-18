@@ -24,10 +24,9 @@ import {
     Phone,
     PenTool,
     MessageSquare,
+    History,
     FileCheck,
     Loader2,
-    FileSpreadsheet,
-    FileImage,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -41,17 +40,7 @@ import { Procedure } from '@/types';
 import { PROCEDURE_STATE_LABELS } from '@/lib/constants';
 import { toast } from 'sonner';
 import apiClient from '@/lib/api-client';
-import dynamic from 'next/dynamic';
-
-// Importar el visor de PDF dinámicamente (solo en el cliente)
-const PDFViewer = dynamic(() => import('@/components/documents/PDFViewer'), {
-    ssr: false,
-    loading: () => (
-        <div className="flex items-center justify-center h-96">
-            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-        </div>
-    ),
-});
+import DocumentViewer from '@/components/documents/DocumentViewer';
 
 export default function WorkerProcedureDetailPage() {
     const router = useRouter();
@@ -61,9 +50,10 @@ export default function WorkerProcedureDetailPage() {
     const [procedure, setProcedure] = useState<Procedure | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [isMarking, setIsMarking] = useState(false);
     const [error, setError] = useState<string>('');
-    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-    const [showPdfViewer, setShowPdfViewer] = useState(false);
+    const [documentUrl, setDocumentUrl] = useState<string>('');
+    const [viewMode, setViewMode] = useState<'viewer' | 'details'>('details');
 
     useEffect(() => {
         if (id) {
@@ -78,14 +68,12 @@ export default function WorkerProcedureDetailPage() {
             const data = await getProcedureById(id);
             setProcedure(data);
 
+            // Obtener URL del documento
+            await fetchDocumentUrl(data.id_documento);
+
             // Marcar como abierto automáticamente si está en estado ENVIADO
             if (data.estado === 'ENVIADO') {
                 await handleMarkAsOpened(data);
-            }
-
-            // Si es PDF, obtener URL para el visor
-            if (data.documento.extension.toLowerCase() === '.pdf') {
-                await fetchPdfUrl(data.id_documento);
             }
         } catch (err: any) {
             console.error('Error fetching procedure:', err);
@@ -96,14 +84,19 @@ export default function WorkerProcedureDetailPage() {
         }
     };
 
-    const fetchPdfUrl = async (documentId: string) => {
+    const fetchDocumentUrl = async (documentId: string) => {
         try {
-            const response = await apiClient.get(`/documentos/${documentId}/download`);
+            const response = await apiClient.get(
+                `/documentos/${documentId}/download`,
+                { responseType: 'json' }
+            );
+
             if (response.data && response.data.download_url) {
-                setPdfUrl(response.data.download_url);
+                setDocumentUrl(response.data.download_url);
             }
-        } catch (err) {
-            console.error('Error fetching PDF URL:', err);
+        } catch (err: any) {
+            console.error('Error fetching document URL:', err);
+            toast.error('Error al obtener la URL del documento');
         }
     };
 
@@ -116,16 +109,26 @@ export default function WorkerProcedureDetailPage() {
         }
     };
 
-    const handleReadDetected = async () => {
+    const handleMarkAsRead = async () => {
         if (!procedure || procedure.estado !== 'ABIERTO') return;
 
         try {
+            setIsMarking(true);
             const updated = await markProcedureAsRead(procedure.id_tramite);
             setProcedure(updated);
-            toast.success('✓ Documento marcado como leído automáticamente');
+            toast.success('Documento marcado como leído');
         } catch (err: any) {
             console.error('Error marking as read:', err);
             toast.error('Error al marcar como leído');
+        } finally {
+            setIsMarking(false);
+        }
+    };
+
+    const handleReadThresholdReached = async () => {
+        // Solo marcar como leído si está en estado ABIERTO
+        if (procedure && procedure.estado === 'ABIERTO') {
+            await handleMarkAsRead();
         }
     };
 
@@ -134,28 +137,21 @@ export default function WorkerProcedureDetailPage() {
 
         try {
             setIsDownloading(true);
-            const response = await apiClient.get(
-                `/documentos/${procedure.id_documento}/download`,
-                { responseType: 'json' }
-            );
 
-            if (response.data && response.data.download_url) {
-                window.open(response.data.download_url, '_blank');
+            if (documentUrl) {
+                // Abrir la URL firmada en una nueva ventana para descargar
+                window.open(documentUrl, '_blank');
                 toast.success('Descargando documento...');
 
-                // Si NO es PDF y está ABIERTO, marcar como leído al descargar
-                if (
-                    procedure.documento.extension.toLowerCase() !== '.pdf' &&
-                    procedure.estado === 'ABIERTO'
-                ) {
-                    try {
-                        const updated = await markProcedureAsRead(procedure.id_tramite);
-                        setProcedure(updated);
-                        toast.success('✓ Documento marcado como leído');
-                    } catch (err) {
-                        console.error('Error marking as read:', err);
-                    }
+                // Si es un archivo no visualizable (Excel, etc.) y está en ABIERTO, marcar como leído
+                const extension = procedure.documento.extension.toLowerCase();
+                if (!['.pdf'].includes(extension) && procedure.estado === 'ABIERTO') {
+                    setTimeout(() => {
+                        handleMarkAsRead();
+                    }, 1000);
                 }
+            } else {
+                throw new Error('No se pudo obtener la URL de descarga');
             }
         } catch (err: any) {
             console.error('Error downloading document:', err);
@@ -182,12 +178,25 @@ export default function WorkerProcedureDetailPage() {
         }
     };
 
-    const getFileIcon = (extension: string) => {
-        const ext = extension.toLowerCase();
-        if (ext === '.pdf') return <FileText className="w-5 h-5" />;
-        if (['.xlsx', '.xls', '.csv'].includes(ext)) return <FileSpreadsheet className="w-5 h-5" />;
-        if (['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) return <FileImage className="w-5 h-5" />;
-        return <FileText className="w-5 h-5" />;
+    const getAccionIcon = (accion: string) => {
+        switch (accion) {
+            case 'CREACION':
+                return <Send className="w-4 h-4" />;
+            case 'APERTURA':
+                return <Eye className="w-4 h-4" />;
+            case 'LECTURA':
+                return <FileCheck className="w-4 h-4" />;
+            case 'FIRMA':
+                return <PenTool className="w-4 h-4" />;
+            case 'OBSERVACION':
+                return <MessageSquare className="w-4 h-4" />;
+            case 'REENVIO':
+                return <RefreshCw className="w-4 h-4" />;
+            case 'ANULACION':
+                return <XCircle className="w-4 h-4" />;
+            default:
+                return <History className="w-4 h-4" />;
+        }
     };
 
     const formatBytes = (bytes: number) => {
@@ -197,8 +206,6 @@ export default function WorkerProcedureDetailPage() {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
     };
-
-    const isPdf = procedure?.documento.extension.toLowerCase() === '.pdf';
 
     if (isLoading) {
         return (
@@ -236,7 +243,7 @@ export default function WorkerProcedureDetailPage() {
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <Button
                         variant="ghost"
@@ -256,408 +263,426 @@ export default function WorkerProcedureDetailPage() {
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    {isPdf && pdfUrl && (
-                        <Button
-                            variant={showPdfViewer ? 'outline' : 'primary'}
-                            onClick={() => setShowPdfViewer(!showPdfViewer)}
+                    {/* Toggle entre visor y detalles */}
+                    <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+                        <button
+                            onClick={() => setViewMode('details')}
+                            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                                viewMode === 'details'
+                                    ? 'bg-white text-gray-900 shadow-sm'
+                                    : 'text-gray-600 hover:text-gray-900'
+                            }`}
                         >
-                            <Eye className="w-4 h-4" />
-                            {showPdfViewer ? 'Ocultar' : 'Ver'} Documento
+                            Detalles
+                        </button>
+                        <button
+                            onClick={() => setViewMode('viewer')}
+                            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                                viewMode === 'viewer'
+                                    ? 'bg-white text-gray-900 shadow-sm'
+                                    : 'text-gray-600 hover:text-gray-900'
+                            }`}
+                        >
+                            <Eye className="w-4 h-4 inline mr-1" />
+                            Ver Documento
+                        </button>
+                    </div>
+
+                    {procedure.estado === 'ABIERTO' && viewMode === 'details' && (
+                        <Button
+                            onClick={handleMarkAsRead}
+                            disabled={isMarking}
+                            variant="outline"
+                        >
+                            {isMarking ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                                <FileCheck className="w-4 h-4" />
+                            )}
+                            Marcar como Leído
                         </Button>
                     )}
-                    <Button onClick={handleDownload} disabled={isDownloading} variant="outline">
-                        {isDownloading ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                            <Download className="w-4 h-4" />
-                        )}
-                        Descargar
-                    </Button>
                 </div>
             </div>
 
-            {/* Alerta si está anulado */}
-            {procedure.estado === 'ANULADO' && (
-                <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <XCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-                    <div className="flex-1">
-                        <p className="text-sm font-medium text-red-900">Documento Anulado</p>
-                        {procedure.motivo_anulacion && (
-                            <p className="text-sm text-red-700 mt-1">{procedure.motivo_anulacion}</p>
-                        )}
-                        {procedure.fecha_anulado && (
-                            <p className="text-xs text-red-600 mt-2">
-                                {format(new Date(procedure.fecha_anulado), "dd 'de' MMMM 'de' yyyy 'a las' HH:mm", { locale: es })}
-                            </p>
-                        )}
-                    </div>
-                </div>
-            )}
-
-            {/* Visor de PDF */}
-            {isPdf && pdfUrl && showPdfViewer && (
-                <Card>
-                    <CardContent className="pt-6">
-                        <PDFViewer
-                            pdfUrl={pdfUrl}
-                            documentName={procedure.documento.nombre_archivo}
-                            onReadDetected={handleReadDetected}
-                            readThreshold={50}
-                            procedureId={procedure.id_tramite}
-                        />
-                    </CardContent>
-                </Card>
-            )}
-
-            {/* Información para archivos no-PDF */}
-            {!isPdf && procedure.estado === 'ABIERTO' && (
-                <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                    <div>
-                        <p className="text-sm font-medium text-blue-900">Documento no visualizable</p>
-                        <p className="text-sm text-blue-700 mt-1">
-                            Este tipo de archivo ({procedure.documento.extension}) no puede visualizarse en el navegador.
-                            Al descargarlo, se marcará automáticamente como leído.
-                        </p>
-                    </div>
-                </div>
-            )}
-
-            {/* Estado del Documento */}
+            {/* Estado actual */}
             <Card>
-                <CardHeader>
-                    <CardTitle>Estado del Documento</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-6">
-                        {/* Estado Actual */}
-                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                            <div className="flex items-center gap-3">
-                                {getEstadoIcon(procedure.estado)}
-                                <div>
-                                    <p className="text-sm text-gray-600">Estado Actual</p>
-                                    <p className="text-lg font-semibold text-gray-900">
-                                        {PROCEDURE_STATE_LABELS[procedure.estado]}
-                                    </p>
-                                </div>
-                            </div>
-                            <ProcedureStateBadge estado={procedure.estado} />
-                        </div>
-
-                        {/* Timeline Visual */}
-                        <div className="relative">
-                            <div className="flex items-center justify-between">
-                                {/* Recibido */}
-                                <div className="flex flex-col items-center flex-1">
-                                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-blue-100 text-blue-600">
-                                        <Send className="w-5 h-5" />
-                                    </div>
-                                    <p className="text-xs font-medium mt-2 text-gray-700">Recibido</p>
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        {format(new Date(procedure.fecha_envio), 'dd/MM/yyyy', { locale: es })}
-                                    </p>
-                                </div>
-
-                                <div className={`h-0.5 flex-1 ${
-                                    procedure.fecha_abierto ? 'bg-blue-400' : 'bg-gray-300'
-                                }`} />
-
-                                {/* Abierto */}
-                                <div className="flex flex-col items-center flex-1">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                                        procedure.fecha_abierto ? 'bg-purple-100 text-purple-600' : 'bg-gray-100 text-gray-400'
-                                    }`}>
-                                        <Eye className="w-5 h-5" />
-                                    </div>
-                                    <p className="text-xs font-medium mt-2 text-gray-700">Abierto</p>
-                                    {procedure.fecha_abierto && (
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            {format(new Date(procedure.fecha_abierto), 'dd/MM/yyyy', { locale: es })}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className={`h-0.5 flex-1 ${
-                                    procedure.fecha_leido ? 'bg-purple-400' : 'bg-gray-300'
-                                }`} />
-
-                                {/* Leído */}
-                                <div className="flex flex-col items-center flex-1">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                                        procedure.fecha_leido ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-400'
-                                    }`}>
-                                        <FileCheck className="w-5 h-5" />
-                                    </div>
-                                    <p className="text-xs font-medium mt-2 text-gray-700">Leído</p>
-                                    {procedure.fecha_leido && (
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            {format(new Date(procedure.fecha_leido), 'dd/MM/yyyy', { locale: es })}
-                                        </p>
-                                    )}
-                                </div>
-
-                                {procedure.requiere_firma && (
-                                    <>
-                                        <div className={`h-0.5 flex-1 ${
-                                            procedure.fecha_firmado ? 'bg-indigo-400' : 'bg-gray-300'
-                                        }`} />
-
-                                        {/* Firmado */}
-                                        <div className="flex flex-col items-center flex-1">
-                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                                                procedure.fecha_firmado ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
-                                            }`}>
-                                                <PenTool className="w-5 h-5" />
-                                            </div>
-                                            <p className="text-xs font-medium mt-2 text-gray-700">Firmado</p>
-                                            {procedure.fecha_firmado && (
-                                                <p className="text-xs text-gray-500 mt-1">
-                                                    {format(new Date(procedure.fecha_firmado), 'dd/MM/yyyy', { locale: es })}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </>
-                                )}
+                <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            {getEstadoIcon(procedure.estado)}
+                            <div>
+                                <p className="text-sm text-gray-600">Estado actual</p>
+                                <p className="text-lg font-semibold text-gray-900">
+                                    {PROCEDURE_STATE_LABELS[procedure.estado as keyof typeof PROCEDURE_STATE_LABELS]}
+                                </p>
                             </div>
                         </div>
-
-                        {/* Acciones Necesarias */}
-                        {procedure.estado === 'ABIERTO' && isPdf && (
-                            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                <div className="flex items-start gap-3">
-                                    <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
-                                    <div>
-                                        <p className="text-sm font-medium text-blue-900">Cómo marcar como leído</p>
-                                        <p className="text-sm text-blue-700 mt-1">
-                                            {pdfUrl ? (
-                                                <>Haz clic en "Ver Documento" y desplázate hasta el 50% del documento para marcarlo automáticamente como leído.</>
-                                            ) : (
-                                                <>Descarga el documento para marcarlo como leído.</>
-                                            )}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {procedure.requiere_firma && procedure.estado === 'LEIDO' && !procedure.fecha_firmado && (
-                            <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                                <div className="flex items-start gap-3">
-                                    <PenTool className="w-5 h-5 text-purple-600 mt-0.5" />
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium text-purple-900">Firma Requerida</p>
-                                        <p className="text-sm text-purple-700 mt-1">
-                                            Este documento requiere tu firma electrónica.
-                                        </p>
-                                        <Link href={`/trabajador/firmar?tramite=${procedure.id_tramite}`}>
-                                            <Button size="sm" className="mt-3">
-                                                <PenTool className="w-4 h-4" />
-                                                Ir a Firmar
-                                            </Button>
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                        <ProcedureStateBadge estado={procedure.estado} />
                     </div>
+
+                    {/* Alerta si requiere firma */}
+                    {procedure.requiere_firma && procedure.estado === 'LEIDO' && (
+                        <div className="mt-4 bg-purple-50 border border-purple-200 rounded-lg p-4">
+                            <div className="flex items-start gap-3">
+                                <PenTool className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                                <div className="flex-1">
+                                    <p className="text-sm font-medium text-purple-900">
+                                        Este documento requiere tu firma electrónica
+                                    </p>
+                                    <p className="text-sm text-purple-700 mt-1">
+                                        Una vez que lo hayas leído completamente, dirígete a la sección de firma.
+                                    </p>
+                                    <Link href={`/trabajador/firmar?tramite=${procedure.id_tramite}`}>
+                                        <Button size="sm" className="mt-3">
+                                            <PenTool className="w-4 h-4" />
+                                            Ir a Firmar
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
 
-            {/* Resto del contenido (Información del Documento, etc.) - igual que antes */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Información del Documento */}
-                <div className="lg:col-span-2">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Información del Documento</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Asunto</label>
-                                    <p className="text-base text-gray-900 mt-1">{procedure.asunto}</p>
-                                </div>
-
-                                {procedure.mensaje && (
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-700">Mensaje</label>
-                                        <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">
-                                            {procedure.mensaje}
-                                        </p>
-                                    </div>
-                                )}
-
-                                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-700">Tipo de Documento</label>
-                                        <p className="text-sm text-gray-900 mt-1">{procedure.documento.tipo.nombre}</p>
-                                    </div>
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-700">Archivo</label>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            {getFileIcon(procedure.documento.extension)}
-                                            <p className="text-sm text-gray-900">{procedure.documento.nombre_archivo}</p>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-700">Tamaño</label>
-                                        <p className="text-sm text-gray-900 mt-1">
-                                            {formatBytes(parseInt(procedure.documento.tamano_bytes))}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-700">Extensión</label>
-                                        <p className="text-sm text-gray-900 mt-1 uppercase">{procedure.documento.extension}</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-2 pt-4 border-t">
-                                    {procedure.requiere_firma && (
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                            <PenTool className="w-3 h-3 mr-1.5" />
-                                            Requiere Firma
-                                        </span>
-                                    )}
-                                    {procedure.requiere_respuesta && (
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            <MessageSquare className="w-3 h-3 mr-1.5" />
-                                            Requiere Respuesta
-                                        </span>
-                                    )}
-                                    {procedure.es_reenvio && (
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                                            <RefreshCw className="w-3 h-3 mr-1.5" />
-                                            Versión {procedure.numero_version}
-                                        </span>
-                                    )}
-                                </div>
+            {/* Contenido condicional según el modo de vista */}
+            {viewMode === 'viewer' ? (
+                /* MODO VISOR DE DOCUMENTO */
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Visualización del Documento</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {documentUrl && procedure.documento ? (
+                            <DocumentViewer
+                                documentUrl={documentUrl}
+                                documentId={procedure.id_documento}
+                                procedureId={procedure.id_tramite}
+                                fileName={procedure.documento.nombre_archivo}
+                                fileExtension={procedure.documento.extension}
+                                onReadThresholdReached={handleReadThresholdReached}
+                                onDownload={handleDownload}
+                                readThreshold={50}
+                                autoMarkAsRead={procedure.estado === 'ABIERTO'}
+                            />
+                        ) : (
+                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+                                <Loader2 className="w-8 h-8 animate-spin text-gray-400 mx-auto mb-3" />
+                                <p className="text-gray-600">Cargando documento...</p>
                             </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* Sidebar */}
-                <div className="space-y-6">
-                    {/* Enviado Por */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">Enviado Por</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                        <User className="w-6 h-6 text-blue-600" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-900">
-                                            {procedure.remitente.nombres} {procedure.remitente.apellidos}
-                                        </p>
-                                        <p className="text-xs text-gray-500">Remitente</p>
-                                    </div>
-                                </div>
-                                <div className="pt-3 border-t space-y-2">
-                                    <div className="flex items-center gap-2 text-sm">
-                                        <Mail className="w-4 h-4 text-gray-400" />
-                                        <span className="text-gray-600">{procedure.remitente.correo}</span>
-                                    </div>
-                                    {procedure.remitente.telefono && (
-                                        <div className="flex items-center gap-2 text-sm">
-                                            <Phone className="w-4 h-4 text-gray-400" />
-                                            <span className="text-gray-600">{procedure.remitente.telefono}</span>
-                                        </div>
-                                    )}
-                                    {procedure.areaRemitente && (
-                                        <div className="flex items-center gap-2 text-sm">
-                                            <Building2 className="w-4 h-4 text-gray-400" />
-                                            <span className="text-gray-600">{procedure.areaRemitente.nombre}</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Fechas Importantes */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">Fechas Importantes</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-3">
-                                <div className="flex items-start gap-2">
-                                    <Calendar className="w-4 h-4 text-gray-400 mt-0.5" />
-                                    <div className="flex-1">
-                                        <p className="text-xs text-gray-500">Fecha de Recepción</p>
-                                        <p className="text-sm font-medium text-gray-900">
-                                            {format(new Date(procedure.fecha_envio), "dd 'de' MMMM 'de' yyyy", { locale: es })}
-                                        </p>
-                                        <p className="text-xs text-gray-500">
-                                            {format(new Date(procedure.fecha_envio), 'HH:mm', { locale: es })}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {procedure.fecha_abierto && (
-                                    <div className="flex items-start gap-2">
-                                        <Clock className="w-4 h-4 text-gray-400 mt-0.5" />
-                                        <div className="flex-1">
-                                            <p className="text-xs text-gray-500">Fecha de Apertura</p>
-                                            <p className="text-sm font-medium text-gray-900">
-                                                {format(new Date(procedure.fecha_abierto), 'dd/MM/yyyy HH:mm', { locale: es })}
-                                            </p>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {procedure.fecha_leido && (
-                                    <div className="flex items-start gap-2">
-                                        <FileCheck className="w-4 h-4 text-gray-400 mt-0.5" />
-                                        <div className="flex-1">
-                                            <p className="text-xs text-gray-500">Fecha de Lectura</p>
-                                            <p className="text-sm font-medium text-gray-900">
-                                                {format(new Date(procedure.fecha_leido), 'dd/MM/yyyy HH:mm', { locale: es })}
-                                            </p>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {procedure.fecha_firmado && (
-                                    <div className="flex items-start gap-2">
-                                        <PenTool className="w-4 h-4 text-gray-400 mt-0.5" />
-                                        <div className="flex-1">
-                                            <p className="text-xs text-gray-500">Fecha de Firma</p>
-                                            <p className="text-sm font-medium text-gray-900">
-                                                {format(new Date(procedure.fecha_firmado), 'dd/MM/yyyy HH:mm', { locale: es })}
-                                            </p>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Botón de Observación */}
-                    {procedure.estado !== 'ANULADO' && procedure.requiere_respuesta && (
+                        )}
+                    </CardContent>
+                </Card>
+            ) : (
+                /* MODO DETALLES */
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Columna Principal */}
+                    <div className="lg:col-span-2 space-y-6">
+                        {/* Información del Documento */}
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-base">¿Tienes alguna duda?</CardTitle>
+                                <CardTitle>Información del Documento</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <p className="text-sm text-gray-600 mb-4">
-                                    Puedes crear una observación si necesitas aclaración o corrección del documento.
-                                </p>
-                                <Link href={`/trabajador/tramites/${procedure.id_tramite}/observacion`}>
-                                    <Button className="w-full">
-                                        <MessageSquare className="w-4 h-4" />
-                                        Crear Observación
-                                    </Button>
-                                </Link>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="text-sm font-medium text-gray-700">Asunto</label>
+                                        <p className="text-base text-gray-900 mt-1">{procedure.asunto}</p>
+                                    </div>
+
+                                    {procedure.mensaje && (
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">Mensaje</label>
+                                            <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">
+                                                {procedure.mensaje}
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">Tipo de Documento</label>
+                                            <p className="text-sm text-gray-900 mt-1">{procedure.documento.tipo.nombre}</p>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">Código del Tipo</label>
+                                            <p className="text-sm text-gray-900 mt-1 font-mono">{procedure.documento.tipo.codigo}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-3 gap-4 pt-4 border-t">
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">Archivo</label>
+                                            <p className="text-sm text-gray-900 mt-1">{procedure.documento.nombre_archivo}</p>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">Tamaño</label>
+                                            <p className="text-sm text-gray-900 mt-1">
+                                                {formatBytes(parseInt(procedure.documento.tamano_bytes))}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-gray-700">Extensión</label>
+                                            <p className="text-sm text-gray-900 mt-1 uppercase">{procedure.documento.extension}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-2 pt-4 border-t">
+                                        <Button onClick={handleDownload} disabled={isDownloading} variant="outline">
+                                            {isDownloading ? (
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                            ) : (
+                                                <Download className="w-4 h-4" />
+                                            )}
+                                            Descargar Documento
+                                        </Button>
+
+                                        {procedure.requiere_firma && (
+                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                <PenTool className="w-3 h-3 mr-1.5" />
+                                                Requiere Firma
+                                            </span>
+                                        )}
+                                        {procedure.requiere_respuesta && (
+                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                <MessageSquare className="w-3 h-3 mr-1.5" />
+                                                Requiere Respuesta
+                                            </span>
+                                        )}
+                                        {procedure.es_reenvio && (
+                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                                <RefreshCw className="w-3 h-3 mr-1.5" />
+                                                Reenvío v{procedure.numero_version}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
                             </CardContent>
                         </Card>
-                    )}
+
+                        {/* Historial del Trámite */}
+                        {procedure.historial && procedure.historial.length > 0 && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <History className="w-5 h-5" />
+                                        Historial del Trámite
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-3">
+                                        {procedure.historial.map((item, index) => (
+                                            <div
+                                                key={index}
+                                                className="flex gap-3 pb-3 border-b border-gray-100 last:border-0"
+                                            >
+                                                <div className="flex-shrink-0 mt-1">
+                                                    {getAccionIcon(item.accion)}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <p className="text-sm font-medium text-gray-900">
+                                                            {item.detalle}
+                                                        </p>
+                                                        <span className="text-xs text-gray-500 whitespace-nowrap">
+                                                            {format(new Date(item.fecha), 'dd/MM/yyyy HH:mm', { locale: es })}
+                                                        </span>
+                                                    </div>
+                                                    {item.estado_anterior && item.estado_nuevo && (
+                                                        <p className="text-xs text-gray-600 mt-1">
+                                                            {PROCEDURE_STATE_LABELS[item.estado_anterior as keyof typeof PROCEDURE_STATE_LABELS]}
+                                                            {' → '}
+                                                            {PROCEDURE_STATE_LABELS[item.estado_nuevo as keyof typeof PROCEDURE_STATE_LABELS]}
+                                                        </p>
+                                                    )}
+                                                    {item.usuario && (
+                                                        <p className="text-xs text-gray-500 mt-1">
+                                                            Por: {item.usuario.nombres} {item.usuario.apellidos}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+
+                        {/* Observaciones */}
+                        {procedure.observaciones && procedure.observaciones.length > 0 && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <MessageSquare className="w-5 h-5" />
+                                        Observaciones
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-4">
+                                        {procedure.observaciones.map((obs) => (
+                                            <div
+                                                key={obs.id_observacion}
+                                                className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                                            >
+                                                <div className="flex items-start justify-between mb-2">
+                                                    <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                                        {obs.tipo}
+                                                    </span>
+                                                    <span className="text-xs text-gray-500">
+                                                        {format(new Date(obs.fecha_creacion), 'dd/MM/yyyy HH:mm', { locale: es })}
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm text-gray-900 whitespace-pre-wrap">
+                                                    {obs.descripcion}
+                                                </p>
+                                                {obs.resuelta && obs.respuesta && (
+                                                    <div className="mt-3 pt-3 border-t border-gray-300">
+                                                        <p className="text-xs font-medium text-green-700 mb-1">
+                                                            Respuesta:
+                                                        </p>
+                                                        <p className="text-sm text-gray-800">
+                                                            {obs.respuesta}
+                                                        </p>
+                                                        {obs.fecha_resolucion && (
+                                                            <p className="text-xs text-gray-500 mt-1">
+                                                                Resuelta el {format(new Date(obs.fecha_resolucion), 'dd/MM/yyyy HH:mm', { locale: es })}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
+
+                    {/* Columna Lateral */}
+                    <div className="space-y-6">
+                        {/* Información del Remitente */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-lg">Remitente</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-3">
+                                    <div className="flex items-start gap-3">
+                                        <User className="w-5 h-5 text-gray-400 mt-0.5" />
+                                        <div className="flex-1">
+                                            <p className="text-sm font-medium text-gray-900">
+                                                {procedure.remitente.nombres} {procedure.remitente.apellidos}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {procedure.remitente.area && (
+                                        <div className="flex items-start gap-3">
+                                            <Building2 className="w-5 h-5 text-gray-400 mt-0.5" />
+                                            <div className="flex-1">
+                                                <p className="text-sm text-gray-900">{procedure.remitente.area.nombre}</p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="flex items-start gap-3">
+                                        <Mail className="w-5 h-5 text-gray-400 mt-0.5" />
+                                        <div className="flex-1">
+                                            <p className="text-sm text-gray-900">{procedure.remitente.correo}</p>
+                                        </div>
+                                    </div>
+
+                                    {procedure.remitente.telefono && (
+                                        <div className="flex items-start gap-3">
+                                            <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
+                                            <div className="flex-1">
+                                                <p className="text-sm text-gray-900">{procedure.remitente.telefono}</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Fechas importantes */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-lg">Fechas</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-3">
+                                    <div className="flex items-start gap-3">
+                                        <Calendar className="w-5 h-5 text-gray-400 mt-0.5" />
+                                        <div className="flex-1">
+                                            <p className="text-xs text-gray-600">Enviado</p>
+                                            <p className="text-sm text-gray-900">
+                                                {format(new Date(procedure.fecha_envio), 'dd/MM/yyyy HH:mm', { locale: es })}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {procedure.fecha_abierto && (
+                                        <div className="flex items-start gap-3">
+                                            <Clock className="w-5 h-5 text-gray-400 mt-0.5" />
+                                            <div className="flex-1">
+                                                <p className="text-xs text-gray-600">Abierto</p>
+                                                <p className="text-sm text-gray-900">
+                                                    {format(new Date(procedure.fecha_abierto), 'dd/MM/yyyy HH:mm', { locale: es })}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {procedure.fecha_leido && (
+                                        <div className="flex items-start gap-3">
+                                            <FileCheck className="w-5 h-5 text-gray-400 mt-0.5" />
+                                            <div className="flex-1">
+                                                <p className="text-xs text-gray-600">Leído</p>
+                                                <p className="text-sm text-gray-900">
+                                                    {format(new Date(procedure.fecha_leido), 'dd/MM/yyyy HH:mm', { locale: es })}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Acciones Rápidas */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-lg">Acciones</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-2">
+                                    <Link
+                                        href={`/trabajador/tramites/${procedure.id_tramite}/observacion`}
+                                        className="block"
+                                    >
+                                        <Button variant="outline" className="w-full">
+                                            <MessageSquare className="w-4 h-4" />
+                                            Hacer Observación
+                                        </Button>
+                                    </Link>
+
+                                    {procedure.requiere_firma && ['ABIERTO', 'LEIDO'].includes(procedure.estado) && (
+                                        <Link
+                                            href={`/trabajador/firmar?tramite=${procedure.id_tramite}`}
+                                            className="block"
+                                        >
+                                            <Button className="w-full">
+                                                <PenTool className="w-4 h-4" />
+                                                Firmar Documento
+                                            </Button>
+                                        </Link>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }
