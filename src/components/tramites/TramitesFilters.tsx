@@ -126,6 +126,7 @@ export default function TramitesFilters({
                                     >
                                         Todos los estados
                                     </button>
+                                    {/* ✅ CORRECCIÓN: Usar los estados correctos */}
                                     {Object.entries(PROCEDURE_STATE_LABELS).map(([key, label]) => (
                                         <button
                                             key={key}

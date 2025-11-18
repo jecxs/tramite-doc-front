@@ -1,3 +1,4 @@
+// src/components/ui/Badge.tsx
 import React from 'react';
 import { PROCEDURE_STATE_COLORS, PROCEDURE_STATE_LABELS, ProcedureState } from '@/lib/constants';
 
@@ -30,7 +31,7 @@ export const Badge: React.FC<BadgeProps> = ({
 };
 
 interface ProcedureStateBadgeProps {
-    estado: ProcedureState;
+    estado: string; // ✅ Cambiado a string para aceptar cualquier valor de la BD
     className?: string;
 }
 
@@ -38,8 +39,20 @@ export const ProcedureStateBadge: React.FC<ProcedureStateBadgeProps> = ({
                                                                             estado,
                                                                             className = '',
                                                                         }) => {
-    const colorClass = PROCEDURE_STATE_COLORS[estado];
-    const label = PROCEDURE_STATE_LABELS[estado];
+    // ✅ Verificar si el estado es válido
+    const isValidState = estado && Object.keys(PROCEDURE_STATE_LABELS).includes(estado);
+
+    if (!isValidState) {
+        console.warn(`Estado inválido recibido: "${estado}"`);
+        return (
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 ${className}`}>
+                {estado || 'Desconocido'}
+            </span>
+        );
+    }
+
+    const colorClass = PROCEDURE_STATE_COLORS[estado as ProcedureState];
+    const label = PROCEDURE_STATE_LABELS[estado as ProcedureState];
 
     return (
         <span

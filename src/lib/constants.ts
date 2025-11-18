@@ -17,64 +17,55 @@ export function isRole(value: string): value is Role {
 
 // Procedure States
 export const PROCEDURE_STATES = {
-    SENT: 'SENT',
-    DELIVERED: 'DELIVERED',
-    OPENED: 'OPENED',
-    READ: 'READ',
-    SIGNED: 'SIGNED',
-    OBSERVED: 'OBSERVED',
-    CORRECTED: 'CORRECTED',
-    COMPLETED: 'COMPLETED',
+    ENVIADO: 'ENVIADO',
+    ABIERTO: 'ABIERTO',
+    LEIDO: 'LEIDO',
+    FIRMADO: 'FIRMADO',
+    ANULADO: 'ANULADO',
 } as const;
 
 export type ProcedureState = typeof PROCEDURE_STATES[keyof typeof PROCEDURE_STATES];
 
 // Estado labels en español
 export const PROCEDURE_STATE_LABELS: Record<ProcedureState, string> = {
-    SENT: 'Enviado',
-    DELIVERED: 'Entregado',
-    OPENED: 'Abierto',
-    READ: 'Leído',
-    SIGNED: 'Firmado',
-    OBSERVED: 'Observado',
-    CORRECTED: 'Corregido',
-    COMPLETED: 'Completado',
+    ENVIADO: 'Enviado',
+    ABIERTO: 'Abierto',
+    LEIDO: 'Leído',
+    FIRMADO: 'Firmado',
+    ANULADO: 'Anulado',
 };
+
 
 // Estado colors para badges
 export const PROCEDURE_STATE_COLORS: Record<ProcedureState, string> = {
-    SENT: 'bg-blue-100 text-blue-800',
-    DELIVERED: 'bg-cyan-100 text-cyan-800',
-    OPENED: 'bg-purple-100 text-purple-800',
-    READ: 'bg-indigo-100 text-indigo-800',
-    SIGNED: 'bg-green-100 text-green-800',
-    OBSERVED: 'bg-yellow-100 text-yellow-800',
-    CORRECTED: 'bg-orange-100 text-orange-800',
-    COMPLETED: 'bg-emerald-100 text-emerald-800',
+    ENVIADO: 'bg-blue-100 text-blue-800',
+    ABIERTO: 'bg-purple-100 text-purple-800',
+    LEIDO: 'bg-indigo-100 text-indigo-800',
+    FIRMADO: 'bg-green-100 text-green-800',
+    ANULADO: 'bg-red-100 text-red-800',
 };
-
 // Notification Types
 export const NOTIFICATION_TYPES = {
-    DOCUMENT_SENT: 'DOCUMENT_SENT',
-    DOCUMENT_DELIVERED: 'DOCUMENT_DELIVERED',
-    DOCUMENT_OPENED: 'DOCUMENT_OPENED',
-    DOCUMENT_READ: 'DOCUMENT_READ',
-    DOCUMENT_SIGNED: 'DOCUMENT_SIGNED',
-    OBSERVATION_CREATED: 'OBSERVATION_CREATED',
-    DOCUMENT_CORRECTED: 'DOCUMENT_CORRECTED',
+    TRAMITE_RECIBIDO: 'TRAMITE_RECIBIDO',
+    TRAMITE_FIRMADO: 'TRAMITE_FIRMADO',
+    TRAMITE_ANULADO: 'TRAMITE_ANULADO',
+    OBSERVACION_CREADA: 'OBSERVACION_CREADA',
+    OBSERVACION_RESUELTA: 'OBSERVACION_RESUELTA',
+    DOCUMENTO_REQUIERE_FIRMA: 'DOCUMENTO_REQUIERE_FIRMA',
+    TRAMITE_REENVIADO: 'TRAMITE_REENVIADO',
 } as const;
 
 export type NotificationType = typeof NOTIFICATION_TYPES[keyof typeof NOTIFICATION_TYPES];
 
 // Notification labels
 export const NOTIFICATION_LABELS: Record<NotificationType, string> = {
-    DOCUMENT_SENT: 'Documento enviado',
-    DOCUMENT_DELIVERED: 'Documento entregado',
-    DOCUMENT_OPENED: 'Documento abierto',
-    DOCUMENT_READ: 'Documento leído',
-    DOCUMENT_SIGNED: 'Documento firmado',
-    OBSERVATION_CREATED: 'Observación recibida',
-    DOCUMENT_CORRECTED: 'Documento corregido',
+    TRAMITE_RECIBIDO: 'Documento recibido',
+    TRAMITE_FIRMADO: 'Documento firmado',
+    TRAMITE_ANULADO: 'Trámite anulado',
+    OBSERVACION_CREADA: 'Observación recibida',
+    OBSERVACION_RESUELTA: 'Observación resuelta',
+    DOCUMENTO_REQUIERE_FIRMA: 'Requiere firma',
+    TRAMITE_REENVIADO: 'Documento actualizado',
 };
 
 // Route paths según rol
