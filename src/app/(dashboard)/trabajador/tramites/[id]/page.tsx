@@ -24,9 +24,10 @@ import {
     Phone,
     PenTool,
     MessageSquare,
-    History,
     FileCheck,
     Loader2,
+    FileSpreadsheet,
+    FileImage,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -40,6 +41,17 @@ import { Procedure } from '@/types';
 import { PROCEDURE_STATE_LABELS } from '@/lib/constants';
 import { toast } from 'sonner';
 import apiClient from '@/lib/api-client';
+import dynamic from 'next/dynamic';
+
+// Importar el visor de PDF dinámicamente (solo en el cliente)
+const PDFViewer = dynamic(() => import('@/components/documents/PDFViewer'), {
+    ssr: false,
+    loading: () => (
+        <div className="flex items-center justify-center h-96">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        </div>
+    ),
+});
 
 export default function WorkerProcedureDetailPage() {
     const router = useRouter();
@@ -49,8 +61,9 @@ export default function WorkerProcedureDetailPage() {
     const [procedure, setProcedure] = useState<Procedure | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isDownloading, setIsDownloading] = useState(false);
-    const [isMarking, setIsMarking] = useState(false);
     const [error, setError] = useState<string>('');
+    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+    const [showPdfViewer, setShowPdfViewer] = useState(false);
 
     useEffect(() => {
         if (id) {
@@ -69,12 +82,28 @@ export default function WorkerProcedureDetailPage() {
             if (data.estado === 'ENVIADO') {
                 await handleMarkAsOpened(data);
             }
+
+            // Si es PDF, obtener URL para el visor
+            if (data.documento.extension.toLowerCase() === '.pdf') {
+                await fetchPdfUrl(data.id_documento);
+            }
         } catch (err: any) {
             console.error('Error fetching procedure:', err);
             setError(err.message || 'Error al cargar el trámite');
             toast.error('Error al cargar el trámite');
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const fetchPdfUrl = async (documentId: string) => {
+        try {
+            const response = await apiClient.get(`/documentos/${documentId}/download`);
+            if (response.data && response.data.download_url) {
+                setPdfUrl(response.data.download_url);
+            }
+        } catch (err) {
+            console.error('Error fetching PDF URL:', err);
         }
     };
 
@@ -87,19 +116,16 @@ export default function WorkerProcedureDetailPage() {
         }
     };
 
-    const handleMarkAsRead = async () => {
+    const handleReadDetected = async () => {
         if (!procedure || procedure.estado !== 'ABIERTO') return;
 
         try {
-            setIsMarking(true);
             const updated = await markProcedureAsRead(procedure.id_tramite);
             setProcedure(updated);
-            toast.success('Documento marcado como leído');
+            toast.success('✓ Documento marcado como leído automáticamente');
         } catch (err: any) {
             console.error('Error marking as read:', err);
             toast.error('Error al marcar como leído');
-        } finally {
-            setIsMarking(false);
         }
     };
 
@@ -108,19 +134,28 @@ export default function WorkerProcedureDetailPage() {
 
         try {
             setIsDownloading(true);
-            // Usar el endpoint de documentos, no de trámites
             const response = await apiClient.get(
                 `/documentos/${procedure.id_documento}/download`,
-                { responseType: 'json' } // Primero obtenemos la URL firmada
+                { responseType: 'json' }
             );
 
-            // La respuesta contiene una URL firmada temporal
             if (response.data && response.data.download_url) {
-                // Abrir la URL firmada en una nueva ventana para descargar
                 window.open(response.data.download_url, '_blank');
                 toast.success('Descargando documento...');
-            } else {
-                throw new Error('No se pudo obtener la URL de descarga');
+
+                // Si NO es PDF y está ABIERTO, marcar como leído al descargar
+                if (
+                    procedure.documento.extension.toLowerCase() !== '.pdf' &&
+                    procedure.estado === 'ABIERTO'
+                ) {
+                    try {
+                        const updated = await markProcedureAsRead(procedure.id_tramite);
+                        setProcedure(updated);
+                        toast.success('✓ Documento marcado como leído');
+                    } catch (err) {
+                        console.error('Error marking as read:', err);
+                    }
+                }
             }
         } catch (err: any) {
             console.error('Error downloading document:', err);
@@ -147,6 +182,14 @@ export default function WorkerProcedureDetailPage() {
         }
     };
 
+    const getFileIcon = (extension: string) => {
+        const ext = extension.toLowerCase();
+        if (ext === '.pdf') return <FileText className="w-5 h-5" />;
+        if (['.xlsx', '.xls', '.csv'].includes(ext)) return <FileSpreadsheet className="w-5 h-5" />;
+        if (['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) return <FileImage className="w-5 h-5" />;
+        return <FileText className="w-5 h-5" />;
+    };
+
     const formatBytes = (bytes: number) => {
         if (bytes === 0) return '0 Bytes';
         const k = 1024;
@@ -154,6 +197,8 @@ export default function WorkerProcedureDetailPage() {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
     };
+
+    const isPdf = procedure?.documento.extension.toLowerCase() === '.pdf';
 
     if (isLoading) {
         return (
@@ -189,9 +234,9 @@ export default function WorkerProcedureDetailPage() {
     }
 
     return (
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-4">
                     <Button
                         variant="ghost"
@@ -211,21 +256,16 @@ export default function WorkerProcedureDetailPage() {
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    {procedure.estado === 'ABIERTO' && (
+                    {isPdf && pdfUrl && (
                         <Button
-                            onClick={handleMarkAsRead}
-                            disabled={isMarking}
-                            variant="outline"
+                            variant={showPdfViewer ? 'outline' : 'primary'}
+                            onClick={() => setShowPdfViewer(!showPdfViewer)}
                         >
-                            {isMarking ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                                <FileCheck className="w-4 h-4" />
-                            )}
-                            Marcar como Leído
+                            <Eye className="w-4 h-4" />
+                            {showPdfViewer ? 'Ocultar' : 'Ver'} Documento
                         </Button>
                     )}
-                    <Button onClick={handleDownload} disabled={isDownloading}>
+                    <Button onClick={handleDownload} disabled={isDownloading} variant="outline">
                         {isDownloading ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
@@ -250,6 +290,35 @@ export default function WorkerProcedureDetailPage() {
                                 {format(new Date(procedure.fecha_anulado), "dd 'de' MMMM 'de' yyyy 'a las' HH:mm", { locale: es })}
                             </p>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* Visor de PDF */}
+            {isPdf && pdfUrl && showPdfViewer && (
+                <Card>
+                    <CardContent className="pt-6">
+                        <PDFViewer
+                            pdfUrl={pdfUrl}
+                            documentName={procedure.documento.nombre_archivo}
+                            onReadDetected={handleReadDetected}
+                            readThreshold={50}
+                            procedureId={procedure.id_tramite}
+                        />
+                    </CardContent>
+                </Card>
+            )}
+
+            {/* Información para archivos no-PDF */}
+            {!isPdf && procedure.estado === 'ABIERTO' && (
+                <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                        <p className="text-sm font-medium text-blue-900">Documento no visualizable</p>
+                        <p className="text-sm text-blue-700 mt-1">
+                            Este tipo de archivo ({procedure.documento.extension}) no puede visualizarse en el navegador.
+                            Al descargarlo, se marcará automáticamente como leído.
+                        </p>
                     </div>
                 </div>
             )}
@@ -353,14 +422,18 @@ export default function WorkerProcedureDetailPage() {
                         </div>
 
                         {/* Acciones Necesarias */}
-                        {procedure.estado === 'ABIERTO' && (
+                        {procedure.estado === 'ABIERTO' && isPdf && (
                             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                                 <div className="flex items-start gap-3">
                                     <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
                                     <div>
-                                        <p className="text-sm font-medium text-blue-900">Acción Requerida</p>
+                                        <p className="text-sm font-medium text-blue-900">Cómo marcar como leído</p>
                                         <p className="text-sm text-blue-700 mt-1">
-                                            Por favor, lee el documento completo y márcalo como leído.
+                                            {pdfUrl ? (
+                                                <>Haz clic en "Ver Documento" y desplázate hasta el 50% del documento para marcarlo automáticamente como leído.</>
+                                            ) : (
+                                                <>Descarga el documento para marcarlo como leído.</>
+                                            )}
                                         </p>
                                     </div>
                                 </div>
@@ -390,10 +463,10 @@ export default function WorkerProcedureDetailPage() {
                 </CardContent>
             </Card>
 
+            {/* Resto del contenido (Información del Documento, etc.) - igual que antes */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Columna Principal */}
-                <div className="lg:col-span-2 space-y-6">
-                    {/* Información del Documento */}
+                {/* Información del Documento */}
+                <div className="lg:col-span-2">
                     <Card>
                         <CardHeader>
                             <CardTitle>Información del Documento</CardTitle>
@@ -421,7 +494,10 @@ export default function WorkerProcedureDetailPage() {
                                     </div>
                                     <div>
                                         <label className="text-sm font-medium text-gray-700">Archivo</label>
-                                        <p className="text-sm text-gray-900 mt-1">{procedure.documento.nombre_archivo}</p>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            {getFileIcon(procedure.documento.extension)}
+                                            <p className="text-sm text-gray-900">{procedure.documento.nombre_archivo}</p>
+                                        </div>
                                     </div>
                                     <div>
                                         <label className="text-sm font-medium text-gray-700">Tamaño</label>
@@ -458,48 +534,11 @@ export default function WorkerProcedureDetailPage() {
                             </div>
                         </CardContent>
                     </Card>
-
-                    {/* Firma Electrónica */}
-                    {procedure.firma && (
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Información de Firma Electrónica</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
-                                        <CheckCircle className="w-5 h-5 text-green-600" />
-                                        <div>
-                                            <p className="text-sm font-medium text-green-900">
-                                                Documento Firmado por Ti
-                                            </p>
-                                            <p className="text-xs text-green-700 mt-1">
-                                                {format(new Date(procedure.firma.fecha_firma), "dd 'de' MMMM 'de' yyyy 'a las' HH:mm", { locale: es })}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="text-xs font-medium text-gray-700">Dirección IP</label>
-                                            <p className="text-sm text-gray-900 mt-1 font-mono">{procedure.firma.ip_address}</p>
-                                        </div>
-                                        {procedure.firma.navegador && (
-                                            <div>
-                                                <label className="text-xs font-medium text-gray-700">Navegador</label>
-                                                <p className="text-sm text-gray-900 mt-1">{procedure.firma.navegador}</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )}
                 </div>
 
-                {/* Columna Lateral */}
+                {/* Sidebar */}
                 <div className="space-y-6">
-                    {/* Remitente */}
+                    {/* Enviado Por */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-base">Enviado Por</CardTitle>
