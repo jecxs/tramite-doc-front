@@ -32,8 +32,71 @@ export interface User {
     nombre_completo?: string;
 }
 
-// ==================== DOCUMENT TYPE ====================
+export interface CreateUserDto {
+    nombres: string;
+    apellidos: string;
+    dni: string;
+    correo: string;
+    password: string;
+    telefono?: string;
+    id_area: string;
+    id_roles: string[];
+}
 
+export interface UpdateUserDto {
+    nombres?: string;
+    apellidos?: string;
+    dni?: string;
+    correo?: string;
+    telefono?: string;
+    id_area?: string;
+    id_roles?: string[];
+    activo?: boolean;
+}
+
+// ==================== AREAS ====================
+export interface Area {
+    id_area: string;
+    nombre: string;
+    activo: boolean;
+    fecha_creacion?: string;
+    usuarios_count?: number;
+    tramites_count?: number;
+}
+
+export interface CreateAreaDto {
+    nombre: string;
+}
+
+export interface UpdateAreaDto {
+    nombre?: string;
+    activo?: boolean;
+}
+
+// ==================== ROLES ====================
+export interface RoleType {
+    id_rol: string;
+    codigo: string;
+    nombre: string;
+    descripcion?: string;
+    activo: boolean;
+    usuarios_count?: number;
+}
+
+export interface CreateRoleDto {
+    codigo: string;
+    nombre: string;
+    descripcion?: string;
+}
+
+export interface UpdateRoleDto {
+    codigo?: string;
+    nombre?: string;
+    descripcion?: string;
+    activo?: boolean;
+}
+
+// ==================== DOCUMENT TYPE ====================
 export interface DocumentType {
     id_tipo: string;
     codigo: string;
@@ -115,6 +178,45 @@ export interface Procedure {
     documento: Document;
     remitente: User;
     receptor: User;
+    areaRemitente?: Area;
+    tramiteOriginal?: {
+        id_tramite: string;
+        codigo: string;
+        asunto: string;
+        documento?: {
+            titulo: string;
+            version: number;
+        };
+    };
+    reenvios?: {
+        id_tramite: string;
+        codigo: string;
+        numero_version: number;
+        fecha_envio: string;
+        documento: {
+            titulo: string;
+            version: number;
+        };
+    }[];
+    anuladoPorUsuario?: {
+        id_usuario: string;
+        nombres: string;
+        apellidos: string;
+    };
+    historial?: {
+        id_historial: string;
+        accion: string;
+        detalle: string | null;
+        estado_anterior: string | null;
+        estado_nuevo: string | null;
+        fecha: string;
+        realizado_por: string | null;
+        usuario?: {
+            id_usuario: string;
+            nombres: string;
+            apellidos: string;
+        };
+    }[];
     observaciones?: Observation[];
     firma?: ElectronicSignature;
 }
@@ -130,6 +232,16 @@ export interface UpdateProcedureStateDto {
     estado: ProcedureState;
 }
 
+export interface ReenviarTramiteDto {
+    motivo_reenvio: string;
+    titulo_documento: string;
+    file: File;
+}
+
+export interface AnularTramiteDto {
+    motivo_anulacion: string;
+}
+
 // ==================== OBSERVATION ====================
 export interface Observation {
     id_observacion: string;
@@ -142,6 +254,16 @@ export interface Observation {
     fecha_resolucion?: string;
     resuelto_por?: string;
     respuesta?: string;
+    creador?: {
+        id_usuario: string;
+        nombres: string;
+        apellidos: string;
+    };
+    resolutor?: {
+        id_usuario: string;
+        nombres: string;
+        apellidos: string;
+    };
 }
 
 export interface CreateObservationDto {
@@ -264,46 +386,4 @@ export interface NotificationState {
     notifications: Notification[];
     unreadCount: number;
     isConnected: boolean;
-}
-
-// ==================== AREAS ====================
-export interface Area {
-    id_area: string;
-    nombre: string;
-    activo: boolean;
-    fecha_creacion?: string;
-    usuarios_count?: number;
-    tramites_count?: number;
-}
-
-export interface CreateAreaDto {
-    nombre: string;
-}
-
-export interface UpdateAreaDto {
-    nombre?: string;
-    activo?: boolean;
-}
-
-// ==================== ROLES ====================
-export interface RoleType {
-    id_rol: string;
-    codigo: string;
-    nombre: string;
-    descripcion?: string;
-    activo: boolean;
-    usuarios_count?: number;
-}
-
-export interface CreateRoleDto {
-    codigo: string;
-    nombre: string;
-    descripcion?: string;
-}
-
-export interface UpdateRoleDto {
-    codigo?: string;
-    nombre?: string;
-    descripcion?: string;
-    activo?: boolean;
 }
