@@ -1,7 +1,7 @@
 // src/components/documents/DocumentViewer.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { FileText, FileSpreadsheet, AlertCircle, Download, Eye } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import PDFViewer from './PDFViewer';
@@ -19,10 +19,7 @@ interface DocumentViewerProps {
     autoMarkAsRead?: boolean;
 }
 
-// Tipos de archivo que se pueden visualizar en el navegador
 const VIEWABLE_EXTENSIONS = ['.pdf'];
-
-// Tipos de archivo que requieren descarga
 const DOWNLOADABLE_EXTENSIONS = ['.xlsx', '.xls', '.doc', '.docx', '.csv', '.zip'];
 
 export default function DocumentViewer({
@@ -88,7 +85,6 @@ export default function DocumentViewer({
     );
 }
 
-// Componente para archivos que deben descargarse
 interface DownloadableDocumentProps {
     fileName: string;
     fileExtension: string;
@@ -137,7 +133,6 @@ function DownloadableDocument({
 
             // Para archivos no visualizables, marcar como leído al descargar
             if (autoMarkAsRead && onMarkAsRead && !hasDownloaded) {
-                // Esperar un momento para que el usuario sepa que se descargó
                 setTimeout(() => {
                     onMarkAsRead();
                     toast.success('Documento marcado como leído al descargar');
@@ -148,7 +143,6 @@ function DownloadableDocument({
 
     return (
         <div className="space-y-4">
-            {/* Información sobre archivos descargables */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
@@ -161,7 +155,6 @@ function DownloadableDocument({
                 </div>
             </div>
 
-            {/* Preview del archivo */}
             <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-12">
                 <div className="text-center">
                     {getFileIcon()}
@@ -189,39 +182,6 @@ function DownloadableDocument({
                         </div>
                     )}
                 </div>
-            </div>
-
-            {/* Instrucciones adicionales */}
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <h4 className="text-sm font-semibold text-gray-900 mb-2">
-                    📌 Instrucciones para visualizar:
-                </h4>
-                <ul className="text-sm text-gray-700 space-y-1 list-disc list-inside">
-                    {['.xlsx', '.xls'].includes(fileExtension) && (
-                        <>
-                            <li>Abre el archivo con Microsoft Excel, Google Sheets o LibreOffice Calc</li>
-                            <li>Si no tienes Excel, puedes usar Google Sheets (gratuito)</li>
-                        </>
-                    )}
-                    {['.doc', '.docx'].includes(fileExtension) && (
-                        <>
-                            <li>Abre el archivo con Microsoft Word, Google Docs o LibreOffice Writer</li>
-                            <li>Si no tienes Word, puedes usar Google Docs (gratuito)</li>
-                        </>
-                    )}
-                    {fileExtension === '.csv' && (
-                        <>
-                            <li>Abre el archivo con Excel, Google Sheets o cualquier editor de texto</li>
-                            <li>Los datos están separados por comas</li>
-                        </>
-                    )}
-                    {fileExtension === '.zip' && (
-                        <>
-                            <li>Extrae el contenido con WinRAR, 7-Zip o la herramienta de tu sistema</li>
-                            <li>Revisa los archivos extraídos</li>
-                        </>
-                    )}
-                </ul>
             </div>
         </div>
     );

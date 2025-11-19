@@ -66,6 +66,15 @@ export default function WorkerProcedureDetailPage() {
             setIsLoading(true);
             setError('');
             const data = await getProcedureById(id);
+
+            console.log('✅ Trámite cargado:', data);
+
+            // Verificar que el documento tenga la estructura completa
+            if (!data.documento || !data.documento.tipo) {
+                console.error('❌ Documento incompleto:', data.documento);
+                throw new Error('El documento no tiene la información completa');
+            }
+
             setProcedure(data);
 
             // Obtener URL del documento
@@ -76,7 +85,7 @@ export default function WorkerProcedureDetailPage() {
                 await handleMarkAsOpened(data);
             }
         } catch (err: any) {
-            console.error('Error fetching procedure:', err);
+            console.error('❌ Error fetching procedure:', err);
             setError(err.message || 'Error al cargar el trámite');
             toast.error('Error al cargar el trámite');
         } finally {
@@ -348,7 +357,6 @@ export default function WorkerProcedureDetailPage() {
 
             {/* Contenido condicional según el modo de vista */}
             {viewMode === 'viewer' ? (
-                /* MODO VISOR DE DOCUMENTO */
                 <Card>
                     <CardHeader>
                         <CardTitle>Visualización del Documento</CardTitle>
@@ -403,11 +411,15 @@ export default function WorkerProcedureDetailPage() {
                                     <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                                         <div>
                                             <label className="text-sm font-medium text-gray-700">Tipo de Documento</label>
-                                            <p className="text-sm text-gray-900 mt-1">{procedure.documento.tipo.nombre}</p>
+                                            <p className="text-sm text-gray-900 mt-1">
+                                                {procedure.documento?.tipo?.nombre || 'N/A'}
+                                            </p>
                                         </div>
                                         <div>
                                             <label className="text-sm font-medium text-gray-700">Código del Tipo</label>
-                                            <p className="text-sm text-gray-900 mt-1 font-mono">{procedure.documento.tipo.codigo}</p>
+                                            <p className="text-sm text-gray-900 mt-1 font-mono">
+                                                {procedure.documento?.tipo?.codigo || 'N/A'}
+                                            </p>
                                         </div>
                                     </div>
 
