@@ -423,17 +423,23 @@ export default function WorkerProcedureDetailPage() {
                                     <div className="grid grid-cols-3 gap-4 pt-4 border-t">
                                         <div>
                                             <label className="text-sm font-medium text-gray-700">Archivo</label>
-                                            <p className="text-sm text-gray-900 mt-1">{procedure.documento.nombre_archivo}</p>
+                                            <p className="text-sm text-gray-900 mt-1">
+                                                {procedure.documento?.nombre_archivo || 'Cargando...'}
+                                            </p>
                                         </div>
                                         <div>
                                             <label className="text-sm font-medium text-gray-700">Tamaño</label>
                                             <p className="text-sm text-gray-900 mt-1">
-                                                {formatBytes(parseInt(procedure.documento.tamano_bytes))}
+                                                {procedure.documento?.tamano_bytes
+                                                    ? formatBytes(parseInt(procedure.documento.tamano_bytes))
+                                                    : 'Cargando...'}
                                             </p>
                                         </div>
                                         <div>
                                             <label className="text-sm font-medium text-gray-700">Extensión</label>
-                                            <p className="text-sm text-gray-900 mt-1 uppercase">{procedure.documento.extension}</p>
+                                            <p className="text-sm text-gray-900 mt-1 uppercase">
+                                                {procedure.documento?.extension || 'Cargando...'}
+                                            </p>
                                         </div>
                                     </div>
 
