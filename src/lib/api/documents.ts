@@ -149,3 +149,29 @@ export const getDocumentVersions = async (id: number): Promise<Document[]> => {
         throw new Error(handleApiError(error));
     }
 };
+
+
+/**
+ * Obtener contenido del documento a través del proxy del backend
+ * Esto evita problemas de CORS con Cloudflare R2
+ */
+export const getDocumentContentUrl = (documentId: string): string => {
+    return `${DOCUMENTS_ENDPOINT}/${documentId}/content`;
+};
+
+/**
+ * Cargar documento como Blob para react-pdf
+ */
+export const getDocumentBlob = async (documentId: string): Promise<Blob> => {
+    try {
+        const response = await apiClient.get(
+            `/documentos/${documentId}/content`,
+            {
+                responseType: 'blob',
+            }
+        );
+        return response.data;
+    } catch (error) {
+        throw new Error(handleApiError(error));
+    }
+};
