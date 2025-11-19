@@ -1,8 +1,8 @@
 // src/components/documents/DocumentViewer.tsx
 'use client';
 
-import { useState } from 'react';
-import { FileText, FileSpreadsheet, AlertCircle, Download, Eye } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { FileText, FileSpreadsheet, File, AlertCircle, Download, Eye } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import PDFViewer from './PDFViewer';
 import { toast } from 'sonner';
@@ -20,7 +20,7 @@ interface DocumentViewerProps {
 }
 
 const VIEWABLE_EXTENSIONS = ['.pdf'];
-const DOWNLOADABLE_EXTENSIONS = ['.xlsx', '.xls', '.doc', '.docx', '.csv', '.zip'];
+const DOWNLOADABLE_EXTENSIONS = ['.xlsx', '.xls', '.doc', '.docx', '.csv', '.zip', '.png', '.jpg', '.jpeg'];
 
 export default function DocumentViewer({
                                            documentUrl,
@@ -36,6 +36,15 @@ export default function DocumentViewer({
     const extension = fileExtension.toLowerCase();
     const isViewable = VIEWABLE_EXTENSIONS.includes(extension);
     const requiresDownload = DOWNLOADABLE_EXTENSIONS.includes(extension);
+
+    console.log('📄 DocumentViewer props:', {
+        fileName,
+        fileExtension: extension,
+        isViewable,
+        requiresDownload,
+        hasUrl: !!documentUrl,
+        urlLength: documentUrl?.length || 0
+    });
 
     // Si es PDF, usar el visor especializado
     if (extension === '.pdf' && isViewable) {
@@ -101,12 +110,16 @@ function DownloadableDocument({
                                   autoMarkAsRead,
                               }: DownloadableDocumentProps) {
     const [hasDownloaded, setHasDownloaded] = useState(false);
+    const [isMarking, setIsMarking] = useState(false);
 
     const getFileIcon = () => {
         if (['.xlsx', '.xls', '.csv'].includes(fileExtension)) {
             return <FileSpreadsheet className="w-16 h-16 text-green-600" />;
         }
-        return <FileText className="w-16 h-16 text-blue-600" />;
+        if (['.doc', '.docx'].includes(fileExtension)) {
+            return <FileText className="w-16 h-16 text-blue-600" />;
+        }
+        return <File className="w-16 h-16 text-gray-600" />;
     };
 
     const getFileTypeLabel = () => {
@@ -121,22 +134,39 @@ function DownloadableDocument({
                 return 'Documento Word';
             case '.zip':
                 return 'Archivo Comprimido';
+            case '.png':
+            case '.jpg':
+            case '.jpeg':
+                return 'Imagen';
             default:
                 return 'Archivo';
         }
     };
 
-    const handleDownload = () => {
+    const handleDownload = async () => {
         if (onDownload) {
             onDownload();
             setHasDownloaded(true);
 
             // Para archivos no visualizables, marcar como leído al descargar
             if (autoMarkAsRead && onMarkAsRead && !hasDownloaded) {
-                setTimeout(() => {
-                    onMarkAsRead();
+                try {
+                    setIsMarking(true);
+                    console.log('📥 Archivo descargado, marcando como leído...');
+
+                    // Esperar un momento para asegurar que la descarga se inició
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+
+                    await onMarkAsRead();
+
                     toast.success('Documento marcado como leído al descargar');
-                }, 1000);
+                    console.log('✅ Marcado como leído tras descarga');
+                } catch (error) {
+                    console.error('❌ Error al marcar como leído:', error);
+                    toast.error('Error al marcar como leído');
+                } finally {
+                    setIsMarking(false);
+                }
             }
         }
     };
@@ -169,16 +199,27 @@ function DownloadableDocument({
                     </p>
 
                     <div className="flex items-center justify-center gap-3 mt-6">
-                        <Button onClick={handleDownload} size="lg">
+                        <Button
+                            onClick={handleDownload}
+                            size="lg"
+                            disabled={isMarking}
+                        >
                             <Download className="w-5 h-5" />
                             {hasDownloaded ? 'Descargar Nuevamente' : 'Descargar Archivo'}
                         </Button>
                     </div>
 
-                    {hasDownloaded && (
+                    {hasDownloaded && !isMarking && (
                         <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-lg text-sm">
                             <Eye className="w-4 h-4" />
                             Archivo descargado
+                        </div>
+                    )}
+
+                    {isMarking && (
+                        <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-lg text-sm">
+                            <span className="animate-spin">⏳</span>
+                            Marcando como leído...
                         </div>
                     )}
                 </div>

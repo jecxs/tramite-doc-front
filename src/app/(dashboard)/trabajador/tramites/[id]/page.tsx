@@ -95,16 +95,13 @@ export default function WorkerProcedureDetailPage() {
 
     const fetchDocumentUrl = async (documentId: string) => {
         try {
-            const response = await apiClient.get(
-                `/documentos/${documentId}/download`,
-                { responseType: 'json' }
-            );
+            // Usar endpoint proxy en lugar de URL firmada
+            const proxyUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api'}/documentos/${documentId}/content`;
 
-            if (response.data && response.data.download_url) {
-                setDocumentUrl(response.data.download_url);
-            }
+            console.log('📄 Usando proxy URL:', proxyUrl);
+            setDocumentUrl(proxyUrl);
         } catch (err: any) {
-            console.error('Error fetching document URL:', err);
+            console.error('Error setting document URL:', err);
             toast.error('Error al obtener la URL del documento');
         }
     };
@@ -473,53 +470,6 @@ export default function WorkerProcedureDetailPage() {
                             </CardContent>
                         </Card>
 
-                        {/* Historial del Trámite */}
-                        {procedure.historial && procedure.historial.length > 0 && (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <History className="w-5 h-5" />
-                                        Historial del Trámite
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-3">
-                                        {procedure.historial.map((item, index) => (
-                                            <div
-                                                key={index}
-                                                className="flex gap-3 pb-3 border-b border-gray-100 last:border-0"
-                                            >
-                                                <div className="flex-shrink-0 mt-1">
-                                                    {getAccionIcon(item.accion)}
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-start justify-between gap-2">
-                                                        <p className="text-sm font-medium text-gray-900">
-                                                            {item.detalle}
-                                                        </p>
-                                                        <span className="text-xs text-gray-500 whitespace-nowrap">
-                                                            {format(new Date(item.fecha), 'dd/MM/yyyy HH:mm', { locale: es })}
-                                                        </span>
-                                                    </div>
-                                                    {item.estado_anterior && item.estado_nuevo && (
-                                                        <p className="text-xs text-gray-600 mt-1">
-                                                            {PROCEDURE_STATE_LABELS[item.estado_anterior as keyof typeof PROCEDURE_STATE_LABELS]}
-                                                            {' → '}
-                                                            {PROCEDURE_STATE_LABELS[item.estado_nuevo as keyof typeof PROCEDURE_STATE_LABELS]}
-                                                        </p>
-                                                    )}
-                                                    {item.usuario && (
-                                                        <p className="text-xs text-gray-500 mt-1">
-                                                            Por: {item.usuario.nombres} {item.usuario.apellidos}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        )}
 
                         {/* Observaciones */}
                         {procedure.observaciones && procedure.observaciones.length > 0 && (
