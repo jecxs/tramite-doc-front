@@ -40,6 +40,7 @@ import { Procedure } from '@/types';
 import { PROCEDURE_STATE_LABELS } from '@/lib/constants';
 import { toast } from 'sonner';
 import apiClient from '@/lib/api-client';
+import FirmaElectronicaInfo from '@/components/firma/FirmaElectronicaInfo';
 
 export default function ProcedureDetailPage() {
     const router = useRouter();
@@ -356,7 +357,22 @@ export default function ProcedureDetailPage() {
                     </div>
                 </CardContent>
             </Card>
-
+            {/* Alerta de firma pendiente */}
+            {procedure.requiere_firma && !procedure.firma && procedure.estado === 'LEIDO' && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                        <Clock className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                            <p className="text-sm font-medium text-yellow-900">
+                                Esperando firma electrónica
+                            </p>
+                            <p className="text-sm text-yellow-800 mt-1">
+                                Este documento requiere la firma del trabajador. El trámite se completará cuando el trabajador firme el documento.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Columna Principal */}
                 <div className="lg:col-span-2 space-y-6">
@@ -558,51 +574,7 @@ export default function ProcedureDetailPage() {
 
                     {/* Firma Electrónica */}
                     {procedure.firma && (
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Información de Firma Electrónica</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
-                                        <CheckCircle className="w-5 h-5 text-green-600" />
-                                        <div>
-                                            <p className="text-sm font-medium text-green-900">
-                                                Documento Firmado Electrónicamente
-                                            </p>
-                                            <p className="text-xs text-green-700 mt-1">
-                                                {format(new Date(procedure.firma.fecha_firma), "dd 'de' MMMM 'de' yyyy 'a las' HH:mm", { locale: es })}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="text-xs font-medium text-gray-700">Dirección IP</label>
-                                            <p className="text-sm text-gray-900 mt-1 font-mono">{procedure.firma.ip_address}</p>
-                                        </div>
-                                        {procedure.firma.navegador && (
-                                            <div>
-                                                <label className="text-xs font-medium text-gray-700">Navegador</label>
-                                                <p className="text-sm text-gray-900 mt-1">{procedure.firma.navegador}</p>
-                                            </div>
-                                        )}
-                                        {procedure.firma.dispositivo && (
-                                            <div>
-                                                <label className="text-xs font-medium text-gray-700">Dispositivo</label>
-                                                <p className="text-sm text-gray-900 mt-1">{procedure.firma.dispositivo}</p>
-                                            </div>
-                                        )}
-                                        <div>
-                                            <label className="text-xs font-medium text-gray-700">Términos Aceptados</label>
-                                            <p className="text-sm text-gray-900 mt-1">
-                                                {procedure.firma.acepta_terminos ? 'Sí' : 'No'}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <FirmaElectronicaInfo firma={procedure.firma} procedure={procedure} />
                     )}
                 </div>
 
