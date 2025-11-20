@@ -202,6 +202,19 @@ export function useRole() {
         [user]
     );
 
+    const getRoleName = useCallback(
+        (role: string): string => {
+            const roleLabels: Record<string, string> = {
+                'ADMIN': 'Administrador',
+                'RESP': 'Responsable',
+                'TRAB': 'Trabajador',
+            };
+
+            return roleLabels[role] || role;
+        },
+        []
+    );
+
     const primaryRole = user?.roles[0];
 
     const isAdmin = primaryRole === ROLES.ADMIN;
@@ -214,5 +227,10 @@ export function useRole() {
         isResponsible,
         isWorker,
         currentRole: primaryRole,
+        getRoleName,
     };
 }
+
+
+
+

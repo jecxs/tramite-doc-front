@@ -1,9 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import { useAuth, useRole } from '@/contexts/AuthContext';
-import { Bell, User, LogOut, ChevronDown, Menu } from 'lucide-react';
 import Link from 'next/link';
+import { useState, useRef, useEffect } from 'react';
+import {
+    LogOut,
+    User,
+    ChevronDown,
+    Menu,
+} from 'lucide-react';
+import NotificationBadge from '@/components/notifications/NotificationBadge';
 
 interface NavbarProps {
     onMenuClick: () => void;
@@ -11,42 +17,49 @@ interface NavbarProps {
 
 export default function Navbar({ onMenuClick }: NavbarProps) {
     const { user, logout } = useAuth();
-    const { currentRole } = useRole();
+    const { currentRole, getRoleName } = useRole();
     const [showUserMenu, setShowUserMenu] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
 
-    const getFullName = () => {
-        if (!user) return '';
-        return `${user.nombres} ${user.apellidos}`;
-    };
+    // Cerrar menú al hacer click fuera
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setShowUserMenu(false);
+            }
+        }
 
-    const getRoleLabel = () => {
-        if (!user || !user.roles || user.roles.length === 0) return '';
-
-        const roleLabels: Record<string, string> = {
-            ADMIN: 'Administrador',
-            RESP: 'Responsable de Área',
-            TRAB: 'Trabajador',
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
         };
+    }, []);
 
-        const primaryRole = user.roles[0];
-        return roleLabels[primaryRole] || primaryRole;
+    const handleLogout = () => {
+        logout();
+        setShowUserMenu(false);
     };
+
+    if (!user) return null;
 
     return (
-        <nav className="bg-white border-b border-gray-200 fixed w-full top-0 z-30">
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
             <div className="px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
-                    {/* Left side - Menu button & Logo */}
+                    {/* Left side */}
                     <div className="flex items-center gap-4">
+                        {/* Mobile menu button */}
                         <button
                             onClick={onMenuClick}
-                            className="lg:hidden p-2 rounded-md hover:bg-gray-100"
+                            className="lg:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
+                            aria-label="Abrir menú"
                         >
                             <Menu className="w-6 h-6 text-gray-600" />
                         </button>
 
-                        <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                        {/* Logo */}
+                        <div className="flex items-center gap-3">
+                            <div className="bg-blue-600 p-2 rounded-lg">
                                 <svg
                                     className="w-5 h-5 text-white"
                                     fill="none"
@@ -71,71 +84,77 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
 
                     {/* Right side - Notifications & User menu */}
                     <div className="flex items-center gap-4">
-                        {/* Notifications */}
-                        <Link
-                            href="/notificaciones"
-                            className="relative p-2 rounded-md hover:bg-gray-100 transition-colors"
-                        >
-                            <Bell className="w-6 h-6 text-gray-600" />
-                            {/* Badge de notificaciones no leídas */}
-                            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                        </Link>
+                        {/* Notifcaciones */}
+                        <NotificationBadge />
 
                         {/* User menu */}
-                        <div className="relative">
+                        <div className="relative" ref={menuRef}>
                             <button
                                 onClick={() => setShowUserMenu(!showUserMenu)}
-                                className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 transition-colors"
+                                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 transition-colors"
                             >
-                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <User className="w-5 h-5 text-blue-600" />
-                                </div>
-                                <div className="hidden md:block text-left">
+                                <div className="hidden sm:block text-right">
                                     <p className="text-sm font-medium text-gray-900">
-                                        {getFullName()}
+                                        {user.nombres} {user.apellidos}
                                     </p>
-                                    <p className="text-xs text-gray-500">{getRoleLabel()}</p>
+                                    <p className="text-xs text-gray-500">
+                                        {getRoleName(currentRole || '')}
+                                    </p>
                                 </div>
-                                <ChevronDown className="w-4 h-4 text-gray-600" />
+                                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                                    <span className="text-white font-semibold">
+                                        {user.nombres.charAt(0)}
+                                        {user.apellidos.charAt(0)}
+                                    </span>
+                                </div>
+                                <ChevronDown
+                                    className={`w-4 h-4 text-gray-600 transition-transform ${
+                                        showUserMenu ? 'rotate-180' : ''
+                                    }`}
+                                />
                             </button>
 
                             {/* Dropdown menu */}
                             {showUserMenu && (
                                 <>
-                                    {/* Overlay para cerrar el menú */}
                                     <div
-                                        className="fixed inset-0 z-10"
+                                        className="fixed inset-0 z-40"
                                         onClick={() => setShowUserMenu(false)}
-                                    ></div>
-
-                                    {/* Menu */}
-                                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
-                                        <div className="p-3 border-b border-gray-200">
+                                    />
+                                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                                        <div className="p-4 border-b border-gray-200">
                                             <p className="text-sm font-medium text-gray-900">
-                                                {getFullName()}
+                                                {user.nombres} {user.apellidos}
                                             </p>
-                                            <p className="text-xs text-gray-500">{user?.correo}</p>
+                                            <p className="text-xs text-gray-500 mt-1">
+                                                {user.correo}
+                                            </p>
+                                            <div className="mt-2">
+                                                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800">
+                                                    {getRoleName(currentRole || '')}
+                                                </span>
+                                            </div>
                                         </div>
 
-                                        <div className="py-2">
+                                        <div className="p-2">
                                             <Link
                                                 href="/perfil"
-                                                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                                 onClick={() => setShowUserMenu(false)}
+                                                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 transition-colors"
                                             >
-                                                <User className="w-4 h-4" />
-                                                Mi Perfil
+                                                <User className="w-5 h-5 text-gray-600" />
+                                                <span className="text-sm text-gray-700">
+                                                    Mi Perfil
+                                                </span>
                                             </Link>
-
                                             <button
-                                                onClick={() => {
-                                                    setShowUserMenu(false);
-                                                    logout();
-                                                }}
-                                                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                                                onClick={handleLogout}
+                                                className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-red-50 transition-colors text-red-600"
                                             >
-                                                <LogOut className="w-4 h-4" />
-                                                Cerrar Sesión
+                                                <LogOut className="w-5 h-5" />
+                                                <span className="text-sm font-medium">
+                                                    Cerrar Sesión
+                                                </span>
                                             </button>
                                         </div>
                                     </div>

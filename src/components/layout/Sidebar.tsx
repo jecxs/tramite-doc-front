@@ -101,12 +101,6 @@ const navItems: NavItem[] = [
         roles: ['TRAB'],
     },
     {
-        label: 'Firmar Documentos',
-        href: '/trabajador/firmar',
-        icon: <PenTool className="w-5 h-5" />,
-        roles: ['TRAB'],
-    },
-    {
         label: 'Mis Observaciones',
         href: '/trabajador/observaciones',
         icon: <MessageSquare className="w-5 h-5" />,

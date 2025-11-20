@@ -340,9 +340,10 @@ export interface ProcedureFilters extends PaginationParams {
     es_reenvio?: boolean;
 }
 
-export interface NotificationFilters extends PaginationParams {
+export interface NotificationFilters {
     visto?: boolean;
     tipo?: string;
+
 }
 
 // ==================== API RESPONSES ====================
