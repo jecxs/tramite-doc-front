@@ -27,6 +27,16 @@ import { es } from 'date-fns/locale';
 export default function TrabajadorTramitesPage() {
     const { tramites, isLoading, error, refetch, applyFilters } = useTramites();
 
+    const tramitesFiltrados = tramites.filter(tramite => {
+        // Si no es reenvío, mostrarlo (es versión 1 sin reenvíos)
+        if (!tramite.es_reenvio) {
+            // Verificar que no tenga reenvíos
+            return tramite.reenvios_count === 0;
+        }
+        // Si es reenvío, siempre mostrarlo (es la versión más reciente)
+        return true;
+    });
+
     const formatDate = (dateString: string) => {
         try {
             return format(new Date(dateString), 'dd/MM/yyyy HH:mm', { locale: es });
@@ -71,11 +81,11 @@ export default function TrabajadorTramitesPage() {
         );
     }
 
-    const tramitesNoLeidos = tramites.filter(t => t.estado === 'ENVIADO').length;
-    const tramitesParaFirmar = tramites.filter(
+    const tramitesNoLeidos = tramitesFiltrados.filter(t => t.estado === 'ENVIADO').length;
+    const tramitesParaFirmar = tramitesFiltrados.filter(
         t => t.requiere_firma && ['ABIERTO', 'LEIDO'].includes(t.estado)
     ).length;
-    const tramitesFirmados = tramites.filter(t => t.estado === 'FIRMADO').length;
+    const tramitesFirmados = tramitesFiltrados.filter(t => t.estado === 'FIRMADO').length;
 
     return (
         <div className="space-y-6">
@@ -218,7 +228,7 @@ export default function TrabajadorTramitesPage() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    {tramites.length === 0 ? (
+                    {tramitesFiltrados.length === 0 ? (
                         <div className="text-center py-12">
                             <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                             <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -230,7 +240,7 @@ export default function TrabajadorTramitesPage() {
                         </div>
                     ) : (
                         <div className="space-y-3">
-                            {tramites.map((tramite) => {
+                            {tramitesFiltrados.map((tramite) =>  {
                                 const priorityInfo = getPriorityInfo(tramite);
 
                                 return (

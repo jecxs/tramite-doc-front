@@ -219,6 +219,8 @@ export interface Procedure {
     }[];
     observaciones?: Observation[];
     firma?: ElectronicSignature;
+    observaciones_count?: number;
+    reenvios_count?: number;
 }
 
 export interface CreateProcedureDto {

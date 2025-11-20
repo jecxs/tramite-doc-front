@@ -403,9 +403,37 @@ export default function WorkerProcedureDetailPage() {
                                         {procedure.mensaje && (
                                             <div>
                                                 <label className="text-sm font-medium text-gray-700">Mensaje</label>
-                                                <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">
-                                                    {procedure.mensaje}
-                                                </p>
+                                                {procedure.es_reenvio ? (
+                                                    // Formato especial para reenvíos
+                                                    <div className="mt-2 p-4 bg-orange-30 border-l-4 border-blue-200 rounded-r-lg">
+                                                        <div className="flex items-start gap-3">
+                                                            <RefreshCw className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                                                            <div className="flex-1">
+                                                                <p className="text-sm font-semibold text-blue-900 mb-2">
+                                                                     Documento Corregido - Versión {procedure.numero_version}
+                                                                </p>
+                                                                <p className="text-sm text-gray-700 leading-relaxed">
+                                                                    {procedure.mensaje}
+                                                                </p>
+                                                                {procedure.motivo_reenvio && (
+                                                                    <div className="mt-3 pt-3 border-t border-orange-100">
+                                                                        <p className="text-xs font-medium text-green-800 mb-1">
+                                                                            Corrección:
+                                                                        </p>
+                                                                        <p className="text-xs text-gray-600 italic">
+                                                                            {procedure.motivo_reenvio}
+                                                                        </p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    // Formato normal para trámites regulares
+                                                    <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">
+                                                        {procedure.mensaje}
+                                                    </p>
+                                                )}
                                             </div>
                                         )}
 
