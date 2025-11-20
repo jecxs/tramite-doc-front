@@ -273,8 +273,10 @@ export interface CreateObservationDto {
 
 export interface ResponderObservacionDto {
     respuesta: string;
+    incluye_reenvio?: boolean;
+    id_documento_corregido?: string;
+    asunto_reenvio?: string;
 }
-
 // ==================== ELECTRONIC SIGNATURE ====================
 export interface ElectronicSignature {
     id_firma: string;

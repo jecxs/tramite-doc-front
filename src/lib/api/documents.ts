@@ -1,17 +1,42 @@
+// src/lib/api/documents.ts
 import apiClient, { handleApiError } from '../api-client';
-import { Document, PaginatedResponse } from '@/types';
+import { Document } from '@/types';
 
 const DOCUMENTS_ENDPOINT = '/documentos';
 
 /**
- * Obtener todos los documentos con paginación
+ * Subir un nuevo documento
+ * POST /api/documentos/upload
+ * Acceso: ADMIN, RESP
+ */
+export const uploadDocument = async (formData: FormData): Promise<Document> => {
+    try {
+        const response = await apiClient.post<Document>(
+            `${DOCUMENTS_ENDPOINT}/upload`,
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        throw new Error(handleApiError(error));
+    }
+};
+
+/**
+ * Obtener todos los documentos con filtros opcionales
  */
 export const getDocuments = async (params?: {
+    search?: string;
+    id_tipo?: string;
     page?: number;
     limit?: number;
-}): Promise<PaginatedResponse<Document>> => {
+}): Promise<Document[]> => {
     try {
-        const response = await apiClient.get<PaginatedResponse<Document>>(
+        const response = await apiClient.get<Document[]>(
             DOCUMENTS_ENDPOINT,
             { params }
         );
@@ -22,9 +47,9 @@ export const getDocuments = async (params?: {
 };
 
 /**
- * Obtener un documento por ID
+ * Obtener un documento por ID (UUID)
  */
-export const getDocumentById = async (id: number): Promise<Document> => {
+export const getDocumentById = async (id: string): Promise<Document> => {
     try {
         const response = await apiClient.get<Document>(`${DOCUMENTS_ENDPOINT}/${id}`);
         return response.data;
@@ -34,26 +59,16 @@ export const getDocumentById = async (id: number): Promise<Document> => {
 };
 
 /**
- * Crear un nuevo documento con archivo
- * Este endpoint se usa cuando se crea un documento independiente
+ * Crear nueva versión de un documento existente
+ * POST /api/documentos/:id/version
  */
-export const createDocument = async (
-    titulo_documento: string,
-    descripcion_documento: string | undefined,
-    id_tipo_documento: number,
-    file: File
+export const createDocumentVersion = async (
+    id: string,
+    formData: FormData
 ): Promise<Document> => {
     try {
-        const formData = new FormData();
-        formData.append('titulo_documento', titulo_documento);
-        if (descripcion_documento) {
-            formData.append('descripcion_documento', descripcion_documento);
-        }
-        formData.append('id_tipo_documento', id_tipo_documento.toString());
-        formData.append('file', file);
-
         const response = await apiClient.post<Document>(
-            DOCUMENTS_ENDPOINT,
+            `${DOCUMENTS_ENDPOINT}/${id}/version`,
             formData,
             {
                 headers: {
@@ -68,41 +83,34 @@ export const createDocument = async (
 };
 
 /**
- * Actualizar un documento (crear nueva versión)
+ * Obtener URL de descarga de un documento
+ * GET /api/documentos/:id/download
  */
-export const updateDocument = async (
-    id: number,
-    titulo_documento?: string,
-    descripcion_documento?: string,
-    id_tipo_documento?: number,
-    file?: File
-): Promise<Document> => {
+export const getDocumentDownloadUrl = async (id: string): Promise<{ url: string; expires_in: number }> => {
     try {
-        const formData = new FormData();
-
-        if (titulo_documento) {
-            formData.append('titulo_documento', titulo_documento);
-        }
-        if (descripcion_documento) {
-            formData.append('descripcion_documento', descripcion_documento);
-        }
-        if (id_tipo_documento) {
-            formData.append('id_tipo_documento', id_tipo_documento.toString());
-        }
-        if (file) {
-            formData.append('file', file);
-        }
-
-        const response = await apiClient.patch<Document>(
-            `${DOCUMENTS_ENDPOINT}/${id}`,
-            formData,
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            }
+        const response = await apiClient.get<{ url: string; expires_in: number }>(
+            `${DOCUMENTS_ENDPOINT}/${id}/download`
         );
         return response.data;
+    } catch (error) {
+        throw new Error(handleApiError(error));
+    }
+};
+
+/**
+ * Descargar un documento directamente como Blob
+ */
+export const downloadDocument = async (id: string): Promise<Blob> => {
+    try {
+        // Primero obtener la URL pre-firmada
+        const { url } = await getDocumentDownloadUrl(id);
+
+        // Luego descargar desde la URL
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Error al descargar el documento');
+        }
+        return await response.blob();
     } catch (error) {
         throw new Error(handleApiError(error));
     }
@@ -110,66 +118,54 @@ export const updateDocument = async (
 
 /**
  * Eliminar un documento
+ * DELETE /api/documentos/:id
+ * Solo para desarrollo/testing
  */
-export const deleteDocument = async (id: number): Promise<void> => {
+export const deleteDocument = async (id: string): Promise<{ message: string }> => {
     try {
-        await apiClient.delete(`${DOCUMENTS_ENDPOINT}/${id}`);
-    } catch (error) {
-        throw new Error(handleApiError(error));
-    }
-};
-
-/**
- * Descargar un documento
- */
-export const downloadDocument = async (id: number): Promise<Blob> => {
-    try {
-        const response = await apiClient.get(
-            `${DOCUMENTS_ENDPOINT}/${id}/download`,
-            {
-                responseType: 'blob',
-            }
+        const response = await apiClient.delete<{ message: string }>(
+            `${DOCUMENTS_ENDPOINT}/${id}`
         );
         return response.data;
     } catch (error) {
         throw new Error(handleApiError(error));
     }
 };
-
-/**
- * Obtener todas las versiones de un documento
- */
-export const getDocumentVersions = async (id: number): Promise<Document[]> => {
-    try {
-        const response = await apiClient.get<Document[]>(
-            `${DOCUMENTS_ENDPOINT}/${id}/versiones`
-        );
-        return response.data;
-    } catch (error) {
-        throw new Error(handleApiError(error));
-    }
-};
-
 
 /**
  * Obtener contenido del documento a través del proxy del backend
  * Esto evita problemas de CORS con Cloudflare R2
  */
 export const getDocumentContentUrl = (documentId: string): string => {
-    return `${DOCUMENTS_ENDPOINT}/${documentId}/content`;
+    // Retorna la URL completa del endpoint que sirve como proxy
+    return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api'}${DOCUMENTS_ENDPOINT}/${documentId}/content`;
 };
 
 /**
- * Cargar documento como Blob para react-pdf
+ * Cargar documento como Blob para react-pdf a través del proxy
  */
 export const getDocumentBlob = async (documentId: string): Promise<Blob> => {
     try {
         const response = await apiClient.get(
-            `/documentos/${documentId}/content`,
+            `${DOCUMENTS_ENDPOINT}/${documentId}/content`,
             {
                 responseType: 'blob',
             }
         );
+        return response.data;
+    } catch (error) {
+        throw new Error(handleApiError(error));
+    }
+};
+
+/**
+ * Obtener estadísticas de documentos
+ * GET /api/documentos/statistics
+ * Solo ADMIN
+ */
+export const getDocumentsStatistics = async (): Promise<any> => {
+    try {
+        const response = await apiClient.get(`${DOCUMENTS_ENDPOINT}/statistics`);
         return response.data;
     } catch (error) {
         throw new Error(handleApiError(error));

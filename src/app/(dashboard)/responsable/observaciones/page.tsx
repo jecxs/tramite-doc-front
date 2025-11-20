@@ -16,12 +16,11 @@ import {
     Loader2,
     RefreshCw,
     Search,
-    Filter,
-    X,
+    ArrowRight,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { getPendingObservations, resolveObservation } from '@/lib/api/observaciones';
+import { getPendingObservations } from '@/lib/api/observaciones';
 import { Observation } from '@/types';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -41,9 +40,6 @@ export default function ResponsableObservacionesPage() {
     const router = useRouter();
     const [observaciones, setObservaciones] = useState<ObservationWithTramite[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [isResponding, setIsResponding] = useState<string | null>(null);
-    const [selectedObservation, setSelectedObservation] = useState<ObservationWithTramite | null>(null);
-    const [respuestaText, setRespuestaText] = useState('');
     const [filterType, setFilterType] = useState<string>('all');
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -61,34 +57,6 @@ export default function ResponsableObservacionesPage() {
             toast.error('Error al cargar las observaciones');
         } finally {
             setIsLoading(false);
-        }
-    };
-
-    const handleResponder = async (observacion: ObservationWithTramite) => {
-        setSelectedObservation(observacion);
-        setRespuestaText('');
-    };
-
-    const handleSubmitRespuesta = async () => {
-        if (!selectedObservation || !respuestaText.trim()) {
-            toast.error('Por favor, ingrese una respuesta');
-            return;
-        }
-
-        try {
-            setIsResponding(selectedObservation.id_observacion);
-            await resolveObservation(selectedObservation.id_observacion, {
-                respuesta: respuestaText.trim(),
-            });
-            toast.success('Observación resuelta correctamente');
-            setSelectedObservation(null);
-            setRespuestaText('');
-            fetchObservaciones();
-        } catch (err: any) {
-            console.error('Error resolving observation:', err);
-            toast.error(err.message || 'Error al responder la observación');
-        } finally {
-            setIsResponding(null);
         }
     };
 
@@ -330,14 +298,35 @@ export default function ResponsableObservacionesPage() {
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="mt-4 pt-4 border-t border-gray-200">
-                                            <Button
-                                                onClick={() => handleResponder(observacion)}
-                                                size="sm"
+                                        <div className="mt-4 pt-4 border-t border-gray-200 flex gap-3">
+                                            {/* Botón para ir al trámite */}
+                                            <Link
+                                                href={`/responsable/tramites/${observacion.id_tramite}`}
+                                                className="flex-1"
                                             >
-                                                <Send className="w-4 h-4" />
-                                                Responder Observación
-                                            </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    className="w-full"
+                                                    size="sm"
+                                                >
+                                                    <FileText className="w-4 h-4" />
+                                                    Ver Trámite
+                                                </Button>
+                                            </Link>
+
+                                            {/* Botón principal para responder - REDIRIGE A PÁGINA DE DETALLE */}
+                                            <Link
+                                                href={`/responsable/observaciones/${observacion.id_observacion}/responder`}
+                                                className="flex-1"
+                                            >
+                                                <Button
+                                                    className="w-full"
+                                                    size="sm"
+                                                >
+                                                    <Send className="w-4 h-4" />
+                                                    Responder Observación
+                                                </Button>
+                                            </Link>
                                         </div>
                                     )}
                                 </div>
@@ -346,97 +335,6 @@ export default function ResponsableObservacionesPage() {
                     )}
                 </CardContent>
             </Card>
-
-            {/* Modal de Respuesta */}
-            {selectedObservation && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="p-6">
-                            {/* Modal Header */}
-                            <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-lg font-semibold text-gray-900">
-                                    Responder Observación
-                                </h3>
-                                <button
-                                    onClick={() => setSelectedObservation(null)}
-                                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                                >
-                                    <X className="w-5 h-5 text-gray-500" />
-                                </button>
-                            </div>
-
-                            {/* Observación Info */}
-                            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <span
-                                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getTipoColor(selectedObservation.tipo)}`}
-                                    >
-                                        {getTipoLabel(selectedObservation.tipo)}
-                                    </span>
-                                </div>
-                                <p className="text-sm font-medium text-gray-700 mb-1">
-                                    Trámite: {selectedObservation.tramite?.codigo}
-                                </p>
-                                <p className="text-sm text-gray-600 mb-3">
-                                    {selectedObservation.tramite?.asunto}
-                                </p>
-                                <div className="border-t border-gray-200 pt-3 mt-3">
-                                    <p className="text-sm font-medium text-gray-700 mb-1">
-                                        Observación del trabajador:
-                                    </p>
-                                    <p className="text-sm text-gray-900">
-                                        {selectedObservation.descripcion}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Response Form */}
-                            <div className="mb-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Tu Respuesta *
-                                </label>
-                                <textarea
-                                    value={respuestaText}
-                                    onChange={(e) => setRespuestaText(e.target.value)}
-                                    rows={6}
-                                    placeholder="Escribe tu respuesta a la observación..."
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                                />
-                                <p className="text-xs text-gray-500 mt-2">
-                                    Esta respuesta será enviada al trabajador y la observación se marcará como resuelta.
-                                </p>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="flex items-center justify-end gap-3">
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setSelectedObservation(null)}
-                                    disabled={!!isResponding}
-                                >
-                                    Cancelar
-                                </Button>
-                                <Button
-                                    onClick={handleSubmitRespuesta}
-                                    disabled={!respuestaText.trim() || !!isResponding}
-                                >
-                                    {isResponding ? (
-                                        <>
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                            Enviando...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Send className="w-4 h-4" />
-                                            Enviar Respuesta
-                                        </>
-                                    )}
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
