@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { ElectronicSignature, Procedure } from '@/types';
-
+import ExportarFirmaButton from './ExportarFirmaButton';
 interface FirmaElectronicaInfoProps {
     firma: ElectronicSignature;
     procedure: Procedure;
@@ -30,33 +30,50 @@ export default function FirmaElectronicaInfo({ firma, procedure }: FirmaElectron
     return (
         <Card className="border-green-200 bg-green-50">
             <CardHeader className="border-b border-green-200">
-                <button
-                    onClick={() => setIsExpanded(!isExpanded)}
-                    className="w-full flex items-center gap-3 text-left hover:opacity-80 transition-opacity"
-                >
-                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Shield className="w-6 h-6 text-green-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <CardTitle className="text-green-900">
-                            Documento Firmado Electrónicamente
-                        </CardTitle>
-                        <p className="text-sm text-green-700 mt-1">
-                            {format(new Date(firma.fecha_firma), "dd 'de' MMMM 'de' yyyy 'a las' HH:mm", {
-                                locale: es,
-                            })}{' '}
-                            hrs
-                        </p>
-                    </div>
+                <div className="flex items-center justify-between gap-3">
+                    <button
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="flex items-center gap-3 text-left hover:opacity-80 transition-opacity flex-1"
+                    >
+                        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Shield className="w-6 h-6 text-green-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <CardTitle className="text-green-900">
+                                Documento Firmado Electrónicamente
+                            </CardTitle>
+                            <p className="text-sm text-green-700 mt-1">
+                                {format(new Date(firma.fecha_firma), "dd 'de' MMMM 'de' yyyy 'a las' HH:mm", {
+                                    locale: es,
+                                })}{' '}
+                                hrs
+                            </p>
+                        </div>
+                    </button>
+
                     <div className="flex items-center gap-2 flex-shrink-0">
+                        {/* Botón de exportar firma */}
+                        <ExportarFirmaButton
+                            firma={firma}
+                            procedure={procedure}
+                            variant="outline"
+                            size="sm"
+                        />
+
+                        {/* Ícono de check y expansión */}
                         <CheckCircle className="w-6 h-6 text-green-600" />
-                        {isExpanded ? (
-                            <ChevronUp className="w-5 h-5 text-green-600" />
-                        ) : (
-                            <ChevronDown className="w-5 h-5 text-green-600" />
-                        )}
+                        <button
+                            onClick={() => setIsExpanded(!isExpanded)}
+                            className="hover:opacity-80 transition-opacity"
+                        >
+                            {isExpanded ? (
+                                <ChevronUp className="w-5 h-5 text-green-600" />
+                            ) : (
+                                <ChevronDown className="w-5 h-5 text-green-600" />
+                            )}
+                        </button>
                     </div>
-                </button>
+                </div>
             </CardHeader>
 
             {isExpanded && (

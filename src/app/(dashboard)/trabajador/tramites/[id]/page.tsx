@@ -148,8 +148,13 @@ export default function WorkerProcedureDetailPage() {
         try {
             setIsDownloading(true);
 
-            if (documentUrl) {
-                window.open(documentUrl, '_blank');
+            // Usar el endpoint de URL firmada
+            const response = await apiClient.get(
+                `/documentos/${procedure.id_documento}/download`
+            );
+
+            if (response.data.download_url) {
+                window.open(response.data.download_url, '_blank');
                 toast.success('Descargando documento...');
 
                 const extension = procedure.documento.extension.toLowerCase();
@@ -158,8 +163,6 @@ export default function WorkerProcedureDetailPage() {
                         handleMarkAsRead();
                     }, 1000);
                 }
-            } else {
-                throw new Error('No se pudo obtener la URL de descarga');
             }
         } catch (err: any) {
             console.error('Error downloading document:', err);

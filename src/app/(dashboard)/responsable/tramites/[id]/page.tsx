@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import ExportarHistorialButton from '@/components/tramites/ExportarHistorialButton';
 import { ProcedureStateBadge } from '@/components/ui/Badge';
 import {
     getProcedureById,
@@ -447,14 +448,24 @@ export default function ProcedureDetailPage() {
                         <CardHeader>
                             <div className="flex items-center justify-between">
                                 <CardTitle>Historial del Trámite</CardTitle>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={fetchProcedure}
-                                    disabled={isLoading}
-                                >
-                                    <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-                                </Button>
+                                <div className="flex items-center gap-2">
+                                    {/* Botón para exportar */}
+                                    <ExportarHistorialButton
+                                        procedure={procedure}
+                                        variant="outline"
+                                        size="sm"
+                                    />
+
+                                    {/* Botón refrescar existente */}
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={fetchProcedure}
+                                        disabled={isLoading}
+                                    >
+                                        <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                                    </Button>
+                                </div>
                             </div>
                         </CardHeader>
                         <CardContent>
