@@ -20,6 +20,7 @@ export const PROCEDURE_STATES = {
     ENVIADO: 'ENVIADO',
     ABIERTO: 'ABIERTO',
     LEIDO: 'LEIDO',
+    RESPONDIDO: 'RESPONDIDO',
     FIRMADO: 'FIRMADO',
     ANULADO: 'ANULADO',
 } as const;
@@ -31,6 +32,7 @@ export const PROCEDURE_STATE_LABELS: Record<ProcedureState, string> = {
     ENVIADO: 'Enviado',
     ABIERTO: 'Abierto',
     LEIDO: 'Leído',
+    RESPONDIDO: 'Respondido',
     FIRMADO: 'Firmado',
     ANULADO: 'Anulado',
 };
@@ -41,6 +43,7 @@ export const PROCEDURE_STATE_COLORS: Record<ProcedureState, string> = {
     ENVIADO: 'bg-blue-100 text-blue-800',
     ABIERTO: 'bg-purple-100 text-purple-800',
     LEIDO: 'bg-indigo-100 text-indigo-800',
+    RESPONDIDO: 'bg-teal-100 text-teal-800',
     FIRMADO: 'bg-green-100 text-green-800',
     ANULADO: 'bg-red-100 text-red-800',
 };
@@ -53,6 +56,7 @@ export const NOTIFICATION_TYPES = {
     OBSERVACION_RESUELTA: 'OBSERVACION_RESUELTA',
     DOCUMENTO_REQUIERE_FIRMA: 'DOCUMENTO_REQUIERE_FIRMA',
     TRAMITE_REENVIADO: 'TRAMITE_REENVIADO',
+    RESPUESTA_RECIBIDA: 'RESPUESTA_RECIBIDA',
 } as const;
 
 export type NotificationType = typeof NOTIFICATION_TYPES[keyof typeof NOTIFICATION_TYPES];
@@ -66,6 +70,7 @@ export const NOTIFICATION_LABELS: Record<NotificationType, string> = {
     OBSERVACION_RESUELTA: 'Observación resuelta',
     DOCUMENTO_REQUIERE_FIRMA: 'Requiere firma',
     TRAMITE_REENVIADO: 'Documento actualizado',
+    RESPUESTA_RECIBIDA: 'Respuesta recibida'
 };
 
 // Route paths según rol

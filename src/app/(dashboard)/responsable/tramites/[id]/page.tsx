@@ -41,7 +41,7 @@ import { PROCEDURE_STATE_LABELS } from '@/lib/constants';
 import { toast } from 'sonner';
 import apiClient from '@/lib/api-client';
 import FirmaElectronicaInfo from '@/components/firma/FirmaElectronicaInfo';
-
+import VisualizarRespuesta from '@/components/respuesta/VisualizarRespuesta';
 export default function ProcedureDetailPage() {
     const router = useRouter();
     const params = useParams();
@@ -518,7 +518,46 @@ export default function ProcedureDetailPage() {
                             )}
                         </CardContent>
                     </Card>
+                    {/* SECCIÓN DE RESPUESTA (visible para RESP) */}
+                    {procedure.requiere_respuesta && (
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                    Respuesta del Trabajador
+                                </h3>
+                                {procedure.respuesta ? (
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-teal-100 text-teal-800">
+                                      <CheckCircle className="w-4 h-4" />
+                                      Respondido
+                                    </span>
+                                                            ) : (
+                                                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                      <Clock className="w-4 h-4" />
+                                      Pendiente de respuesta
+                                    </span>
+                                                            )}
+                            </div>
 
+                            {procedure.respuesta ? (
+                                // Mostrar la respuesta completa
+                                <VisualizarRespuesta
+                                    respuesta={procedure.respuesta}
+                                    mostrarDetallesTecnicos={true}
+                                />
+                            ) : (
+                                // Mostrar mensaje de pendiente
+                                <div className="bg-gray-50 rounded-lg p-6 text-center">
+                                    <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                                    <p className="text-sm text-gray-600 mb-1">
+                                        El trabajador aún no ha respondido a este documento
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                        Estado actual: {PROCEDURE_STATE_LABELS[procedure.estado]}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    )}
                     {/* Observaciones */}
                     {procedure.observaciones && procedure.observaciones.length > 0 && (
                         <Card>
@@ -784,6 +823,97 @@ export default function ProcedureDetailPage() {
                                 </div>
                             </CardContent>
                         </Card>
+                    )}
+                    {/* Widget de progreso si requiere respuesta */}
+                    {procedure.requiere_respuesta && (
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                            <h4 className="text-sm font-semibold text-gray-900 mb-3">
+                                Progreso del Documento
+                            </h4>
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-3">
+                                    <div
+                                        className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                            procedure.fecha_envio
+                                                ? 'bg-green-100 text-green-600'
+                                                : 'bg-gray-100 text-gray-400'
+                                        }`}
+                                    >
+                                        <Send className="w-4 h-4" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-xs font-medium text-gray-700">Enviado</p>
+                                        {procedure.fecha_envio && (
+                                            <p className="text-xs text-gray-500">
+                                                {new Date(procedure.fecha_envio).toLocaleDateString()}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                    <div
+                                        className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                            procedure.fecha_abierto
+                                                ? 'bg-green-100 text-green-600'
+                                                : 'bg-gray-100 text-gray-400'
+                                        }`}
+                                    >
+                                        <Eye className="w-4 h-4" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-xs font-medium text-gray-700">Abierto</p>
+                                        {procedure.fecha_abierto && (
+                                            <p className="text-xs text-gray-500">
+                                                {new Date(procedure.fecha_abierto).toLocaleDateString()}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                    <div
+                                        className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                            procedure.fecha_leido
+                                                ? 'bg-green-100 text-green-600'
+                                                : 'bg-gray-100 text-gray-400'
+                                        }`}
+                                    >
+                                        <Eye className="w-4 h-4" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-xs font-medium text-gray-700">Leído</p>
+                                        {procedure.fecha_leido && (
+                                            <p className="text-xs text-gray-500">
+                                                {new Date(procedure.fecha_leido).toLocaleDateString()}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                    <div
+                                        className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                            procedure.respuesta
+                                                ? 'bg-green-100 text-green-600'
+                                                : 'bg-gray-100 text-gray-400'
+                                        }`}
+                                    >
+                                        <MessageSquare className="w-4 h-4" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-xs font-medium text-gray-700">Respondido</p>
+                                        {procedure.respuesta && (
+                                            <p className="text-xs text-gray-500">
+                                                {new Date(
+                                                    procedure.respuesta.fecha_respuesta
+                                                ).toLocaleDateString()}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     )}
                 </div>
             </div>

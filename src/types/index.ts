@@ -219,6 +219,7 @@ export interface Procedure {
     }[];
     observaciones?: Observation[];
     firma?: ElectronicSignature;
+    respuesta?: RespuestaTramite;
     observaciones_count?: number;
     reenvios_count?: number;
 }
@@ -391,4 +392,29 @@ export interface NotificationState {
     notifications: Notification[];
     unreadCount: number;
     isConnected: boolean;
+}
+// ==================== RESPUESTA TRAMITE ====================
+export interface RespuestaTramite {
+    id_respuesta: string;
+    id_tramite: string;
+    texto_respuesta: string;
+    esta_conforme: boolean;
+    fecha_respuesta: string;
+    ip_address?: string;
+    navegador?: string;
+    dispositivo?: string;
+    tramite?: Procedure;
+}
+
+export interface CreateRespuestaTramiteDto {
+    texto_respuesta: string;
+    esta_conforme?: boolean;
+}
+
+export interface EstadisticasRespuestas {
+    total: number;
+    conformes: number;
+    noConformes: number;
+    porcentajeConformes: number;
+    porcentajeNoConformes: number;
 }

@@ -28,6 +28,7 @@ import {
     FileCheck,
     Loader2,
     Shield,
+    Info,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -45,12 +46,17 @@ import apiClient from '@/lib/api-client';
 import DocumentViewer from '@/components/documents/DocumentViewer';
 import FirmaElectronicaModal from '@/components/firma/FirmaElectronicaModal';
 import FirmaElectronicaInfo from '@/components/firma/FirmaElectronicaInfo';
+import FormularioRespuesta from '@/components/respuesta/FormularioRespuesta';
+import VisualizarRespuesta from '@/components/respuesta/VisualizarRespuesta';
+
+
 
 export default function WorkerProcedureDetailPage() {
     const router = useRouter();
     const params = useParams();
     const id = params?.id as string;
 
+    const [activeTab, setActiveTab] = useState('documento');
     const [procedure, setProcedure] = useState<Procedure | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isDownloading, setIsDownloading] = useState(false);
@@ -507,7 +513,84 @@ export default function WorkerProcedureDetailPage() {
                                     </div>
                                 </CardContent>
                             </Card>
+                            {/* SECCIÓN DE RESPUESTA DE CONFORMIDAD */}
+                            {procedure.requiere_respuesta && (
+                                <div className="space-y-6">
+                                    {/* Si ya respondió, mostrar la respuesta */}
+                                    {procedure.respuesta ? (
+                                        <VisualizarRespuesta
+                                            respuesta={procedure.respuesta}
+                                            mostrarDetallesTecnicos={true}
+                                        />
+                                    ) : (
+                                        /* Si no ha respondido y el trámite está LEIDO, mostrar formulario */
+                                        procedure.estado === 'LEIDO' && (
+                                            <>
+                                                {/* Alert indicando que debe responder */}
+                                                <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
+                                                    <div className="flex items-start gap-3">
+                                                        <MessageSquare className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
+                                                        <div className="flex-1">
+                                                            <p className="text-sm font-medium text-teal-900 mb-1">
+                                                                Este documento requiere tu respuesta
+                                                            </p>
+                                                            <p className="text-sm text-teal-800">
+                                                                Por favor, coloque su respuesta de conformidad completando el formulario a continuación.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
+                                                {/* Formulario de respuesta */}
+                                                <FormularioRespuesta
+                                                    idTramite={procedure.id_tramite}
+                                                    asuntoTramite={procedure.asunto}
+                                                    onRespuestaEnviada={() => {
+                                                        // Recargar la página o actualizar el estado
+                                                        router.refresh();
+                                                    }}
+                                                />
+
+                                                {/* Nota sobre observaciones */}
+                                                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                                    <p className="text-sm text-gray-700">
+                                                        <strong>Nota:</strong> Si no estás conforme con el
+                                                        documento y necesitas que sea corregido, puedes{' '}
+                                                        <button
+                                                            onClick={() => {
+                                                                // Cambiar a la pestaña de observaciones
+                                                                document
+                                                                    .getElementById('observaciones-tab')
+                                                                    ?.click();
+                                                            }}
+                                                            className="text-blue-600 hover:text-blue-700 font-medium underline"
+                                                        >
+                                                            crear una observación
+                                                        </button>{' '}
+                                                        para solicitar cambios al responsable.
+                                                    </p>
+                                                </div>
+                                            </>
+                                        )
+                                    )}
+
+                                    {/* Si está en estado ENVIADO o ABIERTO, mostrar mensaje */}
+                                    {!procedure.respuesta &&
+                                        (procedure.estado === 'ENVIADO' ||
+                                            procedure.estado === 'ABIERTO') && (
+                                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                                <div className="flex items-center gap-3">
+                                                    <Info className="w-5 h-5 text-blue-600" />
+                                                    <p className="text-sm text-blue-800">
+                                                        Debes leer completamente el documento antes de poder
+                                                        responder. El sistema detectará automáticamente cuando
+                                                        hayas terminado de leerlo.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
+                                </div>
+                            )}
                             {procedure.observaciones && procedure.observaciones.length > 0 && (
                                 <Card>
                                     <CardHeader>
@@ -685,6 +768,9 @@ export default function WorkerProcedureDetailPage() {
                     </div>
                 )}
             </div>
+
+
+
 
             {/* Modal de Firma Electrónica */}
             <FirmaElectronicaModal
