@@ -407,8 +407,7 @@ export interface RespuestaTramite {
 }
 
 export interface CreateRespuestaTramiteDto {
-    texto_respuesta: string;
-    esta_conforme?: boolean;
+    acepta_conformidad: boolean;
 }
 
 export interface EstadisticasRespuestas {

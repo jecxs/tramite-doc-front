@@ -1,7 +1,7 @@
 // src/app/(dashboard)/trabajador/tramites/[id]/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import {useState, useEffect, useRef} from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -48,6 +48,7 @@ import FirmaElectronicaModal from '@/components/firma/FirmaElectronicaModal';
 import FirmaElectronicaInfo from '@/components/firma/FirmaElectronicaInfo';
 import FormularioRespuesta from '@/components/respuesta/FormularioRespuesta';
 import VisualizarRespuesta from '@/components/respuesta/VisualizarRespuesta';
+import ConfirmarConformidad from "@/components/respuesta/ConfirmarConformidad";
 
 
 
@@ -65,11 +66,16 @@ export default function WorkerProcedureDetailPage() {
     const [documentUrl, setDocumentUrl] = useState<string>('');
     const [viewMode, setViewMode] = useState<'viewer' | 'details'>('details');
     const [showFirmaModal, setShowFirmaModal] = useState(false);
+    const hasMarkedAsOpenedRef = useRef(false);
 
     useEffect(() => {
         if (id) {
             fetchProcedure();
         }
+        // ✅ Limpiar el ref cuando cambie el ID
+        return () => {
+            hasMarkedAsOpenedRef.current = false;
+        };
     }, [id]);
 
     const fetchProcedure = async () => {
@@ -88,7 +94,9 @@ export default function WorkerProcedureDetailPage() {
             setProcedure(data);
             await fetchDocumentUrl(data.id_documento);
 
-            if (data.estado === 'ENVIADO') {
+            // ✅ SOLUCIÓN: Solo marcar como abierto si no se ha hecho antes
+            if (data.estado === 'ENVIADO' && !hasMarkedAsOpenedRef.current) {
+                hasMarkedAsOpenedRef.current = true; // 🔒 Bloquear futuras llamadas
                 await handleMarkAsOpened(data);
             }
         } catch (err: any) {
@@ -113,10 +121,14 @@ export default function WorkerProcedureDetailPage() {
 
     const handleMarkAsOpened = async (proc: Procedure) => {
         try {
+            console.log('📤 Marcando trámite como abierto...');
             const updated = await markProcedureAsOpened(proc.id_tramite);
             setProcedure(updated);
+            console.log('✅ Trámite marcado como abierto');
         } catch (err: any) {
-            console.error('Error marking as opened:', err);
+            console.error('❌ Error marking as opened:', err);
+            // ✅ Si falla, permitir reintento
+            hasMarkedAsOpenedRef.current = false;
         }
     };
 
@@ -535,44 +547,27 @@ export default function WorkerProcedureDetailPage() {
                                                         <MessageSquare className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
                                                         <div className="flex-1">
                                                             <p className="text-sm font-medium text-teal-900 mb-1">
-                                                                Este documento requiere tu respuesta
+                                                                Este documento requiere tu confirmación
                                                             </p>
                                                             <p className="text-sm text-teal-800">
-                                                                Por favor, coloque su respuesta de conformidad completando el formulario a continuación.
+                                                                Por favor, revisa el documento completamente antes de confirmar.
                                                             </p>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                {/* Formulario de respuesta */}
-                                                <FormularioRespuesta
+                                                {/* Componente de confirmación simplificado */}
+                                                <ConfirmarConformidad
                                                     idTramite={procedure.id_tramite}
                                                     asuntoTramite={procedure.asunto}
-                                                    onRespuestaEnviada={() => {
-                                                        // Recargar la página o actualizar el estado
-                                                        router.refresh();
+                                                    onConformidadConfirmada={(resultado) => {
+                                                        // Actualizar el estado local inmediatamente
+                                                        setProcedure({
+                                                            ...resultado.tramiteActualizado,
+                                                            respuesta: resultado.respuesta,
+                                                        });
                                                     }}
                                                 />
-
-                                                {/* Nota sobre observaciones */}
-                                                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                                                    <p className="text-sm text-gray-700">
-                                                        <strong>Nota:</strong> Si no estás conforme con el
-                                                        documento y necesitas que sea corregido, puedes{' '}
-                                                        <button
-                                                            onClick={() => {
-                                                                // Cambiar a la pestaña de observaciones
-                                                                document
-                                                                    .getElementById('observaciones-tab')
-                                                                    ?.click();
-                                                            }}
-                                                            className="text-blue-600 hover:text-blue-700 font-medium underline"
-                                                        >
-                                                            crear una observación
-                                                        </button>{' '}
-                                                        para solicitar cambios al responsable.
-                                                    </p>
-                                                </div>
                                             </>
                                         )
                                     )}
@@ -586,7 +581,7 @@ export default function WorkerProcedureDetailPage() {
                                                     <Info className="w-5 h-5 text-blue-600" />
                                                     <p className="text-sm text-blue-800">
                                                         Debes leer completamente el documento antes de poder
-                                                        responder. El sistema detectará automáticamente cuando
+                                                        confirmar tu conformidad. El sistema detectará automáticamente cuando
                                                         hayas terminado de leerlo.
                                                     </p>
                                                 </div>

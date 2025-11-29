@@ -1,3 +1,4 @@
+// src/lib/api/respuesta-tramite.ts
 import apiClient, { handleApiError } from '../api-client';
 import {
     RespuestaTramite,
@@ -60,7 +61,3 @@ export const obtenerEstadisticasRespuestas = async (filtros?: {
         throw new Error(handleApiError(error));
     }
 };
-
-
-
-

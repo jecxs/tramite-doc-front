@@ -446,8 +446,7 @@ export default function SendDocumentPage() {
                                                                 Respuesta de Conformidad
                                                             </p>
                                                             <p className="text-xs text-gray-700 mt-0.5">
-                                                                El trabajador deberá leer el documento completamente y escribir una respuesta
-                                                                confirmando su conformidad o indicando observaciones (mínimo 10 caracteres).
+                                                                El trabajador deberá leer el documento completamente y marcar su conformidad.
                                                                 Ideal para reportes de horas, evaluaciones, etc.
                                                             </p>
                                                         </div>
@@ -525,7 +524,7 @@ export default function SendDocumentPage() {
                                     <div>
                                         <span className="text-gray-600 block mb-1">Modo de envío</span>
                                         <span className="font-medium text-gray-900">
-                                                {sendMode === 'individual' ? '📤 Individual' : '📤 Masivo'}
+                                                {sendMode === 'individual' ? ' Individual' : ' Masivo'}
                                             </span>
                                     </div>
                                     <div>

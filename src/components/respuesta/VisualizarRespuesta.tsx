@@ -1,7 +1,7 @@
 // src/components/respuesta/VisualizarRespuesta.tsx
 'use client';
 
-import { CheckCircle, AlertCircle, MessageSquare, Monitor, Calendar } from 'lucide-react';
+import { CheckCircle, Shield, Monitor, Calendar } from 'lucide-react';
 import { RespuestaTramite } from '@/types';
 
 interface VisualizarRespuestaProps {
@@ -27,74 +27,42 @@ export default function VisualizarRespuesta({
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             {/* Encabezado */}
             <div className="flex items-center gap-3 mb-6">
-                <div
-                    className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${
-                        respuesta.esta_conforme
-                            ? 'bg-green-100'
-                            : 'bg-orange-100'
-                    }`}
-                >
-                    {respuesta.esta_conforme ? (
-                        <CheckCircle className="w-5 h-5 text-green-600" />
-                    ) : (
-                        <AlertCircle className="w-5 h-5 text-orange-600" />
-                    )}
+                <div className="flex-shrink-0 w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
                     <h3 className="text-lg font-semibold text-gray-900">
-                        Respuesta Registrada
+                        Tramite confirmado
                     </h3>
                     <p className="text-sm text-gray-600">
-                        {respuesta.esta_conforme
-                            ? 'Usuario conforme con el documento'
-                            : 'Usuario con observaciones'}
+                        Realizado
                     </p>
                 </div>
             </div>
 
             {/* Badge de estado */}
-            <div className="mb-4">
-                <span
-                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${
-                        respuesta.esta_conforme
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-orange-100 text-orange-800'
-                    }`}
-                >
-                    {respuesta.esta_conforme ? (
-                        <>
-                            <CheckCircle className="w-4 h-4" />
-                            Conforme
-                        </>
-                    ) : (
-                        <>
-                            <AlertCircle className="w-4 h-4" />
-                            Con Observaciones
-                        </>
-                    )}
+            <div className="mb-6">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                    <Shield className="w-4 h-4" />
+                    Conforme
                 </span>
             </div>
 
-            {/* Contenido de la respuesta */}
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                <div className="flex items-start gap-3 mb-2">
-                    <MessageSquare className="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-700 mb-1">
-                            Respuesta del trabajador:
-                        </p>
-                        <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
-                            {respuesta.texto_respuesta}
-                        </p>
-                    </div>
+            {/* Mensaje de confirmación */}
+            <div className="bg-green-50 rounded-lg p-4 mb-6">
+                <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <p className="text-sm text-green-800 font-medium">
+                        El trabajador confirmó que ha leído el documento y está conforme con su contenido.
+                    </p>
                 </div>
             </div>
 
-            {/* Fecha de respuesta */}
+            {/* Fecha de confirmación */}
             <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
                 <Calendar className="w-4 h-4" />
                 <span>
-                    Respondido el {formatFecha(respuesta.fecha_respuesta)}
+                     {formatFecha(respuesta.fecha_respuesta)}
                 </span>
             </div>
 
