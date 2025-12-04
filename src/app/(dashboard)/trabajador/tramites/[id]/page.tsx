@@ -38,7 +38,7 @@ import {
     markProcedureAsOpened,
     markProcedureAsRead,
 } from '@/lib/api/tramites';
-import { firmarTramite } from '@/lib/api/firma-electronica';
+
 import { Procedure } from '@/types';
 import { PROCEDURE_STATE_LABELS } from '@/lib/constants';
 import { toast } from 'sonner';
@@ -49,6 +49,7 @@ import FirmaElectronicaInfo from '@/components/firma/FirmaElectronicaInfo';
 import FormularioRespuesta from '@/components/respuesta/FormularioRespuesta';
 import VisualizarRespuesta from '@/components/respuesta/VisualizarRespuesta';
 import ConfirmarConformidad from "@/components/respuesta/ConfirmarConformidad";
+import { solicitarCodigoVerificacion, verificarYFirmar } from '@/lib/api/firma-electronica';
 
 
 
@@ -184,19 +185,76 @@ export default function WorkerProcedureDetailPage() {
         }
     };
 
-    const handleFirmarDocumento = async () => {
+    /**
+     * Handler para solicitar código de verificación
+     */
+    const handleSolicitarCodigo = async () => {
+        if (!procedure) {
+            // Manejo de caso borde si procedure es null/undefined antes de llamar
+            throw new Error("No se pudo obtener la información del trámite.");
+        }
+
+        try {
+            const resultado = await solicitarCodigoVerificacion(procedure.id_tramite);
+
+            toast.success('Código enviado', {
+                description: `Se ha enviado un código de verificación a ${resultado.email_enviado_a}`,
+            });
+
+            return resultado;
+        } catch (err: any) {
+            console.error('Error al solicitar código:', err);
+            toast.error('Error al enviar código', {
+                description: err.message || 'No se pudo enviar el código de verificación',
+            });
+            // ✅ SOLUCIÓN: Relanzar el error para que la función no retorne undefined
+            throw err;
+        }
+    };
+
+    /**
+     * Handler para verificar código y firmar documento
+     */
+    const handleVerificarYFirmar = async (codigo: string) => {
         if (!procedure) return;
 
         try {
-            const result = await firmarTramite(id, { acepta_terminos: true });
+            const result = await verificarYFirmar(procedure.id_tramite, {
+                codigo,
+                acepta_terminos: true,
+            });
+
             setProcedure(result.tramite);
+
             toast.success('Documento firmado correctamente', {
                 description: 'El responsable ha sido notificado de tu firma electrónica.',
+                duration: 5000,
             });
+
             setShowFirmaModal(false);
         } catch (err: any) {
-            console.error('Error al firmar:', err);
-            toast.error(err.message || 'Error al firmar el documento');
+            console.error('Error al verificar y firmar:', err);
+
+            // Mensajes de error personalizados según el tipo de error
+            if (err.message.includes('código')) {
+                toast.error('Código incorrecto', {
+                    description: err.message,
+                });
+            } else if (err.message.includes('expirado')) {
+                toast.error('Código expirado', {
+                    description: 'Solicita un nuevo código de verificación',
+                });
+            } else if (err.message.includes('bloqueado')) {
+                toast.error('Cuenta bloqueada temporalmente', {
+                    description: err.message,
+                    duration: 8000,
+                });
+            } else {
+                toast.error('Error al firmar documento', {
+                    description: err.message || 'Ocurrió un error inesperado',
+                });
+            }
+
             throw err;
         }
     };
@@ -770,11 +828,12 @@ export default function WorkerProcedureDetailPage() {
 
 
 
-            {/* Modal de Firma Electrónica */}
+            {/* Modal de Firma Electrónica - ACTUALIZADO */}
             <FirmaElectronicaModal
                 isOpen={showFirmaModal}
                 onClose={() => setShowFirmaModal(false)}
-                onConfirm={handleFirmarDocumento}
+                onConfirm={handleVerificarYFirmar}
+                onSolicitarCodigo={handleSolicitarCodigo}
                 procedure={procedure}
             />
         </>
