@@ -5,15 +5,38 @@ import { ElectronicSignature, CreateElectronicSignatureDto } from '@/types';
 const FIRMA_ENDPOINT = '/firma-electronica';
 
 /**
- * Firmar un trámite electrónicamente
+ * PASO 1: Solicitar código de verificación por email
  */
-export const firmarTramite = async (
+export const solicitarCodigoVerificacion = async (
+    idTramite: string
+): Promise<{
+    mensaje: string;
+    expira_en: string;
+    email_enviado_a: string;
+}> => {
+    try {
+        const response = await apiClient.post(
+            `${FIRMA_ENDPOINT}/tramite/${idTramite}/solicitar-codigo`
+        );
+        return response.data;
+    } catch (error) {
+        throw new Error(handleApiError(error));
+    }
+};
+
+/**
+ * PASO 2: Verificar código y firmar documento
+ */
+export const verificarYFirmar = async (
     idTramite: string,
-    data: CreateElectronicSignatureDto
+    data: {
+        codigo: string;
+        acepta_terminos: boolean;
+    }
 ): Promise<{ firma: ElectronicSignature; tramite: any }> => {
     try {
         const response = await apiClient.post<{ firma: ElectronicSignature; tramite: any }>(
-            `${FIRMA_ENDPOINT}/tramite/${idTramite}/firmar`,
+            `${FIRMA_ENDPOINT}/tramite/${idTramite}/verificar-y-firmar`,
             data
         );
         return response.data;
