@@ -14,12 +14,16 @@ import {
     RefreshCcw,
     CheckCircle,
     Clock,
-    PenTool
+    PenTool,
+    ChevronLeft,
+    ChevronRight,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { ProcedureStateBadge } from '@/components/ui/Badge';
-import TramitesFilters from '@/components/tramites/TramitesFilters';
+import TramitesFiltersInline from '@/components/tramites/TramitesFiltersInline';
+import TramitesAdvancedFilters from '@/components/tramites/TramitesAdvancedFilters';
+
 import { useTramites } from '@/hooks/useTramites';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -27,18 +31,28 @@ import { es } from 'date-fns/locale';
 export default function ResponsableTramitesPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { tramites, isLoading, error, refetch, applyFilters } = useTramites();
+    const {
+        tramites,
+        isLoading,
+        error,
+        paginacion,
+        refetch,
+        applyFilters,
+        clearFilters,
+        currentFilters,
+        goToPage,
+        changeLimit,
+    } = useTramites();
+
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
     // Mostrar mensaje de éxito si viene del formulario de envío
     useEffect(() => {
         if (searchParams.get('success') === 'true') {
             setShowSuccessMessage(true);
-            // Limpiar el parámetro de la URL
             const newUrl = window.location.pathname;
             window.history.replaceState({}, '', newUrl);
-
-            // Ocultar mensaje después de 5 segundos
             setTimeout(() => setShowSuccessMessage(false), 5000);
         }
     }, [searchParams]);
@@ -132,8 +146,22 @@ export default function ResponsableTramitesPage() {
                 </div>
             )}
 
-            {/* Filters */}
-            <TramitesFilters onApplyFilters={applyFilters} />
+            {/*  Filters con clearFilters */}
+            <div className="space-y-4">
+                <TramitesFiltersInline
+                    onApplyFilters={applyFilters}
+                    onClearFilters={clearFilters}
+                    currentFilters={currentFilters}
+                    showAdvanced={showAdvancedFilters}
+                    onToggleAdvanced={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                />
+
+                <TramitesAdvancedFilters
+                    onApplyFilters={applyFilters}
+                    currentFilters={currentFilters}
+                    isOpen={showAdvancedFilters}
+                />
+            </div>
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -141,9 +169,9 @@ export default function ResponsableTramitesPage() {
                     <CardContent className="pt-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-gray-600">Total Enviados</p>
+                                <p className="text-sm text-gray-600">Total</p>
                                 <p className="text-2xl font-bold text-gray-900 mt-1">
-                                    {tramites.length}
+                                    {paginacion?.total_registros || 0}
                                 </p>
                             </div>
                             <div className="p-3 bg-blue-100 rounded-lg">
@@ -191,7 +219,7 @@ export default function ResponsableTramitesPage() {
                             <div>
                                 <p className="text-sm text-gray-600">Con Observaciones</p>
                                 <p className="text-2xl font-bold text-gray-900 mt-1">
-                                    {tramites.filter(t => t.observaciones && t.observaciones.length > 0).length}
+                                    {tramites.filter(t => (t.observaciones_count || 0) > 0).length}
                                 </p>
                             </div>
                             <div className="p-3 bg-orange-100 rounded-lg">
@@ -207,10 +235,27 @@ export default function ResponsableTramitesPage() {
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <CardTitle>Lista de Trámites</CardTitle>
-                        <Button variant="ghost" size="sm" onClick={refetch}>
-                            <RefreshCcw className="w-4 h-4" />
-                            Actualizar
-                        </Button>
+                        <div className="flex items-center gap-3">
+                            {/* ✅ Selector de límite */}
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-600">Mostrar:</span>
+                                <select
+                                    value={currentFilters.limit || 20}
+                                    onChange={(e) => changeLimit(Number(e.target.value))}
+                                    className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value={10}>10</option>
+                                    <option value={20}>20</option>
+                                    <option value={50}>50</option>
+                                    <option value={100}>100</option>
+                                </select>
+                            </div>
+
+                            <Button variant="ghost" size="sm" onClick={refetch}>
+                                <RefreshCcw className="w-4 h-4" />
+                                Actualizar
+                            </Button>
+                        </div>
                     </div>
                 </CardHeader>
                 <CardContent>
@@ -221,116 +266,186 @@ export default function ResponsableTramitesPage() {
                                 No hay trámites
                             </h3>
                             <p className="text-gray-600 mb-6">
-                                Comienza enviando tu primer documento a un trabajador
+                                {currentFilters.search || Object.keys(currentFilters).length > 2
+                                    ? 'No se encontraron trámites con los filtros aplicados'
+                                    : 'Comienza enviando tu primer documento a un trabajador'}
                             </p>
-                            <Link href="/responsable/tramites/nuevo">
-                                <Button>
-                                    <Send className="w-4 h-4" />
-                                    Enviar Documento
+                            {currentFilters.search || Object.keys(currentFilters).length > 2 ? (
+                                <Button variant="outline" onClick={clearFilters}>
+                                    Limpiar filtros
                                 </Button>
-                            </Link>
+                            ) : (
+                                <Link href="/responsable/tramites/nuevo">
+                                    <Button>
+                                        <Send className="w-4 h-4" />
+                                        Enviar Documento
+                                    </Button>
+                                </Link>
+                            )}
                         </div>
                     ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead>
-                                <tr className="border-b border-gray-200">
-                                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                                        Código
-                                    </th>
-                                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                                        Asunto
-                                    </th>
-                                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                                        Destinatario
-                                    </th>
-                                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                                        Estado
-                                    </th>
-                                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                                        Fecha Envío
-                                    </th>
-                                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                                        Acciones
-                                    </th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {tramites.map((tramite) => (
-                                    <tr
-                                        key={tramite.id_tramite}
-                                        className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                                    >
-                                        <td className="py-4 px-4">
-                                            <div className="flex items-center gap-2">
-                                                <div className="text-blue-600">
-                                                    {getEstadoIcon(tramite.estado)}
-                                                </div>
-                                                <span className="font-mono text-sm font-medium text-gray-900">
-                                                        {tramite.codigo}
-                                                    </span>
-                                                {tramite.es_reenvio && (
-                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">
-                                                            v{tramite.numero_version}
+                        <>
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <thead>
+                                    <tr className="border-b border-gray-200">
+                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
+                                            Código
+                                        </th>
+                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
+                                            Asunto
+                                        </th>
+                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
+                                            Destinatario
+                                        </th>
+                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
+                                            Estado
+                                        </th>
+                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
+                                            Fecha Envío
+                                        </th>
+                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
+                                            Acciones
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {tramites.map((tramite) => (
+                                        <tr
+                                            key={tramite.id_tramite}
+                                            className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                                        >
+                                            <td className="py-4 px-4">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="text-blue-600">
+                                                        {getEstadoIcon(tramite.estado)}
+                                                    </div>
+                                                    <span className="font-mono text-sm font-medium text-gray-900">
+                                                            {tramite.codigo}
                                                         </span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="py-4 px-4">
-                                            <div className="max-w-xs">
-                                                <p className="text-sm font-medium text-gray-900 truncate">
-                                                    {tramite.asunto}
-                                                </p>
-                                                <div className="flex items-center gap-2 mt-1">
-                                                        <span className="text-xs text-gray-500">
-                                                            {tramite.documento.tipo.nombre}
-                                                        </span>
-                                                    {tramite.requiere_firma && (
-                                                        <span className="inline-flex items-center text-xs text-purple-600">
-                                                                <PenTool className="w-3 h-3 mr-1" />
-                                                                Firma
+                                                    {tramite.es_reenvio && (
+                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">
+                                                                v{tramite.numero_version}
                                                             </span>
                                                     )}
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td className="py-4 px-4">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                                    <User className="w-4 h-4 text-blue-600" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-medium text-gray-900">
-                                                        {tramite.receptor.apellidos}, {tramite.receptor.nombres}
+                                            </td>
+                                            <td className="py-4 px-4">
+                                                <div className="max-w-xs">
+                                                    <p className="text-sm font-medium text-gray-900 truncate">
+                                                        {tramite.asunto}
                                                     </p>
-                                                    <p className="text-xs text-gray-500">
-                                                        {tramite.receptor.correo}
-                                                    </p>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                            <span className="text-xs text-gray-500">
+                                                                {tramite.documento.tipo.nombre}
+                                                            </span>
+                                                        {tramite.requiere_firma && (
+                                                            <span className="inline-flex items-center text-xs text-purple-600">
+                                                                    <PenTool className="w-3 h-3 mr-1" />
+                                                                    Firma
+                                                                </span>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td className="py-4 px-4">
-                                            <ProcedureStateBadge estado={tramite.estado} />
-                                        </td>
-                                        <td className="py-4 px-4">
-                                            <div className="flex items-center gap-1 text-sm text-gray-600">
-                                                <Calendar className="w-4 h-4" />
-                                                {formatDate(tramite.fecha_envio)}
-                                            </div>
-                                        </td>
-                                        <td className="py-4 px-4">
-                                            <Link href={`/responsable/tramites/${tramite.id_tramite}`}>
-                                                <Button variant="ghost" size="sm">
-                                                    <Eye className="w-4 h-4" />
-                                                    Ver
-                                                </Button>
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                            </td>
+                                            <td className="py-4 px-4">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                                        <User className="w-4 h-4 text-blue-600" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-medium text-gray-900">
+                                                            {tramite.receptor.apellidos}, {tramite.receptor.nombres}
+                                                        </p>
+                                                        <p className="text-xs text-gray-500">
+                                                            {tramite.receptor.correo}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="py-4 px-4">
+                                                <ProcedureStateBadge estado={tramite.estado} />
+                                            </td>
+                                            <td className="py-4 px-4">
+                                                <div className="flex items-center gap-1 text-sm text-gray-600">
+                                                    <Calendar className="w-4 h-4" />
+                                                    {formatDate(tramite.fecha_envio)}
+                                                </div>
+                                            </td>
+                                            <td className="py-4 px-4">
+                                                <Link href={`/responsable/tramites/${tramite.id_tramite}`}>
+                                                    <Button variant="ghost" size="sm">
+                                                        <Eye className="w-4 h-4" />
+                                                        Ver
+                                                    </Button>
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* ✅ Paginación */}
+                            {paginacion && paginacion.total_paginas > 1 && (
+                                <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+                                    <div className="text-sm text-gray-600">
+                                        Mostrando {tramites.length} de {paginacion.total_registros} trámites
+                                    </div>
+
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => goToPage(paginacion.pagina_actual - 1)}
+                                            disabled={!paginacion.tiene_anterior}
+                                        >
+                                            <ChevronLeft className="w-4 h-4" />
+                                            Anterior
+                                        </Button>
+
+                                        <div className="flex items-center gap-1">
+                                            {Array.from({ length: Math.min(5, paginacion.total_paginas) }, (_, i) => {
+                                                let pageNum;
+                                                if (paginacion.total_paginas <= 5) {
+                                                    pageNum = i + 1;
+                                                } else if (paginacion.pagina_actual <= 3) {
+                                                    pageNum = i + 1;
+                                                } else if (paginacion.pagina_actual >= paginacion.total_paginas - 2) {
+                                                    pageNum = paginacion.total_paginas - 4 + i;
+                                                } else {
+                                                    pageNum = paginacion.pagina_actual - 2 + i;
+                                                }
+
+                                                return (
+                                                    <button
+                                                        key={pageNum}
+                                                        onClick={() => goToPage(pageNum)}
+                                                        className={`px-3 py-1 rounded ${
+                                                            pageNum === paginacion.pagina_actual
+                                                                ? 'bg-blue-600 text-white'
+                                                                : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+                                                        }`}
+                                                    >
+                                                        {pageNum}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => goToPage(paginacion.pagina_actual + 1)}
+                                            disabled={!paginacion.tiene_siguiente}
+                                        >
+                                            Siguiente
+                                            <ChevronRight className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+                        </>
                     )}
                 </CardContent>
             </Card>

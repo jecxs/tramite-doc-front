@@ -440,8 +440,22 @@ export default function WorkerProcedureDetailPage() {
                 {/* Contenido condicional */}
                 {viewMode === 'viewer' ? (
                     <Card>
-                        <CardHeader>
+                        <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle>Visualización del Documento</CardTitle>
+                            {/* ✅ NUEVO: Botón de descarga en el header del visor */}
+                            <Button
+                                onClick={handleDownload}
+                                disabled={isDownloading}
+                                variant="outline"
+                                size="sm"
+                            >
+                                {isDownloading ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <Download className="w-4 h-4" />
+                                )}
+                                Descargar
+                            </Button>
                         </CardHeader>
                         <CardContent>
                             {documentUrl && procedure.documento ? (

@@ -171,3 +171,36 @@ export const getDocumentsStatistics = async (): Promise<any> => {
         throw new Error(handleApiError(error));
     }
 };
+
+/**
+ * Subir múltiples documentos en lote
+ * POST /api/documentos/upload-batch
+ */
+export const uploadDocumentsBatch = async (
+    archivos: File[],
+    idTipoDocumento: string
+): Promise<Document[]> => {
+    try {
+        const formData = new FormData();
+
+        archivos.forEach((archivo) => {
+            formData.append('archivos', archivo);
+        });
+
+        formData.append('id_tipo_documento', idTipoDocumento);
+
+        const response = await apiClient.post<Document[]>(
+            `${DOCUMENTS_ENDPOINT}/upload-batch`,
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw new Error(handleApiError(error));
+    }
+};

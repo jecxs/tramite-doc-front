@@ -230,6 +230,41 @@ export interface CreateProcedureDto {
     id_documento: string;
     id_receptor: string;
 }
+// ==================== AUTO LOTE TRAMITES ====================
+export interface DocumentoConDestinatarioDto {
+    dni: string;
+    id_usuario: string;
+    id_documento: string;
+    asunto: string;
+    mensaje?: string;
+    nombre_trabajador: string;
+    nombre_archivo: string;
+}
+
+export interface CreateTramiteAutoLoteDto {
+    id_tipo_documento: string;
+    documentos: DocumentoConDestinatarioDto[];
+}
+
+export interface DeteccionDestinatarioDto {
+    dni: string;
+    nombre_archivo: string;
+    encontrado: boolean;
+    id_usuario?: string;
+    nombre_completo?: string;
+    area?: string;
+    error?: string;
+    // Datos temporales del archivo (no se envían al backend)
+    archivo_buffer?: ArrayBuffer;
+    archivo_mimetype?: string;
+    archivo_size?: number;
+}
+
+export interface DeteccionResultado {
+    exitosos: DeteccionDestinatarioDto[];
+    fallidos: DeteccionDestinatarioDto[];
+    tipo_documento: DocumentType;
+}
 
 export interface UpdateProcedureStateDto {
     estado: ProcedureState;
@@ -325,29 +360,82 @@ export interface PaginatedResponse<T> {
 }
 
 // ==================== FILTERS ====================
+
+// ==================== PAGINATION ====================
+export interface PaginationParams {
+    pagina?: number;
+    limite?: number;
+}
+
+export interface PaginationMetadata {
+    pagina_actual: number;
+    limite: number;
+    total_registros: number;
+    total_paginas: number;
+    tiene_siguiente: boolean;
+    tiene_anterior: boolean;
+}
+
+export interface PaginatedResponse<T> {
+    data: T[];
+    paginacion: PaginationMetadata;
+}
+
+// ==================== PROCEDURE FILTERS ====================
+export interface ProcedureFilters extends PaginationParams {
+    // Búsqueda básica
+    search?: string;
+
+    // Filtros de usuarios y áreas
+    id_remitente?: string;
+    id_receptor?: string;
+    id_area_remitente?: string;
+
+    // Filtros de estado y tipo
+    estado?: ProcedureState;
+    requiere_firma?: boolean;
+    requiere_respuesta?: boolean;
+    es_reenvio?: boolean;
+
+    // ✅ NUEVOS: Filtro por tipo de documento
+    id_tipo_documento?: string;
+
+    // ✅ NUEVOS: Filtros por rango de fechas
+    fecha_envio_desde?: string; // YYYY-MM-DD
+    fecha_envio_hasta?: string; // YYYY-MM-DD
+    fecha_leido_desde?: string;
+    fecha_leido_hasta?: string;
+    fecha_firmado_desde?: string;
+    fecha_firmado_hasta?: string;
+
+    // ✅ NUEVOS: Filtros adicionales
+    tiene_observaciones?: boolean;
+    observaciones_pendientes?: boolean;
+    con_respuesta?: boolean;
+
+    // ✅ NUEVOS: Ordenamiento
+    ordenar_por?: 'fecha_envio' | 'fecha_leido' | 'fecha_firmado' | 'asunto' | 'codigo' | 'estado';
+    orden?: 'asc' | 'desc';
+}
+
+export interface SimpleUser {
+    id_usuario: string;
+    nombres: string;
+    apellidos: string;
+    correo: string;
+}
 export interface UserFilters extends PaginationParams {
     search?: string;
     id_area?: string;
     id_rol?: string;
     activo?: boolean;
 }
-
-export interface ProcedureFilters extends PaginationParams {
-    search?: string;
-    id_remitente?: string;
-    id_receptor?: string;
-    id_area_remitente?: string;
-    estado?: ProcedureState;
-    requiere_firma?: boolean;
-    requiere_respuesta?: boolean;
-    es_reenvio?: boolean;
-}
-
+// ==================== NOTIFICATION FILTERS ====================
 export interface NotificationFilters {
     visto?: boolean;
     tipo?: string;
-
 }
+
 
 // ==================== API RESPONSES ====================
 export interface ApiResponse<T = any> {
