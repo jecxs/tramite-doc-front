@@ -6,13 +6,15 @@
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@tanstack/react-query": "^5.90.10",
     "axios": "^1.13.2",
     "date-fns": "^4.1.0",
+    "env-var": "^7.5.0",
     "framer-motion": "^12.23.25",
     "jspdf": "^3.0.4",
     "jspdf-autotable": "^5.0.2",
@@ -26,7 +28,6 @@
     "recharts": "^3.5.1",
     "socket.io-client": "^4.8.1",
     "sonner": "^2.0.7",
-    "zod": "^4.1.12",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
@@ -37,6 +38,7 @@
     "@types/react-pdf": "^6.2.0",
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
+    "prettier": "^3.4.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

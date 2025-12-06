@@ -1,17 +1,14 @@
-import { z } from 'zod';
+import env from 'env-var';
 
-const envSchema = z.object({
-  NEXT_PUBLIC_API_URL: z.string().url().optional(),
-});
-
-const env = envSchema.parse({
-  NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-});
+const API_URL = env.get('NEXT_PUBLIC_API_URL').default('http://localhost:3000/api').asUrlString();
+const SOCKET_URL_EXPLICIT = env.get('NEXT_PUBLIC_SOCKET_URL').default('ws://localhost:3000').asUrlString();
+const NODE_ENV = env.get('NODE_ENV').default('development').asEnum(['development', 'test', 'production']);
 
 export const config = {
-  SOCKET_URL: env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:3000',
-  NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-  API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
+  API_URL: API_URL,
+  SOCKET_URL: SOCKET_URL_EXPLICIT || new URL(API_URL).origin,
+  NEXT_PUBLIC_API_URL: API_URL,
+  NODE_ENV,
 } as const;
 
 export type Config = typeof config;

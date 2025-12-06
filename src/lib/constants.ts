@@ -98,11 +98,32 @@ export const ROUTE_PATHS = {
   WORKER_NOTIFICATIONS: '/trabajador/notificaciones',
 } as const;
 
+export const ROUTE_BUILDERS = {
+  respProcedureDetail: (id: string) => `/responsable/tramites/${id}`,
+  workerProcedureDetail: (id: string) => `/trabajador/tramites/${id}`,
+  workerObservationCreate: (id: string) => `/trabajador/tramites/${id}/observacion`,
+} as const;
+
 // Rutas permitidas por rol
 export const ROLE_ROUTES: Record<Role, string[]> = {
-  ADMIN: [ROUTE_PATHS.ADMIN_DASHBOARD, ROUTE_PATHS.ADMIN_USERS, ROUTE_PATHS.ADMIN_ROLES, ROUTE_PATHS.ADMIN_AREAS, ROUTE_PATHS.ADMIN_DOCUMENT_TYPES],
-  RESP: [ROUTE_PATHS.RESP_DASHBOARD, ROUTE_PATHS.RESP_SEND_DOCUMENT, ROUTE_PATHS.RESP_PROCEDURES, ROUTE_PATHS.RESP_NOTIFICATIONS],
-  TRAB: [ROUTE_PATHS.WORKER_DASHBOARD, ROUTE_PATHS.WORKER_DOCUMENTS, ROUTE_PATHS.WORKER_NOTIFICATIONS],
+  ADMIN: [
+    ROUTE_PATHS.ADMIN_DASHBOARD,
+    ROUTE_PATHS.ADMIN_USERS,
+    ROUTE_PATHS.ADMIN_ROLES,
+    ROUTE_PATHS.ADMIN_AREAS,
+    ROUTE_PATHS.ADMIN_DOCUMENT_TYPES,
+  ],
+  RESP: [
+    ROUTE_PATHS.RESP_DASHBOARD,
+    ROUTE_PATHS.RESP_SEND_DOCUMENT,
+    ROUTE_PATHS.RESP_PROCEDURES,
+    ROUTE_PATHS.RESP_NOTIFICATIONS,
+  ],
+  TRAB: [
+    ROUTE_PATHS.WORKER_DASHBOARD,
+    ROUTE_PATHS.WORKER_DOCUMENTS,
+    ROUTE_PATHS.WORKER_NOTIFICATIONS,
+  ],
 };
 
 // Default route después del login según rol
