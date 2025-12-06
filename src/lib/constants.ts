@@ -11,10 +11,10 @@ export const ROLES = {
   TRAB: 'TRAB',
 } as const;
 
-export type Role = (typeof ROLES)[keyof typeof ROLES];
+export type ROLES = (typeof ROLES)[keyof typeof ROLES];
 
-export function isRole(value: string): value is Role {
-  return Object.values(ROLES).includes(value as Role);
+export function isRole(value: string): value is ROLES {
+  return Object.values(ROLES).includes(value as ROLES);
 }
 
 // Procedure States
@@ -105,7 +105,7 @@ export const ROUTE_BUILDERS = {
 } as const;
 
 // Rutas permitidas por rol
-export const ROLE_ROUTES: Record<Role, string[]> = {
+export const ROLE_ROUTES: Record<ROLES, string[]> = {
   ADMIN: [
     ROUTE_PATHS.ADMIN_DASHBOARD,
     ROUTE_PATHS.ADMIN_USERS,
@@ -127,7 +127,7 @@ export const ROLE_ROUTES: Record<Role, string[]> = {
 };
 
 // Default route después del login según rol
-export const DEFAULT_ROUTE_BY_ROLE: Record<Role, string> = {
+export const DEFAULT_ROUTE_BY_ROLE: Record<ROLES, string> = {
   ADMIN: ROUTE_PATHS.ADMIN_DASHBOARD,
   RESP: ROUTE_PATHS.RESP_DASHBOARD,
   TRAB: ROUTE_PATHS.WORKER_DASHBOARD,

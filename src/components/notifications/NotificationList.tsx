@@ -7,7 +7,6 @@ import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
   Bell,
-  Check,
   CheckCheck,
   FileText,
   MessageSquare,
@@ -15,7 +14,6 @@ import {
   XCircle,
   RefreshCw,
   Loader2,
-  Filter,
   AlertTriangle,
   Info,
 } from 'lucide-react';
@@ -23,7 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { Notification } from '@/types';
 import { getNotifications, markNotificationAsRead } from '@/lib/api/notificaciones';
-import { NOTIFICATION_LABELS, ROUTE_BUILDERS } from '@/lib/constants';
+import { NOTIFICATION_LABELS, ROLES, ROUTE_BUILDERS } from '@/lib/constants';
 import { toast } from 'sonner';
 import { useRole } from '@/contexts/AuthContext';
 
@@ -97,9 +95,9 @@ export default function NotificationList({
         onNotificationClick(notification);
       } else if (notification.id_tramite) {
         // Navegar al trámite
-        if (currentRole === 'RESP') {
+        if (currentRole === ROLES.RESP) {
           router.push(ROUTE_BUILDERS.respProcedureDetail(notification.id_tramite));
-        } else if (currentRole === 'TRAB') {
+        } else if (currentRole === ROLES.TRAB) {
           router.push(ROUTE_BUILDERS.workerProcedureDetail(notification.id_tramite));
         }
       }

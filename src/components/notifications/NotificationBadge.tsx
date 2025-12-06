@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Bell, Check, Loader2 } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useRole } from '@/contexts/AuthContext';
-import { ROUTE_PATHS, ROUTE_BUILDERS } from '@/lib/constants';
+import { ROUTE_PATHS, ROUTE_BUILDERS, ROLES } from '@/lib/constants';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -20,8 +20,8 @@ export default function NotificationBadge() {
 
   // Determinar ruta según rol
   const getNotificationsRoute = () => {
-    if (currentRole === 'RESP') return ROUTE_PATHS.RESP_NOTIFICATIONS;
-    if (currentRole === 'TRAB') return ROUTE_PATHS.WORKER_NOTIFICATIONS;
+    if (currentRole === ROLES.RESP) return ROUTE_PATHS.RESP_NOTIFICATIONS;
+    if (currentRole === ROLES.TRAB) return ROUTE_PATHS.WORKER_NOTIFICATIONS;
     return '/notificaciones';
   };
 
@@ -44,9 +44,9 @@ export default function NotificationBadge() {
 
       // Navegar al trámite si existe
       if (idTramite) {
-        if (currentRole === 'RESP') {
+        if (currentRole === ROLES.RESP) {
           router.push(ROUTE_BUILDERS.respProcedureDetail(idTramite));
-        } else if (currentRole === 'TRAB') {
+        } else if (currentRole === ROLES.TRAB) {
           router.push(ROUTE_BUILDERS.workerProcedureDetail(idTramite));
         }
       }

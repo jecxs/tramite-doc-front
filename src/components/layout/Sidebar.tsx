@@ -2,7 +2,7 @@
 
 import { useRole } from '@/contexts/AuthContext';
 import Link from 'next/link';
-import { ROUTE_PATHS } from '@/lib/constants';
+import { ROLES, ROUTE_PATHS } from '@/lib/constants';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import {
@@ -37,31 +37,31 @@ const navItems: NavItem[] = [
     label: 'Dashboard',
     href: ROUTE_PATHS.ADMIN_DASHBOARD,
     icon: <Home className='w-5 h-5' />,
-    roles: ['ADMIN'],
+    roles: [ROLES.ADMIN],
   },
   {
     label: 'Usuarios',
     href: ROUTE_PATHS.ADMIN_USERS,
     icon: <Users className='w-5 h-5' />,
-    roles: ['ADMIN'],
+    roles: [ROLES.ADMIN],
   },
   {
     label: 'Áreas',
     href: ROUTE_PATHS.ADMIN_AREAS,
     icon: <Building2 className='w-5 h-5' />,
-    roles: ['ADMIN'],
+    roles: [ROLES.ADMIN],
   },
   {
     label: 'Tipos de Documento',
     href: ROUTE_PATHS.ADMIN_DOCUMENT_TYPES,
     icon: <FileType className='w-5 h-5' />,
-    roles: ['ADMIN'],
+    roles: [ROLES.ADMIN],
   },
   {
     label: 'Estadísticas',
     href: ROUTE_PATHS.ADMIN_DASHBOARD + '/estadisticas',
     icon: <BarChart3 className='w-5 h-5' />,
-    roles: ['ADMIN'],
+    roles: [ROLES.ADMIN],
   },
 
   // Responsable navigation
@@ -69,31 +69,31 @@ const navItems: NavItem[] = [
     label: 'Dashboard',
     href: ROUTE_PATHS.RESP_DASHBOARD,
     icon: <Home className='w-5 h-5' />,
-    roles: ['RESP'],
+    roles: [ROLES.RESP],
   },
   {
     label: 'Enviar Documento',
     href: ROUTE_PATHS.RESP_SEND_DOCUMENT,
     icon: <Send className='w-5 h-5' />,
-    roles: ['RESP'],
+    roles: [ROLES.RESP],
   },
   {
     label: 'Mis Trámites',
     href: ROUTE_PATHS.RESP_PROCEDURES,
     icon: <FileText className='w-5 h-5' />,
-    roles: ['RESP'],
+    roles: [ROLES.RESP],
   },
   {
     label: 'Observaciones',
     href: ROUTE_PATHS.RESP_NOTIFICATIONS,
     icon: <MessageSquare className='w-5 h-5' />,
-    roles: ['RESP'],
+    roles: [ROLES.RESP],
   },
   {
     label: 'Estadísticas',
     href: ROUTE_PATHS.RESP_ESTADISTICAS,
     icon: <BarChart3 className='w-5 h-5' />,
-    roles: ['RESP'],
+    roles: [ROLES.RESP],
   },
 
   // Trabajador navigation
@@ -101,19 +101,19 @@ const navItems: NavItem[] = [
     label: 'Dashboard',
     href: ROUTE_PATHS.WORKER_DASHBOARD,
     icon: <Home className='w-5 h-5' />,
-    roles: ['TRAB'],
+    roles: [ROLES.TRAB],
   },
   {
     label: 'Mis Documentos',
     href: ROUTE_PATHS.WORKER_DOCUMENTS,
     icon: <FileText className='w-5 h-5' />,
-    roles: ['TRAB'],
+    roles: [ROLES.TRAB],
   },
   {
     label: 'Mis Observaciones',
     href: ROUTE_PATHS.WORKER_NOTIFICATIONS,
     icon: <MessageSquare className='w-5 h-5' />,
-    roles: ['TRAB'],
+    roles: [ROLES.TRAB],
   },
 ];
 
