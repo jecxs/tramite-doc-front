@@ -505,3 +505,117 @@ export interface EstadisticasRespuestas {
     porcentajeConformes: number;
     porcentajeNoConformes: number;
 }
+// ==================== ESTADÍSTICAS RESPONSABLE ====================
+export interface EstadisticasGenerales {
+    resumen: {
+        total_enviados: number;
+        pendientes: number;
+        completados: number;
+        anulados: number;
+        porcentaje_pendientes: number;
+        porcentaje_completados: number;
+    };
+    rendimiento: {
+        promedio_tiempo_respuesta_horas: number;
+        tasa_firmas_porcentaje: number;
+        observaciones_pendientes: number;
+    };
+}
+
+export interface EstadisticasPorPeriodo {
+    periodo: 'semana' | 'mes' | 'trimestre' | 'anio';
+    fecha_inicio: string;
+    fecha_fin: string;
+    total_tramites: number;
+    datos_grafico: Array<{
+        fecha: string;
+        cantidad: number;
+    }>;
+    distribucion_estados: Array<{
+        estado: string;
+        cantidad: number;
+    }>;
+}
+
+export interface EstadisticasTrabajador {
+    id_usuario: string;
+    nombre_completo: string;
+    dni: string;
+    total_recibidos: number;
+    pendientes: number;
+    completados: number;
+    porcentaje_completado: number;
+    promedio_tiempo_respuesta_horas: number;
+}
+
+export interface EstadisticasPorTrabajador {
+    total_trabajadores: number;
+    trabajadores: EstadisticasTrabajador[];
+}
+
+export interface TiemposRespuesta {
+    envio_a_apertura: {
+        promedio: number;
+        minimo: number;
+        maximo: number;
+    };
+    apertura_a_lectura: {
+        promedio: number;
+        minimo: number;
+        maximo: number;
+    };
+    lectura_a_firma: {
+        promedio: number;
+        minimo: number;
+        maximo: number;
+    };
+    tiempo_total: {
+        promedio: number;
+        minimo: number;
+        maximo: number;
+    };
+    total_muestras: number;
+}
+
+export interface EstadisticasTiposDocumentos {
+    total_tipos: number;
+    distribucion: Array<{
+        nombre: string;
+        codigo: string;
+        total: number;
+        firmados: number;
+        pendientes: number;
+    }>;
+}
+
+export interface RankingEficiencia {
+    top_completado: EstadisticasTrabajador[];
+    top_velocidad: EstadisticasTrabajador[];
+}
+
+export interface EstadisticasObservaciones {
+    total: number;
+    pendientes: number;
+    resueltas: number;
+    tasa_resolucion: number;
+    distribucion_por_tipo: Array<{
+        tipo: string;
+        cantidad: number;
+    }>;
+}
+
+export interface ActividadReciente {
+    ultimas_actividades: Array<{
+        id: string;
+        accion: string;
+        detalle: string;
+        fecha: string;
+        tramite_codigo: string;
+        tramite_asunto: string;
+        usuario: string;
+    }>;
+    actividad_diaria: Array<{
+        fecha: string;
+        cantidad: number;
+    }>;
+}
