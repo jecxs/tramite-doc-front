@@ -15,12 +15,12 @@ interface TramitesFiltersInlineProps {
 }
 
 export default function TramitesFiltersInline({
-  onApplyFilters,
-  onClearFilters,
-  currentFilters = {},
-  showAdvanced,
-  onToggleAdvanced,
-}: TramitesFiltersInlineProps) {
+                                                onApplyFilters,
+                                                onClearFilters,
+                                                currentFilters = {},
+                                                showAdvanced,
+                                                onToggleAdvanced,
+                                              }: TramitesFiltersInlineProps) {
   const [search, setSearch] = useState(currentFilters.search || '');
   const [selectedEstado, setSelectedEstado] = useState<string>(currentFilters.estado || '');
   const [requiereFirma, setRequiereFirma] = useState<boolean | undefined>(
@@ -53,32 +53,32 @@ export default function TramitesFiltersInline({
 
   return (
     <div className='space-y-4'>
-      {/* Filtros Básicos - Siempre visibles */}
-      <div className='bg-white border border-gray-200 rounded-lg p-4'>
+      {/* Filtros Básicos */}
+      <div className='bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 shadow-lg' style={{backgroundColor: '#272d34'}}>
         <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
           {/* Búsqueda */}
           <div className='md:col-span-2'>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>Buscar</label>
+            <label className='block text-sm font-medium text-gray-300 mb-2'>Buscar</label>
             <div className='relative'>
-              <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400' />
+              <Search className='absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400' />
               <input
                 type='text'
                 placeholder='Código o asunto del trámite...'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleApply()}
-                className='w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                className='w-full pl-12 pr-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all'
               />
             </div>
           </div>
 
           {/* Estado */}
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>Estado</label>
+            <label className='block text-sm font-medium text-gray-300 mb-2'>Estado</label>
             <select
               value={selectedEstado}
               onChange={(e) => setSelectedEstado(e.target.value)}
-              className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+              className='w-full px-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all appearance-none cursor-pointer'
             >
               <option value=''>Todos</option>
               {Object.entries(PROCEDURE_STATE_LABELS).map(([key, label]) => (
@@ -91,13 +91,13 @@ export default function TramitesFiltersInline({
 
           {/* Requiere Firma */}
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>Firma</label>
+            <label className='block text-sm font-medium text-gray-300 mb-2'>Firma</label>
             <select
               value={requiereFirma === undefined ? '' : String(requiereFirma)}
               onChange={(e) =>
                 setRequiereFirma(e.target.value === '' ? undefined : e.target.value === 'true')
               }
-              className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+              className='w-full px-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all appearance-none cursor-pointer'
             >
               <option value=''>Todos</option>
               <option value='true'>Requiere firma</option>
@@ -107,11 +107,11 @@ export default function TramitesFiltersInline({
         </div>
 
         {/* Botones de Acción */}
-        <div className='flex items-center justify-between mt-4 pt-4 border-t border-gray-200'>
+        <div className='flex items-center justify-between mt-6 pt-6 border-t border-slate-700/50'>
           <button
             type='button'
             onClick={onToggleAdvanced}
-            className='flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700'
+            className='flex items-center gap-2 text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors'
           >
             {showAdvanced ? (
               <>
@@ -128,12 +128,23 @@ export default function TramitesFiltersInline({
 
           <div className='flex items-center gap-3'>
             {hasActiveFilters && (
-              <Button type='button' variant='ghost' size='sm' onClick={handleClear}>
-                <X className='w-4 h-4' />
+              <Button
+                type='button'
+                variant='ghost'
+                size='sm'
+                onClick={handleClear}
+                className='text-gray-400 hover:text-white hover:bg-slate-700/50'
+              >
+                <X className='w-4 h-4 mr-2' />
                 Limpiar
               </Button>
             )}
-            <Button type='button' onClick={handleApply} size='sm'>
+            <Button
+              type='button'
+              onClick={handleApply}
+              size='sm'
+              className='bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 rounded-xl shadow-lg'
+            >
               Aplicar filtros
             </Button>
           </div>
@@ -142,51 +153,53 @@ export default function TramitesFiltersInline({
 
       {/* Mensaje de filtros activos */}
       {hasActiveFilters && (
-        <div className='flex items-center gap-2 text-sm text-gray-600'>
-          <span className='font-medium'>Filtros activos:</span>
-          {search && (
-            <span className='inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded'>
-              Búsqueda: &ldquo;{search}&rdquo;
-              <button
-                onClick={() => {
-                  setSearch('');
-                  handleApply();
-                }}
-                className='hover:text-blue-900'
-              >
-                <X className='w-3 h-3' />
-              </button>
-            </span>
-          )}
-          {selectedEstado && (
-            <span className='inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded'>
-              Estado:{' '}
-              {PROCEDURE_STATE_LABELS[selectedEstado as keyof typeof PROCEDURE_STATE_LABELS]}
-              <button
-                onClick={() => {
-                  setSelectedEstado('');
-                  handleApply();
-                }}
-                className='hover:text-blue-900'
-              >
-                <X className='w-3 h-3' />
-              </button>
-            </span>
-          )}
-          {requiereFirma !== undefined && (
-            <span className='inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded'>
-              {requiereFirma ? 'Con firma' : 'Sin firma'}
-              <button
-                onClick={() => {
-                  setRequiereFirma(undefined);
-                  handleApply();
-                }}
-                className='hover:text-blue-900'
-              >
-                <X className='w-3 h-3' />
-              </button>
-            </span>
-          )}
+        <div className='flex items-center gap-3 text-sm'>
+          <span className='font-medium text-gray-300'>Filtros activos:</span>
+          <div className='flex flex-wrap gap-2'>
+            {search && (
+              <span className='inline-flex items-center gap-2 px-3 py-1.5 bg-purple-900/30 text-purple-300 rounded-lg border border-purple-700/50'>
+                Búsqueda: &ldquo;{search}&rdquo;
+                <button
+                  onClick={() => {
+                    setSearch('');
+                    handleApply();
+                  }}
+                  className='hover:text-purple-100 transition-colors'
+                >
+                  <X className='w-3 h-3' />
+                </button>
+              </span>
+            )}
+            {selectedEstado && (
+              <span className='inline-flex items-center gap-2 px-3 py-1.5 bg-blue-900/30 text-blue-300 rounded-lg border border-blue-700/50'>
+                Estado:{' '}
+                {PROCEDURE_STATE_LABELS[selectedEstado as keyof typeof PROCEDURE_STATE_LABELS]}
+                <button
+                  onClick={() => {
+                    setSelectedEstado('');
+                    handleApply();
+                  }}
+                  className='hover:text-blue-100 transition-colors'
+                >
+                  <X className='w-3 h-3' />
+                </button>
+              </span>
+            )}
+            {requiereFirma !== undefined && (
+              <span className='inline-flex items-center gap-2 px-3 py-1.5 bg-purple-900/30 text-purple-300 rounded-lg border border-purple-700/50'>
+                {requiereFirma ? 'Con firma' : 'Sin firma'}
+                <button
+                  onClick={() => {
+                    setRequiereFirma(undefined);
+                    handleApply();
+                  }}
+                  className='hover:text-purple-100 transition-colors'
+                >
+                  <X className='w-3 h-3' />
+                </button>
+              </span>
+            )}
+          </div>
         </div>
       )}
     </div>

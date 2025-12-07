@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Zap, Info } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Select from '@/components/ui/Select';
@@ -27,12 +28,12 @@ interface Step1SelectionProps {
 }
 
 export default function Step1Selection({
-  documentTypes,
-  selectedDocType,
-  onDocTypeChange,
-  onDetectionComplete,
-  onError,
-}: Step1SelectionProps) {
+                                         documentTypes,
+                                         selectedDocType,
+                                         onDocTypeChange,
+                                         onDetectionComplete,
+                                         onError,
+                                       }: Step1SelectionProps) {
   const [archivos, setArchivos] = useState<File[]>([]);
   const [isDetecting, setIsDetecting] = useState(false);
   const [errors, setErrors] = useState<{ id_tipo_documento?: string; archivos_lote?: string }>({});
@@ -40,7 +41,6 @@ export default function Step1Selection({
   const selectedDoc = documentTypes.find((dt) => dt.id_tipo === selectedDocType);
 
   const handleDetectar = async () => {
-    // Validación
     const newErrors: { id_tipo_documento?: string; archivos_lote?: string } = {};
 
     if (!selectedDocType) {
@@ -69,7 +69,6 @@ export default function Step1Selection({
         return;
       }
 
-      // Subir documentos
       console.log('📤 Subiendo documentos en lote...');
       const documentosSubidos = await uploadDocumentsBatch(
         archivos,
@@ -77,7 +76,6 @@ export default function Step1Selection({
       );
       console.log('✅ Documentos subidos:', documentosSubidos);
 
-      // Generar mensajes predeterminados
       const tramitesPreparados: DocumentoConDestinatarioDto[] = [];
 
       for (let i = 0; i < resultado.exitosos.length; i++) {
@@ -110,15 +108,15 @@ export default function Step1Selection({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Paso 1: Seleccionar Documentos</CardTitle>
-        <CardDescription>
+    <Card className='bg-[#272d34] backdrop-blur-md shadow-2xl'>
+      <CardHeader className='border-b border-[#3D4153]/40 pb-5'>
+        <CardTitle className='text-white text-lg font-medium'>Paso 1: Seleccionar Documentos</CardTitle>
+        <CardDescription className='text-gray-400 text-sm mt-2'>
           Elija el tipo de documento y suba los archivos. Los nombres deben iniciar con el DNI del
           destinatario.
         </CardDescription>
       </CardHeader>
-      <CardContent className='space-y-4'>
+      <CardContent className='space-y-5 pt-6'>
         <Select
           label='Tipo de Documento'
           placeholder='Seleccione un tipo'
@@ -133,18 +131,25 @@ export default function Step1Selection({
           }))}
           error={errors.id_tipo_documento}
           required
+          className='bg-[#1E2029]/60 border-[#3D4153]/50 text-white focus:border-blue-400/60 focus:ring-1 focus:ring-blue-400/30 transition-all duration-200'
         />
 
         {selectedDoc && (
-          <div className='bg-blue-50 border border-blue-200 rounded-lg p-3'>
-            <div className='flex items-start gap-2'>
-              <Info className='w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0' />
-              <div className='text-sm text-blue-800'>
-                <p className='font-medium mb-1'>Tipo seleccionado: {selectedDoc.nombre}</p>
-                {selectedDoc.descripcion && <p className='text-xs'>{selectedDoc.descripcion}</p>}
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className='bg-blue-500/10 border border-blue-400/30 rounded-xl p-4'
+          >
+            <div className='flex items-start gap-3'>
+              <div className='w-9 h-9 rounded-lg bg-blue-500/15 flex items-center justify-center flex-shrink-0 border border-blue-400/20'>
+                <Info className='w-4.5 h-4.5 text-blue-300' />
+              </div>
+              <div className='text-sm'>
+                <p className='font-medium text-white mb-1'>Tipo seleccionado: {selectedDoc.nombre}</p>
+                {selectedDoc.descripcion && <p className='text-xs text-gray-400'>{selectedDoc.descripcion}</p>}
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
         <AutoLoteFileUpload
@@ -164,7 +169,7 @@ export default function Step1Selection({
           onClick={handleDetectar}
           isLoading={isDetecting}
           disabled={isDetecting || archivos.length === 0 || !selectedDocType}
-          className='w-full'
+          className='w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg shadow-blue-500/20 transition-all duration-200 h-11 font-medium'
         >
           <Zap className='w-4 h-4' />
           {isDetecting ? 'Detectando...' : 'Detectar Destinatarios'}

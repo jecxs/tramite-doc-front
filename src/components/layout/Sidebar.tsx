@@ -112,7 +112,7 @@ const navItems: NavItem[] = [
   },
   {
     label: 'Mis Observaciones',
-    href: ROUTE_PATHS.WORKER_NOTIFICATIONS,
+    href: ROUTE_PATHS.WORKER_OBSERVATIONS,
     icon: <MessageSquare className='w-5 h-5' />,
     roles: [ROLES.TRAB],
   },

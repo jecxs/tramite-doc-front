@@ -52,25 +52,23 @@ export default function ExportarHistorialButton({
   };
 
   return (
-    <Button
-      variant={variant}
-      size={size}
+    <button
       onClick={handleExport}
       disabled={isExporting}
-      className={className}
+      className={`inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed bg-[#1e82ae] hover:bg-[#8922A8] text-white border border-[#2596be] ${className}`}
       title='Descargar historial en PDF'
     >
       {isExporting ? (
         <>
           <Loader2 className='w-4 h-4 animate-spin' />
-          {showText && <span className='ml-2'>Exportando...</span>}
+          {showText && <span>Exportando...</span>}
         </>
       ) : (
         <>
           {showIcon && <Download className='w-4 h-4' />}
-          {showText && <span className={showIcon ? 'ml-2' : ''}>Exportar PDF</span>}
+          {showText && <span>Exportar PDF</span>}
         </>
       )}
-    </Button>
+    </button>
   );
 }

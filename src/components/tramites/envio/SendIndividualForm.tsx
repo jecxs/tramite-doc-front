@@ -215,7 +215,7 @@ export default function SendIndividualForm({
               rows={4}
               maxLength={1000}
               showCharCount
-              className='bg-[#1E2029]/60 border-[#3D4153]/50 text-white placeholder:text-gray-500 focus:border-blue-400/60 focus:ring-1 focus:ring-blue-400/30 transition-all duration-200 resize-none'
+              className='bg-[#1E2029]/60 border-[#3D4153]/50 text-black placeholder:text-gray-500 focus:border-blue-400/60 focus:ring-1 focus:ring-blue-400/30 transition-all duration-200 resize-none'
             />
           </CardContent>
         </Card>

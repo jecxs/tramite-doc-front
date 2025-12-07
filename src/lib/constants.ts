@@ -97,6 +97,7 @@ export const ROUTE_PATHS = {
   WORKER_DASHBOARD: '/trabajador',
   WORKER_DOCUMENTS: '/trabajador/tramites',
   WORKER_NOTIFICATIONS: '/trabajador/notificaciones',
+  WORKER_OBSERVATIONS: '/trabajador/observaciones',
 } as const;
 
 export const ROUTE_BUILDERS = {

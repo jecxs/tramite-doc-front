@@ -167,11 +167,11 @@ export default function SendBulkForm({ workers, documentTypes, onError }: SendBu
       variants={containerVariants}
       initial='hidden'
       animate='visible'
-      className='space-y-6 max-w-5xl mx-auto'
+      className='space-y-6  mx-auto'
     >
       {/* Información del Trámite */}
       <motion.div variants={itemVariants}>
-        <Card className='bg-[#2A2D3A]/40 border-[#3D4153]/60 backdrop-blur-md shadow-2xl'>
+        <Card className='bg-[#272d34] backdrop-blur-md shadow-2xl'>
           <CardHeader className='border-b border-[#3D4153]/40 pb-5'>
             <div className='flex items-center gap-3'>
               <div className='w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/15 to-purple-600/15 flex items-center justify-center border border-purple-500/20'>
@@ -245,7 +245,7 @@ export default function SendBulkForm({ workers, documentTypes, onError }: SendBu
 
       {/* Información del Documento */}
       <motion.div variants={itemVariants}>
-        <Card className='bg-[#2A2D3A]/40 border-[#3D4153]/60 backdrop-blur-md shadow-2xl'>
+        <Card className='bg-[#272d34] backdrop-blur-md shadow-2xl'>
           <CardHeader className='border-b border-[#3D4153]/40 pb-5'>
             <div className='flex items-center gap-3'>
               <div className='w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/15 to-blue-600/15 flex items-center justify-center border border-blue-500/20'>

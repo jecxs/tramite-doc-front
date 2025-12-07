@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Send } from 'lucide-react';
+import { Send, ArrowLeft } from 'lucide-react';
+import { motion } from 'framer-motion';
 import Button from '@/components/ui/Button';
 import { DocumentoConDestinatarioDto, DeteccionDestinatarioDto, DocumentType } from '@/types';
 import { crearTramitesAutoLote } from '@/lib/api/tramites-auto';
@@ -25,12 +26,12 @@ interface Step2ReviewProps {
 }
 
 export default function Step2Review({
-  deteccionResultado,
-  tramitesListos,
-  onTramitesChange,
-  onBack,
-  onError,
-}: Step2ReviewProps) {
+                                      deteccionResultado,
+                                      tramitesListos,
+                                      onTramitesChange,
+                                      onBack,
+                                      onError,
+                                    }: Step2ReviewProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -77,7 +78,11 @@ export default function Step2Review({
   };
 
   return (
-    <div className='space-y-6'>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className='space-y-6'
+    >
       {/* Resumen de detección */}
       <DetectionSummary
         exitososCount={deteccionResultado.exitosos.length}
@@ -98,8 +103,20 @@ export default function Step2Review({
       )}
 
       {/* Botones de acción */}
-      <div className='flex gap-3'>
-        <Button type='button' variant='ghost' onClick={onBack} disabled={isLoading}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className='flex items-center justify-end gap-3 pt-2'
+      >
+        <Button
+          type='button'
+          variant='ghost'
+          onClick={onBack}
+          disabled={isLoading}
+          className='bg-[#2A2D3A]/60 hover:bg-[#2A2D3A]/80 text-gray-300 hover:text-white border border-[#3D4153]/60 transition-all duration-200 px-6 h-11'
+        >
+          <ArrowLeft className='w-4 h-4' />
           Volver
         </Button>
         <Button
@@ -107,12 +124,12 @@ export default function Step2Review({
           onClick={handleEnviar}
           isLoading={isLoading}
           disabled={isLoading || tramitesListos.length === 0}
-          className='flex-1'
+          className='bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg shadow-emerald-500/20 transition-all duration-200 px-6 h-11 font-medium flex-1 max-w-md'
         >
           <Send className='w-4 h-4' />
           Enviar {tramitesListos.length} Trámite{tramitesListos.length !== 1 ? 's' : ''}
         </Button>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
