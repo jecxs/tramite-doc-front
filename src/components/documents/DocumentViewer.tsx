@@ -1,229 +1,231 @@
 // src/components/documents/DocumentViewer.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { FileText, FileSpreadsheet, File, AlertCircle, Download, Eye } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import PDFViewer from './PDFViewer';
 import { toast } from 'sonner';
 
 interface DocumentViewerProps {
-    documentUrl: string;
-    documentId: string;
-    procedureId: string;
-    fileName: string;
-    fileExtension: string;
-    onReadThresholdReached?: () => void;
-    onDownload?: () => void;
-    readThreshold?: number;
-    autoMarkAsRead?: boolean;
+  documentUrl: string;
+  documentId: string;
+  procedureId: string;
+  fileName: string;
+  fileExtension: string;
+  onReadThresholdReached?: () => void;
+  onDownload?: () => void;
+  readThreshold?: number;
+  autoMarkAsRead?: boolean;
 }
 
 const VIEWABLE_EXTENSIONS = ['.pdf'];
-const DOWNLOADABLE_EXTENSIONS = ['.xlsx', '.xls', '.doc', '.docx', '.csv', '.zip', '.png', '.jpg', '.jpeg'];
+const DOWNLOADABLE_EXTENSIONS = [
+  '.xlsx',
+  '.xls',
+  '.doc',
+  '.docx',
+  '.csv',
+  '.zip',
+  '.png',
+  '.jpg',
+  '.jpeg',
+];
 
 export default function DocumentViewer({
-                                           documentUrl,
-                                           documentId,
-                                           procedureId,
-                                           fileName,
-                                           fileExtension,
-                                           onReadThresholdReached,
-                                           onDownload,
-                                           readThreshold = 50,
-                                           autoMarkAsRead = true,
-                                       }: DocumentViewerProps) {
-    const extension = fileExtension.toLowerCase();
-    const isViewable = VIEWABLE_EXTENSIONS.includes(extension);
-    const requiresDownload = DOWNLOADABLE_EXTENSIONS.includes(extension);
+  documentUrl,
+  documentId,
+  procedureId,
+  fileName,
+  fileExtension,
+  onReadThresholdReached,
+  onDownload,
+  readThreshold = 50,
+  autoMarkAsRead = true,
+}: DocumentViewerProps) {
+  const extension = fileExtension.toLowerCase();
+  const isViewable = VIEWABLE_EXTENSIONS.includes(extension);
+  const requiresDownload = DOWNLOADABLE_EXTENSIONS.includes(extension);
 
-    console.log('📄 DocumentViewer props:', {
-        fileName,
-        fileExtension: extension,
-        isViewable,
-        requiresDownload,
-        hasUrl: !!documentUrl,
-        urlLength: documentUrl?.length || 0
-    });
+  console.log('📄 DocumentViewer props:', {
+    fileName,
+    fileExtension: extension,
+    isViewable,
+    requiresDownload,
+    hasUrl: !!documentUrl,
+    urlLength: documentUrl?.length || 0,
+  });
 
-    // Si es PDF, usar el visor especializado
-    if (extension === '.pdf' && isViewable) {
-        return (
-            <PDFViewer
-                documentUrl={documentUrl}
-                documentId={documentId}
-                procedureId={procedureId}
-                onReadThresholdReached={onReadThresholdReached}
-                onDownload={onDownload}
-                readThreshold={readThreshold}
-                autoMarkAsRead={autoMarkAsRead}
-            />
-        );
-    }
-
-    // Para archivos que requieren descarga (Excel, Word, etc.)
-    if (requiresDownload) {
-        return (
-            <DownloadableDocument
-                fileName={fileName}
-                fileExtension={extension}
-                onDownload={onDownload}
-                onMarkAsRead={onReadThresholdReached}
-                autoMarkAsRead={autoMarkAsRead}
-            />
-        );
-    }
-
-    // Para otros tipos de archivo no soportados
+  // Si es PDF, usar el visor especializado
+  if (extension === '.pdf' && isViewable) {
     return (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-            <AlertCircle className="w-12 h-12 text-yellow-600 mx-auto mb-3" />
-            <p className="text-yellow-900 font-medium">
-                Este tipo de archivo no se puede visualizar en el navegador
-            </p>
-            <p className="text-yellow-700 text-sm mt-2">
-                Extensión: <span className="font-mono font-semibold">{fileExtension}</span>
-            </p>
-            {onDownload && (
-                <Button onClick={onDownload} className="mt-4">
-                    <Download className="w-4 h-4" />
-                    Descargar Archivo
-                </Button>
-            )}
-        </div>
+      <PDFViewer
+        documentUrl={documentUrl}
+        documentId={documentId}
+        procedureId={procedureId}
+        onReadThresholdReached={onReadThresholdReached}
+        onDownload={onDownload}
+        readThreshold={readThreshold}
+        autoMarkAsRead={autoMarkAsRead}
+      />
     );
+  }
+
+  // Para archivos que requieren descarga (Excel, Word, etc.)
+  if (requiresDownload) {
+    return (
+      <DownloadableDocument
+        fileName={fileName}
+        fileExtension={extension}
+        onDownload={onDownload}
+        onMarkAsRead={onReadThresholdReached}
+        autoMarkAsRead={autoMarkAsRead}
+      />
+    );
+  }
+
+  // Para otros tipos de archivo no soportados
+  return (
+    <div className='bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center'>
+      <AlertCircle className='w-12 h-12 text-yellow-600 mx-auto mb-3' />
+      <p className='text-yellow-900 font-medium'>
+        Este tipo de archivo no se puede visualizar en el navegador
+      </p>
+      <p className='text-yellow-700 text-sm mt-2'>
+        Extensión: <span className='font-mono font-semibold'>{fileExtension}</span>
+      </p>
+      {onDownload && (
+        <Button onClick={onDownload} className='mt-4'>
+          <Download className='w-4 h-4' />
+          Descargar Archivo
+        </Button>
+      )}
+    </div>
+  );
 }
 
 interface DownloadableDocumentProps {
-    fileName: string;
-    fileExtension: string;
-    onDownload?: () => void;
-    onMarkAsRead?: () => void;
-    autoMarkAsRead?: boolean;
+  fileName: string;
+  fileExtension: string;
+  onDownload?: () => void;
+  onMarkAsRead?: () => void;
+  autoMarkAsRead?: boolean;
 }
 
 function DownloadableDocument({
-                                  fileName,
-                                  fileExtension,
-                                  onDownload,
-                                  onMarkAsRead,
-                                  autoMarkAsRead,
-                              }: DownloadableDocumentProps) {
-    const [hasDownloaded, setHasDownloaded] = useState(false);
-    const [isMarking, setIsMarking] = useState(false);
+  fileName,
+  fileExtension,
+  onDownload,
+  onMarkAsRead,
+  autoMarkAsRead,
+}: DownloadableDocumentProps) {
+  const [hasDownloaded, setHasDownloaded] = useState(false);
+  const [isMarking, setIsMarking] = useState(false);
 
-    const getFileIcon = () => {
-        if (['.xlsx', '.xls', '.csv'].includes(fileExtension)) {
-            return <FileSpreadsheet className="w-16 h-16 text-green-600" />;
+  const getFileIcon = () => {
+    if (['.xlsx', '.xls', '.csv'].includes(fileExtension)) {
+      return <FileSpreadsheet className='w-16 h-16 text-green-600' />;
+    }
+    if (['.doc', '.docx'].includes(fileExtension)) {
+      return <FileText className='w-16 h-16 text-blue-600' />;
+    }
+    return <File className='w-16 h-16 text-gray-600' />;
+  };
+
+  const getFileTypeLabel = () => {
+    switch (fileExtension) {
+      case '.xlsx':
+      case '.xls':
+        return 'Hoja de Cálculo Excel';
+      case '.csv':
+        return 'Archivo CSV';
+      case '.doc':
+      case '.docx':
+        return 'Documento Word';
+      case '.zip':
+        return 'Archivo Comprimido';
+      case '.png':
+      case '.jpg':
+      case '.jpeg':
+        return 'Imagen';
+      default:
+        return 'Archivo';
+    }
+  };
+
+  const handleDownload = async () => {
+    if (onDownload) {
+      onDownload();
+      setHasDownloaded(true);
+
+      // Para archivos no visualizables, marcar como leído al descargar
+      if (autoMarkAsRead && onMarkAsRead && !hasDownloaded) {
+        try {
+          setIsMarking(true);
+          console.log('📥 Archivo descargado, marcando como leído...');
+
+          // Esperar un momento para asegurar que la descarga se inició
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+
+          await onMarkAsRead();
+
+          toast.success('Documento marcado como leído al descargar');
+          console.log('✅ Marcado como leído tras descarga');
+        } catch (error) {
+          console.error('❌ Error al marcar como leído:', error);
+          toast.error('Error al marcar como leído');
+        } finally {
+          setIsMarking(false);
         }
-        if (['.doc', '.docx'].includes(fileExtension)) {
-            return <FileText className="w-16 h-16 text-blue-600" />;
-        }
-        return <File className="w-16 h-16 text-gray-600" />;
-    };
+      }
+    }
+  };
 
-    const getFileTypeLabel = () => {
-        switch (fileExtension) {
-            case '.xlsx':
-            case '.xls':
-                return 'Hoja de Cálculo Excel';
-            case '.csv':
-                return 'Archivo CSV';
-            case '.doc':
-            case '.docx':
-                return 'Documento Word';
-            case '.zip':
-                return 'Archivo Comprimido';
-            case '.png':
-            case '.jpg':
-            case '.jpeg':
-                return 'Imagen';
-            default:
-                return 'Archivo';
-        }
-    };
-
-    const handleDownload = async () => {
-        if (onDownload) {
-            onDownload();
-            setHasDownloaded(true);
-
-            // Para archivos no visualizables, marcar como leído al descargar
-            if (autoMarkAsRead && onMarkAsRead && !hasDownloaded) {
-                try {
-                    setIsMarking(true);
-                    console.log('📥 Archivo descargado, marcando como leído...');
-
-                    // Esperar un momento para asegurar que la descarga se inició
-                    await new Promise(resolve => setTimeout(resolve, 1500));
-
-                    await onMarkAsRead();
-
-                    toast.success('Documento marcado como leído al descargar');
-                    console.log('✅ Marcado como leído tras descarga');
-                } catch (error) {
-                    console.error('❌ Error al marcar como leído:', error);
-                    toast.error('Error al marcar como leído');
-                } finally {
-                    setIsMarking(false);
-                }
-            }
-        }
-    };
-
-    return (
-        <div className="space-y-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                    <p className="text-sm font-medium text-blue-900">
-                        Este tipo de archivo debe descargarse para visualizarlo
-                    </p>
-                    <p className="text-xs text-blue-700 mt-1">
-                        El documento se marcará como leído automáticamente al descargarlo.
-                    </p>
-                </div>
-            </div>
-
-            <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-12">
-                <div className="text-center">
-                    {getFileIcon()}
-                    <h3 className="text-lg font-semibold text-gray-900 mt-4">
-                        {fileName}
-                    </h3>
-                    <p className="text-sm text-gray-600 mt-1">
-                        {getFileTypeLabel()}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                        Extensión: <span className="font-mono">{fileExtension}</span>
-                    </p>
-
-                    <div className="flex items-center justify-center gap-3 mt-6">
-                        <Button
-                            onClick={handleDownload}
-                            size="lg"
-                            disabled={isMarking}
-                        >
-                            <Download className="w-5 h-5" />
-                            {hasDownloaded ? 'Descargar Nuevamente' : 'Descargar Archivo'}
-                        </Button>
-                    </div>
-
-                    {hasDownloaded && !isMarking && (
-                        <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-lg text-sm">
-                            <Eye className="w-4 h-4" />
-                            Archivo descargado
-                        </div>
-                    )}
-
-                    {isMarking && (
-                        <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-lg text-sm">
-                            <span className="animate-spin">⏳</span>
-                            Marcando como leído...
-                        </div>
-                    )}
-                </div>
-            </div>
+  return (
+    <div className='space-y-4'>
+      <div className='bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3'>
+        <AlertCircle className='w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5' />
+        <div className='flex-1'>
+          <p className='text-sm font-medium text-blue-900'>
+            Este tipo de archivo debe descargarse para visualizarlo
+          </p>
+          <p className='text-xs text-blue-700 mt-1'>
+            El documento se marcará como leído automáticamente al descargarlo.
+          </p>
         </div>
-    );
+      </div>
+
+      <div className='bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-12'>
+        <div className='text-center'>
+          {getFileIcon()}
+          <h3 className='text-lg font-semibold text-gray-900 mt-4'>{fileName}</h3>
+          <p className='text-sm text-gray-600 mt-1'>{getFileTypeLabel()}</p>
+          <p className='text-xs text-gray-500 mt-1'>
+            Extensión: <span className='font-mono'>{fileExtension}</span>
+          </p>
+
+          <div className='flex items-center justify-center gap-3 mt-6'>
+            <Button onClick={handleDownload} size='lg' disabled={isMarking}>
+              <Download className='w-5 h-5' />
+              {hasDownloaded ? 'Descargar Nuevamente' : 'Descargar Archivo'}
+            </Button>
+          </div>
+
+          {hasDownloaded && !isMarking && (
+            <div className='mt-4 inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-lg text-sm'>
+              <Eye className='w-4 h-4' />
+              Archivo descargado
+            </div>
+          )}
+
+          {isMarking && (
+            <div className='mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-lg text-sm'>
+              <span className='animate-spin'>⏳</span>
+              Marcando como leído...
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }

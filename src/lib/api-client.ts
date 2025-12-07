@@ -26,7 +26,7 @@ apiClient.interceptors.request.use(
   },
   (error: AxiosError) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor
@@ -46,14 +46,18 @@ apiClient.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;
 
 export const handleApiError = (error: unknown): string => {
   if (axios.isAxiosError(error)) {
-    const axiosError = error as AxiosError<{ message: string | string[]; error: string; statusCode: number }>;
+    const axiosError = error as AxiosError<{
+      message: string | string[];
+      error: string;
+      statusCode: number;
+    }>;
 
     if (error.code === 'ERR_NETWORK') {
       return 'No se puede conectar con el servidor. Verifique que el backend esté corriendo.';

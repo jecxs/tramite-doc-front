@@ -199,22 +199,24 @@ export function useRole() {
       if (!user) return false;
 
       const roles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
-      return roles.some((role) => user.roles.includes(role));
+      return roles.some((role) => (user.roles as ROLES[]).includes(role as ROLES));
     },
     [user],
   );
 
-  const getRoleName = useCallback((role: ROLES): string => {
+  const getRoleName = useCallback((role: ROLES | null): string => {
     const roleLabels: Record<ROLES, string> = {
       [ROLES.ADMIN]: 'Administrador',
       [ROLES.RESP]: 'Responsable',
       [ROLES.TRAB]: 'Trabajador',
     };
 
+    if (!role) return 'Sin Role';
+
     return roleLabels[role] || role;
   }, []);
 
-  const primaryRole = user?.roles[0];
+  const primaryRole = user?.roles?.[0] ?? null;
 
   const isAdmin = primaryRole === ROLES.ADMIN;
   const isResponsible = primaryRole === ROLES.RESP;

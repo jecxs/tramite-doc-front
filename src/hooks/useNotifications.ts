@@ -5,7 +5,12 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { Notification } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
-import { getNotifications, getUnreadCount, markNotificationAsRead, markAllNotificationsAsRead } from '@/lib/api/notificaciones';
+import {
+  getNotifications,
+  getUnreadCount,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+} from '@/lib/api/notificaciones';
 import { toast } from 'sonner';
 import { config } from '@/config';
 
@@ -33,7 +38,10 @@ export function useNotifications(): UseNotificationsReturn {
 
     try {
       setIsLoading(true);
-      const [notifData, countData] = await Promise.all([getNotifications({ visto: false }), getUnreadCount()]);
+      const [notifData, countData] = await Promise.all([
+        getNotifications({ visto: false }),
+        getUnreadCount(),
+      ]);
 
       setNotifications(notifData);
       setUnreadCount(countData.count);
@@ -136,7 +144,13 @@ export function useNotifications(): UseNotificationsReturn {
       await markNotificationAsRead(id);
 
       // Actualizar estado local
-      setNotifications((prev) => prev.map((notif) => (notif.id_notificacion === id ? { ...notif, visto: true, fecha_visto: new Date().toISOString() } : notif)));
+      setNotifications((prev) =>
+        prev.map((notif) =>
+          notif.id_notificacion === id
+            ? { ...notif, visto: true, fecha_visto: new Date().toISOString() }
+            : notif,
+        ),
+      );
 
       setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
@@ -156,7 +170,7 @@ export function useNotifications(): UseNotificationsReturn {
           ...notif,
           visto: true,
           fecha_visto: new Date().toISOString(),
-        }))
+        })),
       );
 
       setUnreadCount(0);

@@ -199,7 +199,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               <div className='flex-1 min-w-0'>
                 <p className='text-xs font-medium text-gray-600 mb-0.5'>Perfil actual</p>
                 <p className='text-sm font-semibold text-gray-900 truncate'>
-                  {getRoleName(currentRole || '')}
+                  {getRoleName(currentRole)}
                 </p>
               </div>
             </div>

@@ -29,28 +29,40 @@ interface WorkerSelectorProps {
   required?: boolean;
 }
 
-const WorkerSelector: React.FC<WorkerSelectorProps> = ({ workers, selectedWorkerId, onSelect, error, required = false }) => {
+const WorkerSelector: React.FC<WorkerSelectorProps> = ({
+  workers,
+  selectedWorkerId,
+  onSelect,
+  error,
+  required = false,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   // Agrupar trabajadores por área
   const workersByArea = useMemo(() => {
-    const grouped = workers.reduce((acc, worker) => {
-      const areaName = worker.area?.nombre || 'Sin área';
-      if (!acc[areaName]) {
-        acc[areaName] = [];
-      }
-      acc[areaName].push(worker);
-      return acc;
-    }, {} as Record<string, User[]>);
+    const grouped = workers.reduce(
+      (acc, worker) => {
+        const areaName = worker.area?.nombre || 'Sin área';
+        if (!acc[areaName]) {
+          acc[areaName] = [];
+        }
+        acc[areaName].push(worker);
+        return acc;
+      },
+      {} as Record<string, User[]>,
+    );
 
     // Ordenar áreas alfabéticamente
     return Object.keys(grouped)
       .sort()
-      .reduce((acc, key) => {
-        acc[key] = grouped[key];
-        return acc;
-      }, {} as Record<string, User[]>);
+      .reduce(
+        (acc, key) => {
+          acc[key] = grouped[key];
+          return acc;
+        },
+        {} as Record<string, User[]>,
+      );
   }, [workers]);
 
   // Filtrar trabajadores por búsqueda
@@ -67,7 +79,7 @@ const WorkerSelector: React.FC<WorkerSelectorProps> = ({ workers, selectedWorker
           w.apellidos.toLowerCase().includes(term) ||
           w.dni.includes(term) ||
           w.correo.toLowerCase().includes(term) ||
-          area.toLowerCase().includes(term)
+          area.toLowerCase().includes(term),
       );
 
       if (matches.length > 0) {
@@ -217,7 +229,9 @@ const WorkerSelector: React.FC<WorkerSelectorProps> = ({ workers, selectedWorker
                                   <span className='truncate'>{worker.correo}</span>
                                 </div>
                               </div>
-                              {isSelected && <Check className='w-5 h-5 text-blue-600 flex-shrink-0' />}
+                              {isSelected && (
+                                <Check className='w-5 h-5 text-blue-600 flex-shrink-0' />
+                              )}
                             </button>
                           );
                         })}

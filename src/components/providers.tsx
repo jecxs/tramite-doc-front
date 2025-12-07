@@ -3,13 +3,9 @@
 import { AuthProvider } from '@/contexts/AuthContext';
 
 interface ProvidersProps {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
 
 export function Providers({ children }: ProvidersProps) {
-    return (
-        <AuthProvider>
-            {children}
-        </AuthProvider>
-    );
+  return <AuthProvider>{children}</AuthProvider>;
 }

@@ -9,70 +9,70 @@ import { exportarFirmaElectronicaPDF } from '@/lib/utils/export-firma-pdf';
 import { toast } from 'sonner';
 
 interface ExportarFirmaButtonProps {
-    firma: ElectronicSignature;
-    procedure: Procedure;
-    variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline';
-    size?: 'sm' | 'md' | 'lg';
-    showIcon?: boolean;
-    showText?: boolean;
-    className?: string;
+  firma: ElectronicSignature;
+  procedure: Procedure;
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline';
+  size?: 'sm' | 'md' | 'lg';
+  showIcon?: boolean;
+  showText?: boolean;
+  className?: string;
 }
 
 export default function ExportarFirmaButton({
-                                                firma,
-                                                procedure,
-                                                variant = 'outline',
-                                                size = 'sm',
-                                                showIcon = true,
-                                                showText = true,
-                                                className = '',
-                                            }: ExportarFirmaButtonProps) {
-    const [isExporting, setIsExporting] = useState(false);
+  firma,
+  procedure,
+  variant = 'outline',
+  size = 'sm',
+  showIcon = true,
+  showText = true,
+  className = '',
+}: ExportarFirmaButtonProps) {
+  const [isExporting, setIsExporting] = useState(false);
 
-    const handleExport = async () => {
-        try {
-            setIsExporting(true);
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
 
-            // Pequeño delay para mostrar el loader
-            await new Promise(resolve => setTimeout(resolve, 500));
+      // Pequeño delay para mostrar el loader
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-            // Exportar a PDF
-            exportarFirmaElectronicaPDF(firma, procedure);
+      // Exportar a PDF
+      exportarFirmaElectronicaPDF(firma, procedure);
 
-            toast.success('Certificado de firma exportado correctamente', {
-                description: `Se ha descargado el certificado del trámite ${procedure.codigo}`,
-                icon: <Shield className="w-4 h-4" />,
-            });
-        } catch (error) {
-            console.error('Error al exportar certificado de firma:', error);
-            toast.error('Error al exportar certificado', {
-                description: 'No se pudo generar el PDF. Intente nuevamente.',
-            });
-        } finally {
-            setIsExporting(false);
-        }
-    };
+      toast.success('Certificado de firma exportado correctamente', {
+        description: `Se ha descargado el certificado del trámite ${procedure.codigo}`,
+        icon: <Shield className='w-4 h-4' />,
+      });
+    } catch (error) {
+      console.error('Error al exportar certificado de firma:', error);
+      toast.error('Error al exportar certificado', {
+        description: 'No se pudo generar el PDF. Intente nuevamente.',
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
-    return (
-        <Button
-            variant={variant}
-            size={size}
-            onClick={handleExport}
-            disabled={isExporting}
-            className={className}
-            title="Descargar certificado de firma electrónica"
-        >
-            {isExporting ? (
-                <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    {showText && <span className="ml-2">Exportando...</span>}
-                </>
-            ) : (
-                <>
-                    {showIcon && <Download className="w-4 h-4" />}
-                    {showText && <span className={showIcon ? 'ml-2' : ''}>Certificado PDF</span>}
-                </>
-            )}
-        </Button>
-    );
+  return (
+    <Button
+      variant={variant}
+      size={size}
+      onClick={handleExport}
+      disabled={isExporting}
+      className={className}
+      title='Descargar certificado de firma electrónica'
+    >
+      {isExporting ? (
+        <>
+          <Loader2 className='w-4 h-4 animate-spin' />
+          {showText && <span className='ml-2'>Exportando...</span>}
+        </>
+      ) : (
+        <>
+          {showIcon && <Download className='w-4 h-4' />}
+          {showText && <span className={showIcon ? 'ml-2' : ''}>Certificado PDF</span>}
+        </>
+      )}
+    </Button>
+  );
 }

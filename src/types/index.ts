@@ -1,6 +1,6 @@
 // src/types/index.ts
 
-import { ProcedureState } from '@/lib/constants';
+import { ProcedureState, ROLES } from '@/lib/constants';
 
 // ==================== AUTH ====================
 export interface LoginDto {
@@ -24,7 +24,7 @@ export interface User {
   correo: string;
   telefono?: string;
   fecha_creacion?: string;
-  roles: string[];
+  roles: ROLES[];
   area?: {
     id_area: string;
     nombre: string;
@@ -437,7 +437,7 @@ export interface NotificationFilters {
 }
 
 // ==================== API RESPONSES ====================
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = object> {
   data?: T;
   message?: string;
   error?: string;
@@ -601,6 +601,18 @@ export interface EstadisticasObservaciones {
     tipo: string;
     cantidad: number;
   }>;
+}
+
+export interface ProcedureStats {
+  total_enviados?: number;
+  pendientes?: number;
+  leidos?: number;
+  firmados?: number;
+  anulados?: number;
+  distribucion_por_estado?: Array<{ estado: string; cantidad: number }>;
+  requiere_firma?: { si: number; no: number };
+  requiere_respuesta?: { si: number; no: number };
+  [key: string]: unknown;
 }
 
 export interface ActividadReciente {
