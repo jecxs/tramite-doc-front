@@ -28,7 +28,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg[#071B2EFF]'>
       {/* Navbar */}
       <Navbar onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
@@ -37,9 +37,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Sidebar */}
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        {/* Main content */}
+        {/* Main content - CAMBIOS AQUÍ */}
         <main className='flex-1 w-full lg:ml-0'>
-          <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>{children}</div>
+          {/* Removido max-w-7xl y ajustado padding */}
+          <div className='w-full px-4 sm:px-6 lg:px-8 py-8'>{children}</div>
         </main>
       </div>
     </div>

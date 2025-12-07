@@ -8,11 +8,11 @@ interface CardProps {
 }
 
 export const Card: React.FC<CardProps> = ({
-  children,
-  className = '',
-  padding = 'md',
-  hover = false,
-}) => {
+                                            children,
+                                            className = '',
+                                            padding = 'md',
+                                            hover = false,
+                                          }) => {
   const paddingStyles = {
     none: '',
     sm: 'p-4',
@@ -20,11 +20,11 @@ export const Card: React.FC<CardProps> = ({
     lg: 'p-8',
   };
 
-  const hoverStyles = hover ? 'hover:shadow-lg transition-shadow cursor-pointer' : '';
+  const hoverStyles = hover ? 'hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-300 cursor-pointer' : '';
 
   return (
     <div
-      className={`bg-white rounded-lg shadow-md ${paddingStyles[padding]} ${hoverStyles} ${className}`}
+      className={`rounded-xl ${paddingStyles[padding]} ${hoverStyles} ${className}`}
     >
       {children}
     </div>
@@ -37,7 +37,7 @@ interface CardHeaderProps {
 }
 
 export const CardHeader: React.FC<CardHeaderProps> = ({ children, className = '' }) => {
-  return <div className={`mb-4 ${className}`}>{children}</div>;
+  return <div className={`${className}`}>{children}</div>;
 };
 
 interface CardTitleProps {
@@ -46,7 +46,7 @@ interface CardTitleProps {
 }
 
 export const CardTitle: React.FC<CardTitleProps> = ({ children, className = '' }) => {
-  return <h3 className={`text-xl font-semibold text-gray-900 ${className}`}>{children}</h3>;
+  return <h3 className={`${className}`}>{children}</h3>;
 };
 
 interface CardDescriptionProps {
@@ -55,7 +55,7 @@ interface CardDescriptionProps {
 }
 
 export const CardDescription: React.FC<CardDescriptionProps> = ({ children, className = '' }) => {
-  return <p className={`text-sm text-gray-600 mt-1 ${className}`}>{children}</p>;
+  return <p className={`${className}`}>{children}</p>;
 };
 
 interface CardContentProps {
@@ -73,5 +73,5 @@ interface CardFooterProps {
 }
 
 export const CardFooter: React.FC<CardFooterProps> = ({ children, className = '' }) => {
-  return <div className={`mt-4 pt-4 border-t border-gray-200 ${className}`}>{children}</div>;
+  return <div className={`mt-4 pt-4 border-t border-[#3D4153]/40 ${className}`}>{children}</div>;
 };
