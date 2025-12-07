@@ -83,7 +83,7 @@ export default function TramitesAdvancedFilters({
     if (conRespuesta !== undefined) advancedFilters.con_respuesta = conRespuesta;
     if (esReenvio !== undefined) advancedFilters.es_reenvio = esReenvio;
 
-    advancedFilters.ordenar_por = ordenarPor;
+    advancedFilters.ordenar_por = ordenarPor as any;
     advancedFilters.orden = orden;
 
     onApplyFilters(advancedFilters as ProcedureFilters);
