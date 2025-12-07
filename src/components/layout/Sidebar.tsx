@@ -85,7 +85,7 @@ const navItems: NavItem[] = [
   },
   {
     label: 'Observaciones',
-    href: ROUTE_PATHS.RESP_NOTIFICATIONS,
+    href: ROUTE_PATHS.RESP_OBSERVATIONS,
     icon: <MessageSquare className='w-5 h-5' />,
     roles: [ROLES.RESP],
   },

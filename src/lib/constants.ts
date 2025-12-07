@@ -90,6 +90,7 @@ export const ROUTE_PATHS = {
   RESP_SEND_DOCUMENT: '/responsable/tramites/nuevo',
   RESP_PROCEDURES: '/responsable/tramites',
   RESP_NOTIFICATIONS: '/responsable/notificaciones',
+  RESP_OBSERVATIONS: '/responsable/observaciones',
   RESP_ESTADISTICAS: '/responsable/estadisticas',
 
   // Worker routes
