@@ -22,16 +22,64 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+// Componente de Card Flotante
+const FloatingCard = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
+  <div className={`bg-gray-800 rounded-3xl p-6 shadow-2xl border border-gray-700/50 ${className}`}>
+    {children}
+  </div>
+);
+
+// Componente de Alerta moderna
+const ModernAlert = ({ children, icon: Icon, variant = "blue" }: { children: React.ReactNode; icon: any; variant?: string }) => {
+  const variants: any = {
+    blue: "border-blue-500/30 bg-blue-500/10",
+    purple: "border-purple-500/30 bg-purple-500/10",
+    red: "border-red-500/30 bg-red-500/10"
+  };
+
+  return (
+    <FloatingCard className={`${variants[variant]} flex items-start gap-4`}>
+      <div className={`p-2 rounded-xl ${variant === 'blue' ? 'bg-blue-500/20' : variant === 'purple' ? 'bg-purple-500/20' : 'bg-red-500/20'}`}>
+        <Icon className={`w-5 h-5 ${variant === 'blue' ? 'text-blue-400' : variant === 'purple' ? 'text-purple-400' : 'text-red-400'}`} />
+      </div>
+      <div className="flex-1">{children}</div>
+    </FloatingCard>
+  );
+};
+
+// Componente de StatCard compacto
+const CompactStatCard = ({ label, value, icon: Icon, color }: { label: string; value: number; icon: any; color: string }) => {
+  const colorMap: any = {
+    blue: { bg: 'bg-blue-500/20', text: 'text-blue-400', border: 'border-blue-500/30' },
+    yellow: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', border: 'border-yellow-500/30' },
+    purple: { bg: 'bg-purple-500/20', text: 'text-purple-400', border: 'border-purple-500/30' },
+    green: { bg: 'bg-green-500/20', text: 'text-green-400', border: 'border-green-500/30' }
+  };
+
+  const colors = colorMap[color] || colorMap.blue;
+
+  return (
+    <FloatingCard className={`${colors.border}`}>
+      <div className="flex items-center gap-4">
+        <div className={`p-3 rounded-2xl ${colors.bg}`}>
+          <Icon className={`w-6 h-6 ${colors.text}`} />
+        </div>
+        <div>
+          <p className="text-gray-400 text-sm">{label}</p>
+          <p className="text-white text-2xl font-bold">{value}</p>
+        </div>
+      </div>
+    </FloatingCard>
+  );
+};
+
 export default function TrabajadorTramitesPage() {
   const { tramites, isLoading, error, refetch, applyFilters } = useTramites();
 
   const tramitesFiltrados = tramites.filter((tramite) => {
-    // Si no es reenvío, mostrarlo (es versión 1 sin reenvíos)
     if (!tramite.es_reenvio) {
-      // Verificar que no tenga reenvíos
       return tramite.reenvios_count === 0;
     }
-    // Si es reenvío, siempre mostrarlo (es la versión más reciente)
     return true;
   });
 
@@ -47,21 +95,21 @@ export default function TrabajadorTramitesPage() {
     if (tramite.estado === 'ENVIADO') {
       return {
         label: 'Nuevo',
-        color: 'bg-blue-100 text-blue-800',
+        color: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
         icon: <Mail className='w-3 h-3' />,
       };
     }
     if (tramite.requiere_firma && tramite.estado === 'LEIDO') {
       return {
         label: 'Requiere Firma',
-        color: 'bg-purple-100 text-purple-800',
+        color: 'bg-purple-500/20 text-purple-400 border border-purple-500/30',
         icon: <PenTool className='w-3 h-3' />,
       };
     }
     if (tramite.estado === 'FIRMADO') {
       return {
         label: 'Completado',
-        color: 'bg-green-100 text-green-800',
+        color: 'bg-green-500/20 text-green-400 border border-green-500/30',
         icon: <CheckCircle className='w-3 h-3' />,
       };
     }
@@ -72,8 +120,8 @@ export default function TrabajadorTramitesPage() {
     return (
       <div className='flex items-center justify-center min-h-[60vh]'>
         <div className='text-center'>
-          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4'></div>
-          <p className='text-gray-600'>Cargando documentos...</p>
+          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4'></div>
+          <p className='text-gray-400'>Cargando documentos...</p>
         </div>
       </div>
     );
@@ -86,218 +134,164 @@ export default function TrabajadorTramitesPage() {
   const tramitesFirmados = tramitesFiltrados.filter((t) => t.estado === 'FIRMADO').length;
 
   return (
-    <div className='space-y-6'>
+    <div className="min-h-screen bg-gray-900 p-8 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className='text-3xl font-bold text-gray-900'>Mis Documentos</h1>
-        <p className='text-gray-600 mt-1'>Documentos recibidos de las diferentes áreas</p>
+      <div className="mb-8">
+        <h1 className='text-4xl font-bold text-white mb-2'>Mis Documentos</h1>
+        <p className='text-gray-400'>Documentos recibidos de las diferentes áreas</p>
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className='bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3'>
-          <AlertCircle className='w-5 h-5 text-red-600 flex-shrink-0 mt-0.5' />
-          <div className='flex-1'>
-            <p className='text-sm font-medium text-red-800'>Error al cargar documentos</p>
-            <p className='text-sm text-red-700 mt-1'>{error}</p>
+        <ModernAlert icon={AlertCircle} variant="red">
+          <div>
+            <p className='text-sm font-medium text-red-400'>Error al cargar documentos</p>
+            <p className='text-sm text-red-500 mt-1'>{error}</p>
           </div>
-          <Button variant='ghost' size='sm' onClick={refetch}>
+          <Button variant='ghost' size='sm' onClick={refetch} className="ml-auto">
             <RefreshCcw className='w-4 h-4' />
-            Reintentar
           </Button>
-        </div>
+        </ModernAlert>
       )}
 
       {/* Alerts */}
       {tramitesNoLeidos > 0 && (
-        <div className='bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3'>
-          <Mail className='w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5' />
-          <div className='flex-1'>
-            <p className='text-sm font-medium text-blue-800'>
-              Tienes {tramitesNoLeidos} documento{tramitesNoLeidos !== 1 ? 's' : ''} nuevo
-              {tramitesNoLeidos !== 1 ? 's' : ''}
+        <ModernAlert icon={Mail} variant="blue">
+          <div>
+            <p className='text-sm font-medium text-blue-400'>
+              Tienes {tramitesNoLeidos} documento{tramitesNoLeidos !== 1 ? 's' : ''} nuevo{tramitesNoLeidos !== 1 ? 's' : ''}
             </p>
-            <p className='text-sm text-blue-700 mt-1'>Revisa los documentos que te han enviado</p>
+            <p className='text-sm text-blue-500 mt-1'>Revisa los documentos que te han enviado</p>
           </div>
-        </div>
+        </ModernAlert>
       )}
 
       {tramitesParaFirmar > 0 && (
-        <div className='bg-purple-50 border border-purple-200 rounded-lg p-4 flex items-start gap-3'>
-          <PenTool className='w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5' />
-          <div className='flex-1'>
-            <p className='text-sm font-medium text-purple-800'>
-              {tramitesParaFirmar} documento{tramitesParaFirmar !== 1 ? 's' : ''} pendiente
-              {tramitesParaFirmar !== 1 ? 's' : ''} de firma
-            </p>
-            <p className='text-sm text-purple-700 mt-1'>
-              Estos documentos requieren tu firma electrónica
-            </p>
+        <ModernAlert icon={PenTool} variant="purple">
+          <div className="flex items-center justify-between w-full">
+            <div>
+              <p className='text-sm font-medium text-purple-400'>
+                {tramitesParaFirmar} documento{tramitesParaFirmar !== 1 ? 's' : ''} pendiente{tramitesParaFirmar !== 1 ? 's' : ''} de firma
+              </p>
+              <p className='text-sm text-purple-500 mt-1'>Estos documentos requieren tu firma electrónica</p>
+            </div>
+            <Link href='/trabajador/firmar'>
+              <Button size='sm' className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                Firmar ahora
+              </Button>
+            </Link>
           </div>
-          <Link href='/trabajador/firmar'>
-            <Button size='sm'>Firmar ahora</Button>
-          </Link>
-        </div>
+        </ModernAlert>
       )}
+
+      {/* Stats Cards */}
+      <div className='grid grid-cols-1 md:grid-cols-4 gap-6'>
+        <CompactStatCard label="Total Recibidos" value={tramites.length} icon={FileText} color="blue" />
+        <CompactStatCard label="Sin Leer" value={tramitesNoLeidos} icon={Mail} color="yellow" />
+        <CompactStatCard label="Para Firmar" value={tramitesParaFirmar} icon={PenTool} color="purple" />
+        <CompactStatCard label="Firmados" value={tramitesFirmados} icon={CheckCircle} color="green" />
+      </div>
 
       {/* Filters */}
       <TramitesFilters onApplyFilters={applyFilters} />
 
-      {/* Stats Cards */}
-      <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
-        <Card>
-          <CardContent className='pt-6'>
-            <div className='flex items-center justify-between'>
-              <div>
-                <p className='text-sm text-gray-600'>Total Recibidos</p>
-                <p className='text-2xl font-bold text-gray-900 mt-1'>{tramites.length}</p>
-              </div>
-              <div className='p-3 bg-blue-100 rounded-lg'>
-                <FileText className='w-6 h-6 text-blue-600' />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className='pt-6'>
-            <div className='flex items-center justify-between'>
-              <div>
-                <p className='text-sm text-gray-600'>Sin Leer</p>
-                <p className='text-2xl font-bold text-gray-900 mt-1'>{tramitesNoLeidos}</p>
-              </div>
-              <div className='p-3 bg-yellow-100 rounded-lg'>
-                <Mail className='w-6 h-6 text-yellow-600' />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className='pt-6'>
-            <div className='flex items-center justify-between'>
-              <div>
-                <p className='text-sm text-gray-600'>Para Firmar</p>
-                <p className='text-2xl font-bold text-gray-900 mt-1'>{tramitesParaFirmar}</p>
-              </div>
-              <div className='p-3 bg-purple-100 rounded-lg'>
-                <PenTool className='w-6 h-6 text-purple-600' />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className='pt-6'>
-            <div className='flex items-center justify-between'>
-              <div>
-                <p className='text-sm text-gray-600'>Firmados</p>
-                <p className='text-2xl font-bold text-gray-900 mt-1'>{tramitesFirmados}</p>
-              </div>
-              <div className='p-3 bg-green-100 rounded-lg'>
-                <CheckCircle className='w-6 h-6 text-green-600' />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Tramites List */}
-      <Card>
-        <CardHeader>
-          <div className='flex items-center justify-between'>
-            <CardTitle>Lista de Documentos</CardTitle>
-            <Button variant='ghost' size='sm' onClick={refetch}>
-              <RefreshCcw className='w-4 h-4' />
-              Actualizar
-            </Button>
+      <FloatingCard>
+        <div className='flex items-center justify-between mb-6'>
+          <h3 className="text-white text-xl font-bold">Lista de Documentos</h3>
+          <button
+            onClick={refetch}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-700/50 text-gray-400 hover:bg-gray-700 hover:text-white transition-all border border-gray-700"
+          >
+            <RefreshCcw className='w-4 h-4' />
+            Actualizar
+          </button>
+        </div>
+
+        {tramitesFiltrados.length === 0 ? (
+          <div className='text-center py-12'>
+            <FileText className='w-16 h-16 text-gray-600 mx-auto mb-4' />
+            <h3 className='text-lg font-medium text-white mb-2'>No hay documentos</h3>
+            <p className='text-gray-400'>Aún no has recibido ningún documento</p>
           </div>
-        </CardHeader>
-        <CardContent>
-          {tramitesFiltrados.length === 0 ? (
-            <div className='text-center py-12'>
-              <FileText className='w-16 h-16 text-gray-400 mx-auto mb-4' />
-              <h3 className='text-lg font-medium text-gray-900 mb-2'>No hay documentos</h3>
-              <p className='text-gray-600'>Aún no has recibido ningún documento</p>
-            </div>
-          ) : (
-            <div className='space-y-3'>
-              {tramitesFiltrados.map((tramite) => {
-                const priorityInfo = getPriorityInfo(tramite);
+        ) : (
+          <div className='space-y-4'>
+            {tramitesFiltrados.map((tramite) => {
+              const priorityInfo = getPriorityInfo(tramite);
 
-                return (
-                  <div
-                    key={tramite.id_tramite}
-                    className='border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-sm transition-all'
-                  >
-                    <div className='flex items-start justify-between gap-4'>
-                      {/* Left Side - Document Info */}
-                      <div className='flex-1 min-w-0'>
-                        <div className='flex items-center gap-2 mb-2'>
-                          <span className='font-mono text-sm font-medium text-gray-900'>
-                            {tramite.codigo}
+              return (
+                <div
+                  key={tramite.id_tramite}
+                  className='bg-gray-800/50 border border-gray-700 rounded-2xl p-5 hover:border-purple-500/50 transition-all'
+                >
+                  <div className='flex items-start justify-between gap-4'>
+                    {/* Left Side - Document Info */}
+                    <div className='flex-1 min-w-0'>
+                      <div className='flex items-center gap-2 mb-3 flex-wrap'>
+                        <span className='font-mono text-sm font-medium text-white bg-gray-700/50 px-3 py-1 rounded-lg'>
+                          {tramite.codigo}
+                        </span>
+                        <ProcedureStateBadge estado={tramite.estado} />
+                        {priorityInfo && (
+                          <span className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium gap-1.5 ${priorityInfo.color}`}>
+                            {priorityInfo.icon}
+                            {priorityInfo.label}
                           </span>
-                          <ProcedureStateBadge estado={tramite.estado} />
-                          {priorityInfo && (
-                            <span
-                              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium gap-1 ${priorityInfo.color}`}
-                            >
-                              {priorityInfo.icon}
-                              {priorityInfo.label}
-                            </span>
-                          )}
-                          {tramite.es_reenvio && (
-                            <span className='inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800'>
-                              Versión {tramite.numero_version}
-                            </span>
-                          )}
-                        </div>
-
-                        <h3 className='text-base font-semibold text-gray-900 mb-2'>
-                          {tramite.asunto}
-                        </h3>
-
-                        <div className='grid grid-cols-2 gap-3 text-sm'>
-                          <div className='flex items-center gap-2 text-gray-600'>
-                            <Building2 className='w-4 h-4' />
-                            <span className='truncate'>
-                              De: {tramite.remitente.apellidos}, {tramite.remitente.nombres}
-                            </span>
-                          </div>
-                          <div className='flex items-center gap-2 text-gray-600'>
-                            <FileText className='w-4 h-4' />
-                            <span className='truncate'>{tramite.documento.tipo.nombre}</span>
-                          </div>
-                          <div className='flex items-center gap-2 text-gray-600'>
-                            <Calendar className='w-4 h-4' />
-                            <span>{formatDate(tramite.fecha_envio)}</span>
-                          </div>
-                          {tramite.requiere_firma && (
-                            <div className='flex items-center gap-2 text-purple-600'>
-                              <PenTool className='w-4 h-4' />
-                              <span className='font-medium'>Requiere Firma</span>
-                            </div>
-                          )}
-                        </div>
+                        )}
+                        {tramite.es_reenvio && (
+                          <span className='inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-orange-500/20 text-orange-400 border border-orange-500/30'>
+                            Versión {tramite.numero_version}
+                          </span>
+                        )}
                       </div>
 
-                      {/* Right Side - Actions */}
-                      <div className='flex flex-col gap-2'>
-                        <Link href={`/trabajador/tramites/${tramite.id_tramite}`}>
-                          <Button size='sm' className='w-full'>
-                            <Eye className='w-4 h-4' />
-                            {tramite.estado === 'ENVIADO' ? 'Abrir' : 'Ver'}
-                          </Button>
-                        </Link>
+                      <h3 className='text-base font-semibold text-white mb-3'>
+                        {tramite.asunto}
+                      </h3>
+
+                      <div className='grid grid-cols-2 gap-3 text-sm'>
+                        <div className='flex items-center gap-2 text-gray-400'>
+                          <Building2 className='w-4 h-4' />
+                          <span className='truncate'>
+                            De: {tramite.remitente.apellidos}, {tramite.remitente.nombres}
+                          </span>
+                        </div>
+                        <div className='flex items-center gap-2 text-gray-400'>
+                          <FileText className='w-4 h-4' />
+                          <span className='truncate'>{tramite.documento.tipo.nombre}</span>
+                        </div>
+                        <div className='flex items-center gap-2 text-gray-400'>
+                          <Calendar className='w-4 h-4' />
+                          <span>{formatDate(tramite.fecha_envio)}</span>
+                        </div>
+                        {tramite.requiere_firma && (
+                          <div className='flex items-center gap-2 text-purple-400'>
+                            <PenTool className='w-4 h-4' />
+                            <span className='font-medium'>Requiere Firma</span>
+                          </div>
+                        )}
                       </div>
                     </div>
+
+                    {/* Right Side - Actions */}
+                    <div className='flex flex-col gap-2'>
+                      <Link href={`/trabajador/tramites/${tramite.id_tramite}`}>
+                        <Button
+                          size='sm'
+                          className={`${tramite.estado === 'ENVIADO' ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800' : 'bg-gray-700 hover:bg-gray-600'}`}
+                        >
+                          <Eye className='w-4 h-4 mr-2' />
+                          {tramite.estado === 'ENVIADO' ? 'Abrir' : 'Ver'}
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </FloatingCard>
     </div>
   );
 }

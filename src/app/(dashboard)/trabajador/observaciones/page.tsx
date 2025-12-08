@@ -17,7 +17,6 @@ import {
   Search,
   Eye,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { getPendingObservations } from '@/lib/api/observaciones';
 import { Observation } from '@/types';
@@ -34,6 +33,38 @@ interface ObservationWithTramite extends Observation {
     };
   };
 }
+
+// Componente de Card Flotante
+const FloatingCard = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
+  <div className={`bg-gray-800 rounded-3xl p-6 shadow-2xl border border-gray-700/50 ${className}`}>
+    {children}
+  </div>
+);
+
+// Componente de StatCard compacto
+const CompactStatCard = ({ label, value, icon: Icon, color }: { label: string; value: number; icon: any; color: string }) => {
+  const colorMap: any = {
+    blue: { bg: 'bg-blue-500/20', text: 'text-blue-400', border: 'border-blue-500/30' },
+    orange: { bg: 'bg-orange-500/20', text: 'text-orange-400', border: 'border-orange-500/30' },
+    green: { bg: 'bg-green-500/20', text: 'text-green-400', border: 'border-green-500/30' }
+  };
+
+  const colors = colorMap[color] || colorMap.blue;
+
+  return (
+    <FloatingCard className={`${colors.border}`}>
+      <div className="flex items-center gap-4">
+        <div className={`p-3 rounded-2xl ${colors.bg}`}>
+          <Icon className={`w-6 h-6 ${colors.text}`} />
+        </div>
+        <div>
+          <p className="text-gray-400 text-sm">{label}</p>
+          <p className="text-white text-2xl font-bold">{value}</p>
+        </div>
+      </div>
+    </FloatingCard>
+  );
+};
 
 export default function TrabajadorObservacionesPage() {
   const [observaciones, setObservaciones] = useState<ObservationWithTramite[]>([]);
@@ -70,11 +101,11 @@ export default function TrabajadorObservacionesPage() {
 
   const getTipoColor = (tipo: string) => {
     const colors: Record<string, string> = {
-      CONSULTA: 'bg-blue-100 text-blue-800 border-blue-200',
-      CORRECCION_REQUERIDA: 'bg-red-100 text-red-800 border-red-200',
-      INFORMACION_ADICIONAL: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      CONSULTA: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+      CORRECCION_REQUERIDA: 'bg-red-500/20 text-red-400 border-red-500/30',
+      INFORMACION_ADICIONAL: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
     };
-    return colors[tipo] || 'bg-gray-100 text-gray-800 border-gray-200';
+    return colors[tipo] || 'bg-gray-500/20 text-gray-400 border-gray-500/30';
   };
 
   const getTipoIcon = (tipo: string) => {
@@ -106,258 +137,221 @@ export default function TrabajadorObservacionesPage() {
 
   if (isLoading) {
     return (
-      <div className='flex items-center justify-center min-h-screen'>
+      <div className='flex items-center justify-center min-h-screen bg-gray-900'>
         <div className='text-center'>
-          <Loader2 className='w-8 h-8 animate-spin text-blue-600 mx-auto mb-4' />
-          <p className='text-gray-600'>Cargando observaciones...</p>
+          <Loader2 className='w-8 h-8 animate-spin text-purple-600 mx-auto mb-4' />
+          <p className='text-gray-400'>Cargando observaciones...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6'>
+    <div className="min-h-screen bg-gray-900 p-8 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className='text-3xl font-bold text-gray-900'>Mis Observaciones</h1>
-        <p className='text-gray-600 mt-1'>
-          Consulta el estado de tus observaciones y las respuestas recibidas
-        </p>
+      <div className="mb-8">
+        <h1 className='text-4xl font-bold text-white mb-2'>Mis Observaciones</h1>
+        <p className='text-gray-400'>Consulta el estado de tus observaciones y las respuestas recibidas</p>
       </div>
 
       {/* Stats */}
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-        <Card>
-          <CardContent className='pt-6'>
-            <div className='flex items-center justify-between'>
-              <div>
-                <p className='text-sm text-gray-600'>Total</p>
-                <p className='text-2xl font-bold text-gray-900 mt-1'>{totalCount}</p>
-              </div>
-              <div className='p-3 bg-blue-100 rounded-lg'>
-                <MessageSquare className='w-6 h-6 text-blue-600' />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className='pt-6'>
-            <div className='flex items-center justify-between'>
-              <div>
-                <p className='text-sm text-gray-600'>Pendientes</p>
-                <p className='text-2xl font-bold text-gray-900 mt-1'>{pendientesCount}</p>
-              </div>
-              <div className='p-3 bg-orange-100 rounded-lg'>
-                <Clock className='w-6 h-6 text-orange-600' />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className='pt-6'>
-            <div className='flex items-center justify-between'>
-              <div>
-                <p className='text-sm text-gray-600'>Resueltas</p>
-                <p className='text-2xl font-bold text-gray-900 mt-1'>{resueltasCount}</p>
-              </div>
-              <div className='p-3 bg-green-100 rounded-lg'>
-                <CheckCircle className='w-6 h-6 text-green-600' />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <CompactStatCard label="Total" value={totalCount} icon={MessageSquare} color="blue" />
+        <CompactStatCard label="Pendientes" value={pendientesCount} icon={Clock} color="orange" />
+        <CompactStatCard label="Resueltas" value={resueltasCount} icon={CheckCircle} color="green" />
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardContent className='pt-6'>
-          <div className='flex flex-col sm:flex-row gap-4'>
-            {/* Search */}
-            <div className='flex-1 relative'>
-              <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400' />
-              <input
-                type='text'
-                placeholder='Buscar por código, asunto o descripción...'
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className='w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-              />
-            </div>
-
-            {/* Filter by Type */}
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className='px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-            >
-              <option value='all'>Todos los tipos</option>
-              <option value='CONSULTA'>Consulta</option>
-              <option value='CORRECCION_REQUERIDA'>Corrección Requerida</option>
-              <option value='INFORMACION_ADICIONAL'>Información Adicional</option>
-            </select>
-
-            {/* Filter by Status */}
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className='px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-            >
-              <option value='all'>Todos los estados</option>
-              <option value='pendiente'>Pendientes</option>
-              <option value='resuelta'>Resueltas</option>
-            </select>
-
-            {/* Refresh */}
-            <Button variant='outline' onClick={fetchObservaciones} disabled={isLoading}>
-              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-            </Button>
+      <FloatingCard>
+        <div className='flex flex-col sm:flex-row gap-4'>
+          {/* Search */}
+          <div className='flex-1 relative'>
+            <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500' />
+            <input
+              type='text'
+              placeholder='Buscar por código, asunto o descripción...'
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className='w-full pl-10 pr-4 py-2.5 bg-gray-700 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500'
+            />
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Filter by Type */}
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className='px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500'
+          >
+            <option value='all'>Todos los tipos</option>
+            <option value='CONSULTA'>Consulta</option>
+            <option value='CORRECCION_REQUERIDA'>Corrección Requerida</option>
+            <option value='INFORMACION_ADICIONAL'>Información Adicional</option>
+          </select>
+
+          {/* Filter by Status */}
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className='px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500'
+          >
+            <option value='all'>Todos los estados</option>
+            <option value='pendiente'>Pendientes</option>
+            <option value='resuelta'>Resueltas</option>
+          </select>
+
+          {/* Refresh */}
+          <button
+            onClick={fetchObservaciones}
+            disabled={isLoading}
+            className='px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-xl text-gray-400 hover:bg-gray-600 hover:text-white transition-all disabled:opacity-50'
+          >
+            <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
+      </FloatingCard>
 
       {/* Observaciones List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Mis Observaciones ({filteredObservaciones.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {filteredObservaciones.length === 0 ? (
-            <div className='text-center py-12'>
-              <MessageSquare className='w-16 h-16 text-gray-400 mx-auto mb-4' />
-              <h3 className='text-lg font-medium text-gray-900 mb-2'>No hay observaciones</h3>
-              <p className='text-gray-600 mb-6'>
-                {observaciones.length === 0
-                  ? 'Aún no has creado ninguna observación'
-                  : 'No se encontraron observaciones con los filtros aplicados'}
-              </p>
-            </div>
-          ) : (
-            <div className='space-y-4'>
-              {filteredObservaciones.map((observacion) => (
-                <div
-                  key={observacion.id_observacion}
-                  className='border border-gray-200 rounded-lg p-5 hover:border-blue-300 hover:shadow-md transition-all'
-                >
-                  {/* Header */}
-                  <div className='flex items-start justify-between mb-4'>
-                    <div className='flex-1'>
-                      <div className='flex items-center gap-3 mb-2'>
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${getTipoColor(observacion.tipo)}`}
-                        >
-                          {getTipoIcon(observacion.tipo)}
-                          {getTipoLabel(observacion.tipo)}
+      <FloatingCard>
+        <div className='flex items-center justify-between mb-6'>
+          <h3 className="text-white text-xl font-bold">
+            Mis Observaciones ({filteredObservaciones.length})
+          </h3>
+        </div>
+
+        {filteredObservaciones.length === 0 ? (
+          <div className='text-center py-12'>
+            <MessageSquare className='w-16 h-16 text-gray-600 mx-auto mb-4' />
+            <h3 className='text-lg font-medium text-white mb-2'>No hay observaciones</h3>
+            <p className='text-gray-400'>
+              {observaciones.length === 0
+                ? 'Aún no has creado ninguna observación'
+                : 'No se encontraron observaciones con los filtros aplicados'}
+            </p>
+          </div>
+        ) : (
+          <div className='space-y-4'>
+            {filteredObservaciones.map((observacion) => (
+              <div
+                key={observacion.id_observacion}
+                className='bg-gray-800/50 border border-gray-700 rounded-2xl p-5 hover:border-purple-500/50 transition-all'
+              >
+                {/* Header */}
+                <div className='flex items-start justify-between mb-4'>
+                  <div className='flex-1'>
+                    <div className='flex items-center gap-2 mb-3 flex-wrap'>
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium border ${getTipoColor(observacion.tipo)}`}>
+                        {getTipoIcon(observacion.tipo)}
+                        {getTipoLabel(observacion.tipo)}
+                      </span>
+                      {observacion.resuelta ? (
+                        <span className='inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-green-500/20 text-green-400 border border-green-500/30'>
+                          <CheckCircle className='w-3 h-3 mr-1' />
+                          Resuelta
                         </span>
-                        {observacion.resuelta ? (
-                          <span className='inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200'>
-                            <CheckCircle className='w-3 h-3 mr-1' />
-                            Resuelta
-                          </span>
-                        ) : (
-                          <span className='inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200'>
-                            <Clock className='w-3 h-3 mr-1' />
-                            Pendiente
-                          </span>
-                        )}
-                      </div>
-                      <Link
-                        href={`/trabajador/tramites/${observacion.id_tramite}`}
-                        className='text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline'
-                      >
-                        <FileText className='w-4 h-4 inline mr-1' />
-                        {observacion.tramite?.codigo || 'N/A'} - {observacion.tramite?.asunto}
-                      </Link>
+                      ) : (
+                        <span className='inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-orange-500/20 text-orange-400 border border-orange-500/30'>
+                          <Clock className='w-3 h-3 mr-1' />
+                          Pendiente
+                        </span>
+                      )}
                     </div>
-                    <p className='text-xs text-gray-500'>
-                      {format(new Date(observacion.fecha_creacion), 'dd/MM/yyyy HH:mm', {
-                        locale: es,
-                      })}
-                    </p>
-                  </div>
-
-                  {/* Tu Observación */}
-                  <div className='mb-4'>
-                    <p className='text-sm font-medium text-gray-700 mb-2'>Tu observación:</p>
-                    <p className='text-sm text-gray-600 bg-gray-50 p-3 rounded-lg'>
-                      {observacion.descripcion}
-                    </p>
-                  </div>
-
-                  {/* Respuesta */}
-                  {observacion.resuelta && observacion.respuesta ? (
-                    <div className='mt-4 pt-4 border-t border-gray-200'>
-                      <div className='flex items-start gap-3 p-4 bg-green-50 rounded-lg border border-green-200'>
-                        <CheckCircle className='w-5 h-5 text-green-600 mt-0.5 flex-shrink-0' />
-                        <div className='flex-1'>
-                          <p className='text-sm font-medium text-green-900 mb-1'>
-                            Respuesta del responsable:
-                          </p>
-                          <p className='text-sm text-green-800'>{observacion.respuesta}</p>
-                          {observacion.fecha_resolucion && (
-                            <p className='text-xs text-green-600 mt-2'>
-                              Respondida el{' '}
-                              {format(
-                                new Date(observacion.fecha_resolucion),
-                                "dd 'de' MMMM 'de' yyyy 'a las' HH:mm",
-                                { locale: es },
-                              )}
-                            </p>
-                          )}
-                          {observacion.resolutor && (
-                            <p className='text-xs text-green-600'>
-                              Por: {observacion.resolutor.nombres} {observacion.resolutor.apellidos}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className='mt-4 pt-4 border-t border-gray-200'>
-                      <div className='flex items-start gap-3 p-4 bg-orange-50 rounded-lg border border-orange-200'>
-                        <Clock className='w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0' />
-                        <div className='flex-1'>
-                          <p className='text-sm font-medium text-orange-900 mb-1'>
-                            Esperando respuesta
-                          </p>
-                          <p className='text-sm text-orange-800'>
-                            El responsable ha sido notificado y te responderá pronto.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Ver Trámite */}
-                  <div className='mt-4 pt-4 border-t border-gray-200'>
-                    <Link href={`/trabajador/tramites/${observacion.id_tramite}`}>
-                      <Button variant='outline' size='sm'>
-                        <Eye className='w-4 h-4' />
-                        Ver Trámite Completo
-                      </Button>
+                    <Link
+                      href={`/trabajador/tramites/${observacion.id_tramite}`}
+                      className='text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1'
+                    >
+                      <FileText className='w-4 h-4' />
+                      {observacion.tramite?.codigo || 'N/A'} - {observacion.tramite?.asunto}
                     </Link>
                   </div>
+                  <p className='text-xs text-gray-500'>
+                    {format(new Date(observacion.fecha_creacion), 'dd/MM/yyyy HH:mm', { locale: es })}
+                  </p>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+
+                {/* Tu Observación */}
+                <div className='mb-4'>
+                  <p className='text-sm font-medium text-gray-300 mb-2'>Tu observación:</p>
+                  <p className='text-sm text-gray-400 bg-gray-700/50 p-4 rounded-xl border border-gray-600'>
+                    {observacion.descripcion}
+                  </p>
+                </div>
+
+                {/* Respuesta */}
+                {observacion.resuelta && observacion.respuesta ? (
+                  <div className='mt-4 pt-4 border-t border-gray-700'>
+                    <div className='flex items-start gap-3 p-4 bg-green-500/10 rounded-xl border border-green-500/30'>
+                      <CheckCircle className='w-5 h-5 text-green-400 mt-0.5 flex-shrink-0' />
+                      <div className='flex-1'>
+                        <p className='text-sm font-medium text-green-400 mb-2'>
+                          Respuesta del responsable:
+                        </p>
+                        <p className='text-sm text-gray-300'>{observacion.respuesta}</p>
+                        {observacion.fecha_resolucion && (
+                          <p className='text-xs text-gray-500 mt-2'>
+                            Respondida el{' '}
+                            {format(
+                              new Date(observacion.fecha_resolucion),
+                              "dd 'de' MMMM 'de' yyyy 'a las' HH:mm",
+                              { locale: es },
+                            )}
+                          </p>
+                        )}
+                        {observacion.resolutor && (
+                          <p className='text-xs text-gray-500'>
+                            Por: {observacion.resolutor.nombres} {observacion.resolutor.apellidos}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className='mt-4 pt-4 border-t border-gray-700'>
+                    <div className='flex items-start gap-3 p-4 bg-orange-500/10 rounded-xl border border-orange-500/30'>
+                      <Clock className='w-5 h-5 text-orange-400 mt-0.5 flex-shrink-0' />
+                      <div className='flex-1'>
+                        <p className='text-sm font-medium text-orange-400 mb-1'>
+                          Esperando respuesta
+                        </p>
+                        <p className='text-sm text-gray-300'>
+                          El responsable ha sido notificado y te responderá pronto.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Ver Trámite */}
+                <div className='mt-4 pt-4 border-t border-gray-700'>
+                  <Link href={`/trabajador/tramites/${observacion.id_tramite}`}>
+                    <button className='flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white transition-all border border-gray-600'>
+                      <Eye className='w-4 h-4' />
+                      Ver Trámite Completo
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </FloatingCard>
 
       {/* Info Card */}
-      <div className='flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg'>
-        <Info className='w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0' />
-        <div className='flex-1'>
-          <p className='text-sm font-medium text-blue-900 mb-1'>
-            ¿Necesitas crear una observación?
-          </p>
-          <p className='text-sm text-blue-800'>
-            Ve al detalle del trámite y haz clic en &ldquo;Crear Observación&rdquo; para reportar
-            dudas o solicitar correcciones.
-          </p>
+      <FloatingCard className="border-blue-500/30 bg-blue-500/10">
+        <div className='flex items-start gap-4'>
+          <div className='p-2 rounded-xl bg-blue-500/20'>
+            <Info className='w-5 h-5 text-blue-400' />
+          </div>
+          <div className='flex-1'>
+            <p className='text-sm font-medium text-blue-400 mb-1'>
+              ¿Necesitas crear una observación?
+            </p>
+            <p className='text-sm text-gray-300'>
+              Ve al detalle del trámite y haz clic en &ldquo;Crear Observación&rdquo; para reportar
+              dudas o solicitar correcciones.
+            </p>
+          </div>
         </div>
-      </div>
+      </FloatingCard>
     </div>
   );
 }

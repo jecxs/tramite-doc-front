@@ -8,7 +8,7 @@ import StatCard from '@/components/estadisticas/StatCard';
 import GraficoLineas from '@/components/estadisticas/GraficoLineas';
 import GraficoBarras from '@/components/estadisticas/GraficoBarras';
 import GraficoPastel from '@/components/estadisticas/GraficoPastel';
-import { FileText, Send, CheckCircle, Clock, TrendingUp, Users, AlertCircle } from 'lucide-react';
+import { FileText, Send, CheckCircle, Clock, TrendingUp, Users, AlertCircle, Award, Zap } from 'lucide-react';
 import {
   getEstadisticasGenerales,
   getEstadisticasPorPeriodo,
@@ -28,11 +28,35 @@ import {
 
 type PeriodoType = 'semana' | 'mes' | 'trimestre' | 'anio';
 
+// Componente de Card Flotante para reemplazar el Card estándar
+const FloatingCard = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
+  <div className={`bg-[#23272c] rounded-3xl p-6 shadow-2xl border border-gray-700/50 ${className}`}>
+    {children}
+  </div>
+);
+
+// Componente StatCard mejorado con el nuevo estilo
+const ModernStatCard = ({ titulo, valor, descripcion, icono: Icon, gradient }: any) => (
+  <FloatingCard className="relative overflow-hidden">
+    <div className="relative z-10">
+      <div className="flex items-start justify-between mb-4">
+        <div className={`p-3 rounded-2xl ${gradient} bg-opacity-20`}>
+          <Icon className="w-6 h-6 text-white" />
+        </div>
+      </div>
+      <div className="space-y-1">
+        <p className="text-gray-400 text-sm font-medium">{titulo}</p>
+        <p className="text-white text-3xl font-bold">{valor}</p>
+        <p className="text-gray-500 text-xs">{descripcion}</p>
+      </div>
+    </div>
+  </FloatingCard>
+);
+
 export default function EstadisticasPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [periodo, setPeriodo] = useState<PeriodoType>('mes');
 
-  // Estados para cada tipo de estadística
   const [generales, setGenerales] = useState<EstadisticasGenerales | null>(null);
   const [porPeriodo, setPorPeriodo] = useState<EstadisticasPorPeriodo | null>(null);
   const [porTrabajador, setPorTrabajador] = useState<EstadisticasPorTrabajador | null>(null);
@@ -80,14 +104,13 @@ export default function EstadisticasPage() {
     return (
       <div className='flex items-center justify-center h-96'>
         <div className='text-center'>
-          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto'></div>
-          <p className='text-gray-600 mt-4'>Cargando estadísticas...</p>
+          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto'></div>
+          <p className='text-gray-400 mt-4'>Cargando estadísticas...</p>
         </div>
       </div>
     );
   }
 
-  // Preparar datos para gráficos
   const datosEstados =
     porPeriodo?.distribucion_estados.map((item) => ({
       name: item.estado,
@@ -101,238 +124,275 @@ export default function EstadisticasPage() {
     })) || [];
 
   return (
-    <div className='space-y-6'>
+    <div className="min-h-screen bg-gray-900 p-8">
       {/* Header */}
-      <div className='flex items-center justify-between'>
-        <div>
-          <h1 className='text-3xl font-bold text-gray-900'>Estadísticas</h1>
-          <p className='text-gray-600 mt-1'>Panel de control y análisis de trámites</p>
-        </div>
-        <div className='flex gap-2'>
-          {(['semana', 'mes', 'trimestre', 'anio'] as PeriodoType[]).map((p) => (
-            <Button
-              key={p}
-              variant={periodo === p ? 'primary' : 'outline'}
-              size='sm'
-              onClick={() => setPeriodo(p)}
-            >
-              {p === 'semana' && 'Semana'}
-              {p === 'mes' && 'Mes'}
-              {p === 'trimestre' && 'Trimestre'}
-              {p === 'anio' && 'Año'}
-            </Button>
-          ))}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-4xl font-bold text-white mb-2">Estadísticas</h1>
+            <p className="text-gray-400">Panel de control y análisis de trámites</p>
+          </div>
+          <div className="flex gap-2">
+            {(['semana', 'mes', 'trimestre', 'anio'] as PeriodoType[]).map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriodo(p)}
+                className={`px-4 py-2 rounded-xl font-medium transition-all ${
+                  periodo === p
+                    ? 'bg-[#752485] text-white shadow-lg'
+                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700'
+                }`}
+              >
+                {p === 'semana' && 'Semana'}
+                {p === 'mes' && 'Mes'}
+                {p === 'trimestre' && 'Trimestre'}
+                {p === 'anio' && 'Año'}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Tarjetas de resumen */}
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
-        <StatCard
-          titulo='Total Enviados'
-          valor={generales?.resumen.total_enviados || 0}
-          descripcion={`${generales?.resumen.porcentaje_completados.toFixed(1)}% completados`}
-          icono={Send}
-          colorIcono='text-blue-600'
-        />
-        <StatCard
-          titulo='Pendientes'
-          valor={generales?.resumen.pendientes || 0}
-          descripcion={`${generales?.resumen.porcentaje_pendientes.toFixed(1)}% del total`}
-          icono={Clock}
-          colorIcono='text-yellow-600'
-        />
-        <StatCard
-          titulo='Completados'
-          valor={generales?.resumen.completados || 0}
-          descripcion='Finalizados exitosamente'
-          icono={CheckCircle}
-          colorIcono='text-green-600'
-        />
-        <StatCard
-          titulo='Observaciones'
-          valor={generales?.rendimiento.observaciones_pendientes || 0}
-          descripcion='Pendientes de resolver'
-          icono={AlertCircle}
-          colorIcono='text-red-600'
-        />
-      </div>
+      {/* Grid principal */}
+      <div className="grid grid-cols-12 gap-6">
+        {/* Stats cards principales */}
+        <div className="col-span-12 lg:col-span-3">
+          <ModernStatCard
+            titulo="Total Enviados"
+            valor={generales?.resumen.total_enviados || 0}
+            descripcion={`${generales?.resumen.porcentaje_completados.toFixed(1)}% completados`}
+            icono={Send}
+            gradient="bg-gradient-to-br from-blue-500 to-blue-700"
+          />
+        </div>
 
-      {/* Gráficos principales */}
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-        {/* Tendencia temporal */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Tendencia de Trámites</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div className="col-span-12 lg:col-span-3">
+          <ModernStatCard
+            titulo="Pendientes"
+            valor={generales?.resumen.pendientes || 0}
+            descripcion={`${generales?.resumen.porcentaje_pendientes.toFixed(1)}% del total`}
+            icono={Clock}
+            gradient="bg-gradient-to-br from-yellow-500 to-orange-600"
+          />
+        </div>
+
+        <div className="col-span-12 lg:col-span-3">
+          <ModernStatCard
+            titulo="Completados"
+            valor={generales?.resumen.completados || 0}
+            descripcion="Finalizados exitosamente"
+            icono={CheckCircle}
+            gradient="bg-gradient-to-br from-green-500 to-emerald-600"
+          />
+        </div>
+
+        <div className="col-span-12 lg:col-span-3">
+          <ModernStatCard
+            titulo="Observaciones"
+            valor={generales?.rendimiento.observaciones_pendientes || 0}
+            descripcion="Pendientes de resolver"
+            icono={AlertCircle}
+            gradient="bg-gradient-to-br from-red-500 to-pink-600"
+          />
+        </div>
+
+        {/* Gráficos principales */}
+        <div className="col-span-12 lg:col-span-8 ">
+          <FloatingCard className='!bg-[#272d34]'>
+            <h3 className="text-white text-xl font-bold mb-6">Tendencia de Trámites</h3>
             <GraficoLineas data={porPeriodo?.datos_grafico || []} altura={300} />
-          </CardContent>
-        </Card>
+          </FloatingCard>
+        </div>
 
-        {/* Distribución por estados */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Distribución por Estados</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div className="col-span-12 lg:col-span-4">
+          <FloatingCard className='!bg-[#272d34]'>
+            <h3 className="text-white text-xl font-bold mb-4">Distribución por Estados</h3>
             <GraficoPastel data={datosEstados} altura={300} />
-          </CardContent>
-        </Card>
-      </div>
+          </FloatingCard>
+        </div>
 
-      {/* Rendimiento */}
-      <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
-        <StatCard
-          titulo='Tiempo Promedio de Respuesta'
-          valor={`${generales?.rendimiento.promedio_tiempo_respuesta_horas.toFixed(1)}h`}
-          descripcion='Desde envío hasta lectura'
-          icono={TrendingUp}
-          colorIcono='text-purple-600'
-        />
-        <StatCard
-          titulo='Tasa de Firmas'
-          valor={`${generales?.rendimiento.tasa_firmas_porcentaje.toFixed(1)}%`}
-          descripcion='Documentos firmados'
-          icono={FileText}
-          colorIcono='text-indigo-600'
-        />
-        <StatCard
-          titulo='Trabajadores Activos'
-          valor={porTrabajador?.total_trabajadores || 0}
-          descripcion='En el área'
-          icono={Users}
-          colorIcono='text-teal-600'
-        />
-      </div>
+        {/* Métricas de rendimiento compactas */}
+        <div className="col-span-12 lg:col-span-4">
+          <FloatingCard>
+            <div className="flex items-center gap-4 mb-3">
+              <div className="p-3 rounded-2xl bg-purple-500 bg-opacity-20">
+                <TrendingUp className="w-5 h-5 text-purple-400" />
+              </div>
+              <div>
+                <p className="text-gray-400 text-xs">Tiempo Promedio</p>
+                <p className="text-white text-2xl font-bold">
+                  {generales?.rendimiento.promedio_tiempo_respuesta_horas.toFixed(1)}h
+                </p>
+              </div>
+            </div>
+            <p className="text-gray-500 text-xs">Desde envío hasta lectura</p>
+          </FloatingCard>
+        </div>
 
-      {/* Tipos de documentos */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Tipos de Documentos Enviados</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <GraficoBarras data={datosTipos} altura={300} color='#3b82f6' />
-        </CardContent>
-      </Card>
+        <div className="col-span-12 lg:col-span-4">
+          <FloatingCard>
+            <div className="flex items-center gap-4 mb-3">
+              <div className="p-3 rounded-2xl bg-indigo-500 bg-opacity-20">
+                <FileText className="w-5 h-5 text-indigo-400" />
+              </div>
+              <div>
+                <p className="text-gray-400 text-xs">Tasa de Firmas</p>
+                <p className="text-white text-2xl font-bold">
+                  {generales?.rendimiento.tasa_firmas_porcentaje.toFixed(1)}%
+                </p>
+              </div>
+            </div>
+            <p className="text-gray-500 text-xs">Documentos firmados</p>
+          </FloatingCard>
+        </div>
 
-      {/* Ranking de trabajadores */}
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-        {/* Top por completado */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Trabajadores - % Completado</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className='space-y-3'>
+        <div className="col-span-12 lg:col-span-4">
+          <FloatingCard>
+            <div className="flex items-center gap-4 mb-3">
+              <div className="p-3 rounded-2xl bg-teal-500 bg-opacity-20">
+                <Users className="w-5 h-5 text-teal-400" />
+              </div>
+              <div>
+                <p className="text-gray-400 text-xs">Trabajadores Activos</p>
+                <p className="text-white text-2xl font-bold">
+                  {porTrabajador?.total_trabajadores || 0}
+                </p>
+              </div>
+            </div>
+            <p className="text-gray-500 text-xs">En el área</p>
+          </FloatingCard>
+        </div>
+
+        {/* Tipos de documentos */}
+        <div className="col-span-12">
+          <FloatingCard className='!bg-[#272d34]'>
+            <h3 className="text-white text-xl font-bold mb-6">Tipos de Documentos Enviados</h3>
+            <GraficoBarras data={datosTipos} altura={300} color='#3b82f6' />
+          </FloatingCard>
+        </div>
+
+        {/* Rankings */}
+        <div className="col-span-12 lg:col-span-6">
+          <FloatingCard>
+            <div className="flex items-center gap-3 mb-6">
+              <Award className="w-6 h-6 text-yellow-400" />
+              <h3 className="text-white text-xl font-bold">Top Trabajadores - % Completado</h3>
+            </div>
+            <div className="space-y-3">
               {ranking?.top_completado.slice(0, 5).map((trabajador, index) => (
                 <div
                   key={trabajador.id_usuario}
-                  className='flex items-center justify-between p-3 bg-gray-50 rounded-lg'
+                  className="flex items-center justify-between p-4 bg-gray-800 bg-opacity-50 rounded-2xl border border-gray-700 hover:border-purple-500 transition-all"
                 >
-                  <div className='flex items-center gap-3'>
-                    <div className='flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-700 rounded-full font-bold'>
+                  <div className="flex items-center gap-4">
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-xl font-bold text-sm ${
+                      index === 0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-gray-900' :
+                        index === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-gray-900' :
+                          index === 2 ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white' :
+                            'bg-gray-700 text-gray-300'
+                    }`}>
                       {index + 1}
                     </div>
                     <div>
-                      <p className='font-medium text-gray-900'>{trabajador.nombre_completo}</p>
-                      <p className='text-sm text-gray-500'>
+                      <p className="font-medium text-white">{trabajador.nombre_completo}</p>
+                      <p className="text-sm text-gray-400">
                         {trabajador.completados} de {trabajador.total_recibidos} trámites
                       </p>
                     </div>
                   </div>
-                  <div className='text-right'>
-                    <p className='text-lg font-bold text-green-600'>
+                  <div className="text-right">
+                    <p className="text-xl font-bold text-green-400">
                       {trabajador.porcentaje_completado.toFixed(1)}%
                     </p>
                   </div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </FloatingCard>
+        </div>
 
-        {/* Top por velocidad */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Trabajadores - Velocidad</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className='space-y-3'>
+        <div className="col-span-12 lg:col-span-6">
+          <FloatingCard>
+            <div className="flex items-center gap-3 mb-6">
+              <Zap className="w-6 h-6 text-purple-400" />
+              <h3 className="text-white text-xl font-bold">Top Trabajadores - Velocidad</h3>
+            </div>
+            <div className="space-y-3">
               {ranking?.top_velocidad.slice(0, 5).map((trabajador, index) => (
                 <div
                   key={trabajador.id_usuario}
-                  className='flex items-center justify-between p-3 bg-gray-50 rounded-lg'
+                  className="flex items-center justify-between p-4 bg-gray-800 bg-opacity-50 rounded-2xl border border-gray-700 hover:border-purple-500 transition-all"
                 >
-                  <div className='flex items-center gap-3'>
-                    <div className='flex items-center justify-center w-8 h-8 bg-purple-100 text-purple-700 rounded-full font-bold'>
+                  <div className="flex items-center gap-4">
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-xl font-bold text-sm ${
+                      index === 0 ? 'bg-gradient-to-br from-purple-400 to-purple-600 text-white' :
+                        index === 1 ? 'bg-gradient-to-br from-purple-300 to-purple-500 text-white' :
+                          index === 2 ? 'bg-gradient-to-br from-purple-200 to-purple-400 text-gray-900' :
+                            'bg-gray-700 text-gray-300'
+                    }`}>
                       {index + 1}
                     </div>
                     <div>
-                      <p className='font-medium text-gray-900'>{trabajador.nombre_completo}</p>
-                      <p className='text-sm text-gray-500'>Promedio de respuesta</p>
+                      <p className="font-medium text-white">{trabajador.nombre_completo}</p>
+                      <p className="text-sm text-gray-400">Promedio de respuesta</p>
                     </div>
                   </div>
-                  <div className='text-right'>
-                    <p className='text-lg font-bold text-blue-600'>
+                  <div className="text-right">
+                    <p className="text-xl font-bold text-blue-400">
                       {trabajador.promedio_tiempo_respuesta_horas.toFixed(1)}h
                     </p>
                   </div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </FloatingCard>
+        </div>
 
-      {/* Tiempos detallados */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Análisis de Tiempos de Procesamiento</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
-            <div className='p-4 bg-blue-50 rounded-lg'>
-              <p className='text-sm text-gray-600 mb-1'>Envío → Apertura</p>
-              <p className='text-2xl font-bold text-blue-700'>
-                {tiempos?.envio_a_apertura.promedio.toFixed(1)}h
-              </p>
-              <p className='text-xs text-gray-500 mt-1'>
-                Rango: {tiempos?.envio_a_apertura.minimo.toFixed(1)}h -{' '}
-                {tiempos?.envio_a_apertura.maximo.toFixed(1)}h
-              </p>
+        {/* Análisis de tiempos */}
+        <div className="col-span-12">
+          <FloatingCard className='!bg-[#272d34]'>
+            <h3 className="text-white text-xl font-bold mb-6">Análisis de Tiempos de Procesamiento</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="p-5 bg-gray-800/50 rounded-2xl border border-blue-500/20">
+                <p className="text-gray-400 text-sm mb-2">Envío → Apertura</p>
+                <p className="text-3xl font-bold text-blue-400 mb-2">
+                  {tiempos?.envio_a_apertura.promedio.toFixed(1)}h
+                </p>
+                <p className="text-xs text-gray-500">
+                  Rango: {tiempos?.envio_a_apertura.minimo.toFixed(1)}h - {tiempos?.envio_a_apertura.maximo.toFixed(1)}h
+                </p>
+              </div>
+              <div className="p-5 bg-gray-800/50 rounded-2xl border border-purple-500/20">
+                <p className="text-gray-400 text-sm mb-2">Apertura → Lectura</p>
+                <p className="text-3xl font-bold text-purple-400 mb-2">
+                  {tiempos?.apertura_a_lectura.promedio.toFixed(1)}h
+                </p>
+                <p className="text-xs text-gray-500">
+                  Rango: {tiempos?.apertura_a_lectura.minimo.toFixed(1)}h - {tiempos?.apertura_a_lectura.maximo.toFixed(1)}h
+                </p>
+              </div>
+              <div className="p-5 bg-gray-800/50 rounded-2xl border border-green-500/20">
+                <p className="text-gray-400 text-sm mb-2">Lectura → Firma</p>
+                <p className="text-3xl font-bold text-green-400 mb-2">
+                  {tiempos?.lectura_a_firma.promedio.toFixed(1)}h
+                </p>
+                <p className="text-xs text-gray-500">
+                  Rango: {tiempos?.lectura_a_firma.minimo.toFixed(1)}h - {tiempos?.lectura_a_firma.maximo.toFixed(1)}h
+                </p>
+              </div>
+              <div className="p-5 bg-gray-800/50 rounded-2xl border border-indigo-500/20">
+                <p className="text-gray-400 text-sm mb-2">Tiempo Total</p>
+                <p className="text-3xl font-bold text-indigo-400 mb-2">
+                  {tiempos?.tiempo_total.promedio.toFixed(1)}h
+                </p>
+                <p className="text-xs text-gray-500">
+                  Basado en {tiempos?.total_muestras} muestras
+                </p>
+              </div>
             </div>
-            <div className='p-4 bg-purple-50 rounded-lg'>
-              <p className='text-sm text-gray-600 mb-1'>Apertura → Lectura</p>
-              <p className='text-2xl font-bold text-purple-700'>
-                {tiempos?.apertura_a_lectura.promedio.toFixed(1)}h
-              </p>
-              <p className='text-xs text-gray-500 mt-1'>
-                Rango: {tiempos?.apertura_a_lectura.minimo.toFixed(1)}h -{' '}
-                {tiempos?.apertura_a_lectura.maximo.toFixed(1)}h
-              </p>
-            </div>
-            <div className='p-4 bg-green-50 rounded-lg'>
-              <p className='text-sm text-gray-600 mb-1'>Lectura → Firma</p>
-              <p className='text-2xl font-bold text-green-700'>
-                {tiempos?.lectura_a_firma.promedio.toFixed(1)}h
-              </p>
-              <p className='text-xs text-gray-500 mt-1'>
-                Rango: {tiempos?.lectura_a_firma.minimo.toFixed(1)}h -{' '}
-                {tiempos?.lectura_a_firma.maximo.toFixed(1)}h
-              </p>
-            </div>
-            <div className='p-4 bg-indigo-50 rounded-lg'>
-              <p className='text-sm text-gray-600 mb-1'>Tiempo Total</p>
-              <p className='text-2xl font-bold text-indigo-700'>
-                {tiempos?.tiempo_total.promedio.toFixed(1)}h
-              </p>
-              <p className='text-xs text-gray-500 mt-1'>
-                Basado en {tiempos?.total_muestras} muestras
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </FloatingCard>
+        </div>
+      </div>
     </div>
   );
 }
