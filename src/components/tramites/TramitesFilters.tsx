@@ -194,14 +194,14 @@ export default function TramitesFilters({
       {/* Search Bar */}
       <div className='flex gap-3'>
         <div className='flex-1 relative'>
-          <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400' />
+          <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white' />
           <input
             type='text'
             placeholder='Buscar por código o asunto...'
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleApply()}
-            className='w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+            className='w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white'
           />
         </div>
 

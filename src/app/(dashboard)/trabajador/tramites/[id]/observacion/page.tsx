@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-// src/app/(dashboard)/trabajador/tramites/[id]/observacion/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -16,8 +15,8 @@ import {
   Loader2,
   User,
   Calendar,
+  CheckCircle,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { getProcedureById } from '@/lib/api/tramites';
 import { createObservation } from '@/lib/api/observaciones';
@@ -123,33 +122,32 @@ export default function CreateObservationPage() {
       label: 'Consulta',
       icon: <HelpCircle className='w-5 h-5' />,
       description: 'Tienes una pregunta o necesitas aclaración sobre el documento',
-      color: 'border-blue-200 hover:border-blue-400 bg-blue-50',
-      selectedColor: 'border-blue-500 bg-blue-100',
+      color: 'from-blue-500/20 to-blue-400/10',
+      borderColor: 'border-blue-500/30',
+      iconColor: 'text-blue-400',
+      selectedBg: 'from-blue-500/30 to-blue-400/20',
+      selectedBorder: 'border-blue-400',
     },
     {
       value: 'CORRECCION_REQUERIDA',
       label: 'Corrección Requerida',
       icon: <AlertTriangle className='w-5 h-5' />,
       description: 'Has encontrado un error que debe ser corregido',
-      color: 'border-red-200 hover:border-red-400 bg-red-50',
-      selectedColor: 'border-red-500 bg-red-100',
-    },
-    {
-      value: 'INFORMACION_ADICIONAL',
-      label: 'Información Adicional',
-      icon: <Info className='w-5 h-5' />,
-      description: 'Necesitas información complementaria para proceder',
-      color: 'border-yellow-200 hover:border-yellow-400 bg-yellow-50',
-      selectedColor: 'border-yellow-500 bg-yellow-100',
-    },
+      color: 'from-red-500/20 to-red-400/10',
+      borderColor: 'border-red-500/30',
+      iconColor: 'text-red-400',
+      selectedBg: 'from-red-500/30 to-red-400/20',
+      selectedBorder: 'border-red-400',
+    }
+
   ];
 
   if (isLoading) {
     return (
-      <div className='flex items-center justify-center min-h-screen'>
+      <div className='flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'>
         <div className='text-center'>
-          <Loader2 className='w-8 h-8 animate-spin text-blue-600 mx-auto mb-4' />
-          <p className='text-gray-600'>Cargando información...</p>
+          <Loader2 className='w-10 h-10 animate-spin text-purple-400 mx-auto mb-4' />
+          <p className='text-slate-300 font-medium'>Cargando información...</p>
         </div>
       </div>
     );
@@ -160,203 +158,234 @@ export default function CreateObservationPage() {
   }
 
   return (
-    <div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6'>
-      {/* Header */}
-      <div className='flex items-center gap-4'>
-        <Button variant='ghost' size='sm' onClick={() => router.back()}>
-          <ArrowLeft className='w-4 h-4' />
-          Volver
-        </Button>
-        <div>
-          <h1 className='text-2xl font-bold text-gray-900'>Crear Observación</h1>
-          <p className='text-sm text-gray-600 mt-1'>
-            Reporta dudas, errores o solicita información adicional
-          </p>
+    <div className='min-h-screen py-8 px-4 sm:px-6 lg:px-8'>
+      <div className='max-w-7xl mx-auto space-y-6'>
+        {/* Header */}
+        <div style={{ backgroundColor: '#272d34' }} className='rounded-2xl p-6 shadow-2xl border border-slate-700/50'>
+          <div className='flex items-center gap-4'>
+            <Button
+              variant='ghost'
+              size='sm'
+              onClick={() => router.back()}
+              className='text-slate-300 hover:text-white hover:bg-slate-700/50'
+            >
+              <ArrowLeft className='w-4 h-4' />
+              Volver
+            </Button>
+            <div className='border-l border-slate-700 pl-4 flex-1'>
+              <h1 className='text-2xl font-bold text-white'>Crear Observación</h1>
+              <p className='text-sm text-slate-400 mt-1'>
+                Reporta dudas, errores o solicita información adicional
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Información del Trámite */}
-      <Card>
-        <CardHeader>
-          <CardTitle className='text-base'>Información del Trámite</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className='space-y-3'>
-            <div className='flex items-start gap-3'>
-              <FileText className='w-5 h-5 text-gray-400 mt-0.5' />
-              <div className='flex-1'>
-                <p className='text-sm font-medium text-gray-700'>Código</p>
-                <p className='text-sm text-gray-900 font-mono'>{procedure.codigo}</p>
+        {/* Layout de 2 Columnas */}
+        <form onSubmit={handleSubmit} className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+          {/* Columna Izquierda - Información del Trámite */}
+          <div className='lg:col-span-1 space-y-6'>
+            {/* Información del Trámite */}
+            <div style={{ backgroundColor: '#272d34' }} className='rounded-2xl p-6 shadow-2xl border border-slate-700/50'>
+              <h3 className='text-lg font-semibold text-white mb-4'>Información del Trámite</h3>
+
+              <div className='space-y-4'>
+                <div className='flex items-start gap-3 p-3 bg-slate-800/40 rounded-lg border border-slate-700/30'>
+                  <FileText className='w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5' />
+                  <div className='flex-1 min-w-0'>
+                    <p className='text-xs text-slate-400 mb-1'>Código</p>
+                    <p className='text-sm text-white font-mono font-medium truncate'>{procedure.codigo}</p>
+                  </div>
+                </div>
+
+                <div className='flex items-start gap-3 p-3 bg-slate-800/40 rounded-lg border border-slate-700/30'>
+                  <Calendar className='w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5' />
+                  <div className='flex-1 min-w-0'>
+                    <p className='text-xs text-slate-400 mb-1'>Fecha de envío</p>
+                    <p className='text-sm text-white font-medium'>
+                      {format(new Date(procedure.fecha_envio), "dd 'de' MMM 'de' yyyy", { locale: es })}
+                    </p>
+                  </div>
+                </div>
+
+                <div className='flex items-start gap-3 p-3 bg-slate-800/40 rounded-lg border border-slate-700/30'>
+                  <FileText className='w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5' />
+                  <div className='flex-1 min-w-0'>
+                    <p className='text-xs text-slate-400 mb-1'>Asunto</p>
+                    <p className='text-sm text-white font-medium leading-relaxed'>{procedure.asunto}</p>
+                  </div>
+                </div>
+
+                <div className='flex items-start gap-3 p-3 bg-slate-800/40 rounded-lg border border-slate-700/30'>
+                  <User className='w-5 h-5 text-green-400 flex-shrink-0 mt-0.5' />
+                  <div className='flex-1 min-w-0'>
+                    <p className='text-xs text-slate-400 mb-1'>Enviado por</p>
+                    <p className='text-sm text-white font-medium'>
+                      {procedure.remitente.nombres} {procedure.remitente.apellidos}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className='flex items-start gap-3'>
-              <FileText className='w-5 h-5 text-gray-400 mt-0.5' />
-              <div className='flex-1'>
-                <p className='text-sm font-medium text-gray-700'>Asunto</p>
-                <p className='text-sm text-gray-900'>{procedure.asunto}</p>
-              </div>
-            </div>
-            <div className='flex items-start gap-3'>
-              <User className='w-5 h-5 text-gray-400 mt-0.5' />
-              <div className='flex-1'>
-                <p className='text-sm font-medium text-gray-700'>Enviado por</p>
-                <p className='text-sm text-gray-900'>
-                  {procedure.remitente.nombres} {procedure.remitente.apellidos}
-                </p>
-              </div>
-            </div>
-            <div className='flex items-start gap-3'>
-              <Calendar className='w-5 h-5 text-gray-400 mt-0.5' />
-              <div className='flex-1'>
-                <p className='text-sm font-medium text-gray-700'>Fecha de envío</p>
-                <p className='text-sm text-gray-900'>
-                  {format(new Date(procedure.fecha_envio), "dd 'de' MMMM 'de' yyyy", {
-                    locale: es,
-                  })}
-                </p>
+
+            {/* Info Alert */}
+            <div className='bg-gradient-to-br from-blue-900/30 to-blue-800/20 border border-blue-500/30 rounded-2xl p-5 shadow-2xl'>
+              <div className='flex items-start gap-3'>
+                <div className='bg-blue-500/20 p-2 rounded-lg flex-shrink-0'>
+                  <Info className='w-5 h-5 text-blue-300' />
+                </div>
+                <div className='flex-1'>
+                  <p className='text-sm font-semibold text-white mb-3'>¿Qué sucede después?</p>
+                  <ul className='space-y-2'>
+                    <li className='flex items-start gap-2 text-xs text-blue-200'>
+                      <CheckCircle className='w-3.5 h-3.5 text-blue-400 flex-shrink-0 mt-0.5' />
+                      El responsable recibirá notificación inmediata
+                    </li>
+                    <li className='flex items-start gap-2 text-xs text-blue-200'>
+                      <CheckCircle className='w-3.5 h-3.5 text-blue-400 flex-shrink-0 mt-0.5' />
+                      Revisará y responderá tu observación
+                    </li>
+                    <li className='flex items-start gap-2 text-xs text-blue-200'>
+                      <CheckCircle className='w-3.5 h-3.5 text-blue-400 flex-shrink-0 mt-0.5' />
+                      Recibirás notificación al resolverse
+                    </li>
+                    <li className='flex items-start gap-2 text-xs text-blue-200'>
+                      <CheckCircle className='w-3.5 h-3.5 text-blue-400 flex-shrink-0 mt-0.5' />
+                      Verás la respuesta en detalles del trámite
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Formulario */}
-      <form onSubmit={handleSubmit} className='space-y-6'>
-        {/* Tipo de Observación */}
-        <Card>
-          <CardHeader>
-            <CardTitle className='text-base'>Tipo de Observación *</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className='space-y-3'>
-              {observationTypes.map((type) => (
-                <button
-                  key={type.value}
-                  type='button'
-                  onClick={() => {
-                    setFormData({ ...formData, tipo: type.value as ObservationType });
-                    setErrors({ ...errors, tipo: undefined });
-                  }}
-                  className={`w-full text-left p-4 border-2 rounded-lg transition-all ${
-                    formData.tipo === type.value ? type.selectedColor : type.color
-                  }`}
-                >
-                  <div className='flex items-start gap-3'>
-                    <div
-                      className={`${
-                        formData.tipo === type.value ? 'text-gray-700' : 'text-gray-500'
+          {/* Columna Derecha - Formulario Principal */}
+          <div className='lg:col-span-2 space-y-6'>
+            {/* Columna Derecha - Formulario Principal */}
+            <div className='lg:col-span-2 space-y-6'>
+              {/* Tipo de Observación */}
+              <div style={{ backgroundColor: '#272d34' }} className='rounded-2xl p-6 shadow-2xl border border-slate-700/50'>
+                <div className='mb-5'>
+                  <h3 className='text-lg font-semibold text-white'>Tipo de Observación</h3>
+                  <p className='text-sm text-slate-400 mt-1'>Selecciona la categoría que mejor describa tu observación</p>
+                </div>
+
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                  {observationTypes.map((type) => (
+                    <button
+                      key={type.value}
+                      type='button'
+                      onClick={() => {
+                        setFormData({ ...formData, tipo: type.value as ObservationType });
+                        setErrors({ ...errors, tipo: undefined });
+                      }}
+                      className={`relative p-5 rounded-xl border-2 transition-all duration-200 ${
+                        formData.tipo === type.value
+                          ? `bg-gradient-to-br ${type.selectedBg} ${type.selectedBorder}`
+                          : `bg-gradient-to-br ${type.color} ${type.borderColor} hover:${type.selectedBorder}`
                       }`}
                     >
-                      {type.icon}
-                    </div>
-                    <div className='flex-1'>
-                      <div className='flex items-center justify-between mb-1'>
-                        <p
-                          className={`text-sm font-medium ${
-                            formData.tipo === type.value ? 'text-gray-900' : 'text-gray-700'
-                          }`}
-                        >
-                          {type.label}
-                        </p>
-                        {formData.tipo === type.value && (
-                          <div className='w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center'>
-                            <svg
-                              className='w-3 h-3 text-white'
-                              fill='currentColor'
-                              viewBox='0 0 20 20'
-                            >
-                              <path
-                                fillRule='evenodd'
-                                d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                                clipRule='evenodd'
-                              />
-                            </svg>
-                          </div>
-                        )}
+                      <div className='text-center'>
+                        <div className={`inline-flex p-3 rounded-lg mb-3 ${
+                          formData.tipo === type.value ? 'bg-slate-900/40' : 'bg-slate-800/40'
+                        }`}>
+                          <div className={type.iconColor}>{type.icon}</div>
+                        </div>
+                        <p className='text-sm font-semibold text-white mb-2'>{type.label}</p>
+                        <p className='text-xs text-slate-300 leading-relaxed'>{type.description}</p>
                       </div>
-                      <p
-                        className={`text-xs ${
-                          formData.tipo === type.value ? 'text-gray-700' : 'text-gray-600'
-                        }`}
-                      >
-                        {type.description}
-                      </p>
-                    </div>
+
+                      {formData.tipo === type.value && (
+                        <div className='absolute top-3 right-3'>
+                          <div className='w-6 h-6 rounded-full bg-gradient-to-br from-purple-600 to-purple-500 flex items-center justify-center shadow-lg'>
+                            <CheckCircle className='w-4 h-4 text-white' />
+                          </div>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+
+                {errors.tipo && (
+                  <div className='mt-4 flex items-center gap-2 text-red-400 text-sm'>
+                    <AlertTriangle className='w-4 h-4' />
+                    {errors.tipo}
                   </div>
-                </button>
-              ))}
-            </div>
-            {errors.tipo && <p className='text-sm text-red-600 mt-2'>{errors.tipo}</p>}
-          </CardContent>
-        </Card>
+                )}
+              </div>
 
-        {/* Descripción */}
-        <Card>
-          <CardHeader>
-            <CardTitle className='text-base'>Descripción de la Observación *</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <textarea
-              value={formData.descripcion}
-              onChange={(e) => {
-                setFormData({ ...formData, descripcion: e.target.value });
-                setErrors({ ...errors, descripcion: undefined });
-              }}
-              rows={6}
-              placeholder='Describe detalladamente tu observación, duda o solicitud...'
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 resize-none ${
-                errors.descripcion ? 'border-red-300' : 'border-gray-300'
-              }`}
-            />
-            <div className='flex items-center justify-between mt-2'>
-              <p className='text-xs text-gray-500'>Mínimo 10 caracteres. Sé claro y específico.</p>
-              <p className='text-xs text-gray-500'>{formData.descripcion.length} caracteres</p>
-            </div>
-            {errors.descripcion && (
-              <p className='text-sm text-red-600 mt-2'>{errors.descripcion}</p>
-            )}
-          </CardContent>
-        </Card>
+              {/* Descripción */}
+              <div style={{ backgroundColor: '#272d34' }} className='rounded-2xl p-6 shadow-2xl border border-slate-700/50'>
+                <div className='mb-4'>
+                  <h3 className='text-lg font-semibold text-white'>Descripción de la Observación</h3>
+                  <p className='text-sm text-slate-400 mt-1'>Describe detalladamente tu observación, duda o solicitud</p>
+                </div>
 
-        {/* Info Alert */}
-        <div className='flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg'>
-          <Info className='w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0' />
-          <div className='flex-1'>
-            <p className='text-sm font-medium text-blue-900 mb-1'>¿Qué sucede después?</p>
-            <ul className='text-sm text-blue-800 space-y-1 list-disc list-inside'>
-              <li>El responsable recibirá una notificación inmediata</li>
-              <li>Revisará tu observación y te responderá</li>
-              <li>Recibirás una notificación cuando sea resuelta</li>
-              <li>Podrás ver la respuesta en los detalles del trámite</li>
-            </ul>
+                <textarea
+                  value={formData.descripcion}
+                  onChange={(e) => {
+                    setFormData({ ...formData, descripcion: e.target.value });
+                    setErrors({ ...errors, descripcion: undefined });
+                  }}
+                  rows={10}
+                  placeholder='Escribe aquí tu observación de forma clara y detallada...'
+                  className={`w-full px-4 py-3 bg-slate-800/40 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-white placeholder-slate-500 transition-all ${
+                    errors.descripcion ? 'border-red-500/50' : 'border-slate-700/50'
+                  }`}
+                />
+
+                <div className='flex items-center justify-between mt-3'>
+                  <p className='text-xs text-slate-500'>Mínimo 10 caracteres. Sé claro y específico.</p>
+                  <p className={`text-xs font-medium ${
+                    formData.descripcion.length >= 10 ? 'text-green-400' : 'text-slate-500'
+                  }`}>
+                    {formData.descripcion.length} caracteres
+                  </p>
+                </div>
+
+                {errors.descripcion && (
+                  <div className='mt-3 flex items-center gap-2 text-red-400 text-sm'>
+                    <AlertTriangle className='w-4 h-4' />
+                    {errors.descripcion}
+                  </div>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div style={{ backgroundColor: '#272d34' }} className='rounded-2xl p-6 shadow-2xl border border-slate-700/50'>
+                <div className='flex items-center justify-end gap-3'>
+                  <Button
+                    type='button'
+                    variant='outline'
+                    onClick={() => router.back()}
+                    disabled={isSubmitting}
+                    className='bg-slate-700/30 hover:bg-slate-600/40 text-white border border-slate-600/50'
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    type='submit'
+                    disabled={isSubmitting}
+                    className='bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white shadow-lg shadow-purple-500/30'
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className='w-4 h-4 animate-spin' />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Send className='w-4 h-4' />
+                        Enviar Observación
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-
-        {/* Actions */}
-        <div className='flex items-center justify-end gap-3 pt-4 border-t'>
-          <Button
-            type='button'
-            variant='outline'
-            onClick={() => router.back()}
-            disabled={isSubmitting}
-          >
-            Cancelar
-          </Button>
-          <Button type='submit' disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <Loader2 className='w-4 h-4 animate-spin' />
-                Enviando...
-              </>
-            ) : (
-              <>
-                <Send className='w-4 h-4' />
-                Enviar Observación
-              </>
-            )}
-          </Button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
-  );
+);
 }

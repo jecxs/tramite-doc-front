@@ -1,194 +1,249 @@
+// src/app/(protected)/trabajador/page.tsx
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { FileText, Eye, PenTool, MessageSquare } from 'lucide-react';
+import { FileText, Eye, PenTool, MessageSquare, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProcedureStateBadge } from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import Link from 'next/link';
+import { useWorkerStats } from '@/hooks/useWorkerStats';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { PROCEDURE_STATES } from '@/lib/constants';
 
 export default function TrabajadorDashboard() {
   const { user } = useAuth();
+  const { stats, recentProcedures, isLoading, error, refetch } = useWorkerStats();
 
-  // Mock data - esto después se obtendrá de la API
-  const stats = [
+  if (isLoading) {
+    return (
+      <div className='flex items-center justify-center min-h-[400px]'>
+        <Loader2 className='w-8 h-8 animate-spin text-blue-600' />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className='flex flex-col items-center justify-center min-h-[400px] gap-4'>
+        <AlertCircle className='w-12 h-12 text-red-600' />
+        <p className='text-gray-600'>{error}</p>
+        <Button onClick={refetch}>Reintentar</Button>
+      </div>
+    );
+  }
+
+  const statsData = [
     {
       title: 'Documentos Recibidos',
-      value: '18',
-      icon: <FileText className='w-6 h-6 text-blue-600' />,
+      value: stats.total_recibidos.toString(),
+      icon: <FileText className='w-5 h-5' />,
       description: 'Total',
+      color: 'text-blue-400',
+      bgColor: 'bg-blue-500/10',
     },
     {
       title: 'Sin Leer',
-      value: '3',
-      icon: <Eye className='w-6 h-6 text-yellow-600' />,
+      value: stats.sin_leer.toString(),
+      icon: <Eye className='w-5 h-5' />,
       description: 'Pendientes',
+      color: 'text-amber-400',
+      bgColor: 'bg-amber-500/10',
+      highlight: stats.sin_leer > 0,
     },
     {
       title: 'Para Firmar',
-      value: '2',
-      icon: <PenTool className='w-6 h-6 text-red-600' />,
+      value: stats.para_firmar.toString(),
+      icon: <PenTool className='w-5 h-5' />,
       description: 'Requieren firma',
+      color: 'text-rose-400',
+      bgColor: 'bg-rose-500/10',
+      highlight: stats.para_firmar > 0,
     },
     {
       title: 'Firmados',
-      value: '13',
-      icon: <FileText className='w-6 h-6 text-green-600' />,
+      value: stats.firmados.toString(),
+      icon: <FileText   className='w-5 h-5' />,
       description: 'Completados',
-    },
-  ];
-
-  // Mock recent procedures
-  const recentProcedures = [
-    {
-      id: '1',
-      codigo: 'TRAM-2025-001',
-      asunto: 'Contrato Laboral Q1 2025',
-      remitente: 'María García',
-      area: 'Recursos Humanos',
-      estado: 'SENT' as const,
-      fecha: '2025-11-15',
-      requiere_firma: true,
-    },
-    {
-      id: '2',
-      codigo: 'TRAM-2025-002',
-      asunto: 'Boleta de Pago Noviembre',
-      remitente: 'Juan Pérez',
-      area: 'Finanzas',
-      estado: 'READ' as const,
-      fecha: '2025-11-14',
-      requiere_firma: false,
-    },
-    {
-      id: '3',
-      codigo: 'TRAM-2025-003',
-      asunto: 'Notificación de Capacitación',
-      remitente: 'Ana López',
-      area: 'RRHH',
-      estado: 'SIGNED' as const,
-      fecha: '2025-11-13',
-      requiere_firma: true,
+      color: 'text-emerald-400',
+      bgColor: 'bg-emerald-500/10',
     },
   ];
 
   return (
-    <div className='space-y-6'>
-      {/* Header */}
-      <div>
-        <h1 className='text-3xl font-bold text-gray-900'>Bienvenido, {user?.nombres}</h1>
-        <p className='text-gray-600 mt-1'>
-          Aquí encontrarás todos los documentos que han sido enviados para ti
-        </p>
-      </div>
+    <div className='min-h-screen p-6'>
+      <div className='max-w-7xl mx-auto space-y-6'>
+        {/* Header */}
+        <div className='mb-8'>
+          <h1 className='text-3xl font-bold text-white mb-2'>
+            Bienvenido, {user?.nombres}
+          </h1>
+          <p className='text-slate-400'>
+            Aquí encontrarás todos los documentos que han sido enviados para ti
+          </p>
+        </div>
 
-      {/* Stats Grid */}
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
-        {stats.map((stat, index) => (
-          <Card key={index} hover>
-            <CardContent className='pt-6'>
-              <div className='flex items-center justify-between'>
-                <div>
-                  <p className='text-sm font-medium text-gray-600'>{stat.title}</p>
-                  <p className='text-3xl font-bold text-gray-900 mt-2'>{stat.value}</p>
-                  <p className='text-sm text-gray-500 mt-1'>{stat.description}</p>
-                </div>
-                <div className='p-3 bg-gray-50 rounded-lg'>{stat.icon}</div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Documentos Pendientes */}
-      <Card>
-        <CardHeader>
-          <div className='flex items-center justify-between'>
-            <CardTitle>Documentos Recientes</CardTitle>
-            <Link
-              href='/trabajador/tramites'
-              className='text-sm text-blue-600 hover:text-blue-700 font-medium'
+        {/* Stats Grid */}
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+          {statsData.map((stat, index) => (
+            <div
+              key={index}
+              className={`bg-[#272d34] rounded-2xl p-6 transition-all duration-300 hover:translate-y-[-4px] hover:shadow-xl ${
+                stat.highlight ? 'ring-2 ring-amber-400/50' : ''
+              }`}
             >
-              Ver todos →
-            </Link>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className='space-y-4'>
-            {recentProcedures.map((procedure) => (
-              <div
-                key={procedure.id}
-                className='flex items-center justify-between py-4 border-b border-gray-100 last:border-0'
-              >
-                <div className='flex-1'>
-                  <div className='flex items-center gap-3'>
-                    <p className='text-sm font-medium text-gray-900'>{procedure.codigo}</p>
-                    <ProcedureStateBadge estado={procedure.estado} />
-                    {procedure.requiere_firma && (
-                      <span className='inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800'>
-                        Requiere Firma
-                      </span>
-                    )}
-                  </div>
-                  <p className='text-sm text-gray-600 mt-1'>{procedure.asunto}</p>
-                  <p className='text-xs text-gray-500 mt-1'>
-                    De: {procedure.remitente} ({procedure.area}) • {procedure.fecha}
-                  </p>
+              <div className='flex items-start justify-between mb-4'>
+                <div className={`p-3 ${stat.bgColor} rounded-xl ${stat.color}`}>
+                  {stat.icon}
                 </div>
-                <Link href={`/trabajador/tramites/${procedure.id}`}>
-                  <Button variant='ghost' size='sm'>
-                    {procedure.estado === 'SENT' ? 'Ver ahora' : 'Ver detalles'}
-                  </Button>
+              </div>
+              <div>
+                <p className='text-slate-400 text-sm font-medium mb-1'>{stat.title}</p>
+                <p className='text-white text-3xl font-bold mb-1'>{stat.value}</p>
+                <p className='text-slate-500 text-xs'>{stat.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Main Content Grid */}
+        <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+          {/* Documentos Recientes - Takes 2 columns */}
+          <div className='lg:col-span-2'>
+            <div className='bg-[#272d34] rounded-2xl p-6 h-full'>
+              <div className='flex items-center justify-between mb-6'>
+                <h2 className='text-xl font-bold text-white'>Documentos Recientes</h2>
+                <Link
+                  href='/trabajador/tramites'
+                  className='text-sm text-blue-400 hover:text-blue-300 font-medium transition-colors'
+                >
+                  Ver todos →
                 </Link>
               </div>
-            ))}
+
+              {recentProcedures.length === 0 ? (
+                <div className='text-center py-12'>
+                  <FileText className='w-12 h-12 text-slate-600 mx-auto mb-3' />
+                  <p className='text-slate-400'>No hay documentos recientes</p>
+                </div>
+              ) : (
+                <div className='space-y-3'>
+                  {recentProcedures.map((procedure) => (
+                    <div
+                      key={procedure.id_tramite}
+                      className='bg-slate-800/50 rounded-xl p-4 hover:bg-slate-800 transition-all duration-200 group'
+                    >
+                      <div className='flex items-start justify-between gap-4'>
+                        <div className='flex-1 min-w-0'>
+                          <div className='flex items-center gap-2 flex-wrap mb-2'>
+                            <span className='text-white font-semibold text-sm'>
+                              {procedure.codigo}
+                            </span>
+                            <ProcedureStateBadge estado={procedure.estado} />
+                            {procedure.requiere_firma &&
+                              procedure.estado !== PROCEDURE_STATES.FIRMADO && (
+                                <span className='inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-rose-500/20 text-rose-300'>
+                                  <PenTool className='w-3 h-3 mr-1' />
+                                  Requiere Firma
+                                </span>
+                              )}
+                            {procedure.observaciones_count !== undefined &&
+                              procedure.observaciones_count > 0 && (
+                                <span className='inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-purple-500/20 text-purple-300'>
+                                  <MessageSquare className='w-3 h-3 mr-1' />
+                                  {procedure.observaciones_count}
+                                </span>
+                              )}
+                          </div>
+                          <p className='text-slate-300 text-sm mb-2 line-clamp-1'>
+                            {procedure.asunto}
+                          </p>
+                          <div className='flex items-center gap-2 text-xs text-slate-500'>
+                            <span>
+                              {procedure.remitente.nombres} {procedure.remitente.apellidos}
+                            </span>
+                            <span>•</span>
+                            <span>{procedure.areaRemitente?.nombre}</span>
+                            <span>•</span>
+                            <span>
+                              {format(new Date(procedure.fecha_envio), "d 'de' MMM, yyyy", {
+                                locale: es,
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                        <Link href={`/trabajador/tramites/${procedure.id_tramite}`}>
+                          <Button
+                            variant={
+                              procedure.estado === PROCEDURE_STATES.ENVIADO
+                                ? 'primary'
+                                : 'ghost'
+                            }
+                            size='sm'
+                          >
+                            {procedure.estado === PROCEDURE_STATES.ENVIADO
+                              ? 'Ver ahora'
+                              : 'Ver detalles'}
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Quick Actions */}
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-        {/* Documentos para firmar */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Documentos para Firmar</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className='flex items-center justify-between'>
-              <div>
-                <p className='text-3xl font-bold text-gray-900'>2</p>
-                <p className='text-sm text-gray-600 mt-1'>Requieren tu firma electrónica</p>
+          {/* Quick Actions Sidebar */}
+          <div className='space-y-4'>
+            {/* Documentos para firmar */}
+            <div className='bg-[#272d34] rounded-2xl p-6'>
+              <div className='flex items-center gap-3 mb-4'>
+                <div className='p-3 bg-rose-500/10 rounded-xl'>
+                  <PenTool className='w-5 h-5 text-rose-400' />
+                </div>
+                <h3 className='text-lg font-bold text-white'>Para Firmar</h3>
               </div>
-              <Link href='/trabajador/firmar'>
-                <Button>
-                  <PenTool className='w-4 h-4' />
-                  Firmar
+              <div className='mb-4'>
+                <p className='text-4xl font-bold text-white mb-1'>{stats.para_firmar}</p>
+                <p className='text-slate-400 text-sm'>Requieren tu firma electrónica</p>
+              </div>
+              <Link
+                href='/trabajador/tramites?requiere_firma=true&estado=LEIDO'
+                className='block'
+              >
+                <Button
+                  disabled={stats.para_firmar === 0}
+                  className='w-full'
+                >
+                  {stats.para_firmar > 0 ? 'Firmar ahora' : 'Sin pendientes'}
                 </Button>
               </Link>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Mis Observaciones */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Mis Observaciones</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className='flex items-center justify-between'>
-              <div>
-                <p className='text-3xl font-bold text-gray-900'>0</p>
-                <p className='text-sm text-gray-600 mt-1'>Observaciones realizadas</p>
+            {/* Mis Observaciones */}
+            <div className='bg-[#272d34] rounded-2xl p-6'>
+              <div className='flex items-center gap-3 mb-4'>
+                <div className='p-3 bg-purple-500/10 rounded-xl'>
+                  <MessageSquare className='w-5 h-5 text-purple-400' />
+                </div>
+                <h3 className='text-lg font-bold text-white'>Observaciones</h3>
               </div>
-              <Link href='/trabajador/observaciones'>
-                <Button variant='outline'>
-                  <MessageSquare className='w-4 h-4' />
-                  Ver
+              <div className='mb-4'>
+                <p className='text-4xl font-bold text-white mb-1'>
+                  {stats.observaciones_pendientes}
+                </p>
+                <p className='text-slate-400 text-sm'>Observaciones pendientes</p>
+              </div>
+              <Link href='/trabajador/observaciones' className='block'>
+                <Button variant='outline' className='w-full'>
+                  Ver observaciones
                 </Button>
               </Link>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

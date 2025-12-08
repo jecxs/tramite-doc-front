@@ -36,7 +36,7 @@ interface ObservationWithTramite extends Observation {
 
 // Componente de Card Flotante
 const FloatingCard = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-  <div className={`bg-gray-800 rounded-3xl p-6 shadow-2xl border border-gray-700/50 ${className}`}>
+  <div className={`bg-[#272d34] rounded-2xl p-6 shadow-2xl border border-gray-700/50 ${className}`}>
     {children}
   </div>
 );
