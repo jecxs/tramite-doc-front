@@ -33,7 +33,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <Navbar onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
       {/* Container */}
-      <div className='flex pt-16'>
+      <div className='flex pt-25'>
         {/* Sidebar */}
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 

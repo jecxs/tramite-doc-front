@@ -183,9 +183,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           damping: 30,
         }}
         className={`
-    fixed lg:sticky top-0 left-0 z-50
-    h-screen w-72
-    lg:!transform-none
+          fixed lg:sticky top-0 left-0 z-50
+          h-screen w-72
+          lg:!transform-none
   `}
       >
         {/* Glass container con sombra flotante */}

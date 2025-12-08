@@ -18,8 +18,6 @@ import {
   AlertTriangle,
   Info,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
 import { Notification } from '@/types';
 import { getNotifications, markNotificationAsRead } from '@/lib/api/notificaciones';
 import { NOTIFICATION_LABELS, ROLES, ROUTE_BUILDERS } from '@/lib/constants';
@@ -32,9 +30,9 @@ interface NotificationListProps {
 }
 
 export default function NotificationList({
-  initialNotifications = [],
-  onNotificationClick,
-}: NotificationListProps) {
+                                           initialNotifications = [],
+                                           onNotificationClick,
+                                         }: NotificationListProps) {
   const router = useRouter();
   const { currentRole } = useRole();
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
@@ -77,11 +75,8 @@ export default function NotificationList({
 
   const handleNotificationClick = async (notification: Notification) => {
     try {
-      // Marcar como leída si no lo está
       if (!notification.visto) {
         await markNotificationAsRead(notification.id_notificacion);
-
-        // Actualizar estado local
         setNotifications((prev) =>
           prev.map((n) =>
             n.id_notificacion === notification.id_notificacion
@@ -91,11 +86,9 @@ export default function NotificationList({
         );
       }
 
-      // Callback personalizado o navegación por defecto
       if (onNotificationClick) {
         onNotificationClick(notification);
       } else if (notification.id_tramite) {
-        // Navegar al trámite
         if (currentRole === ROLES.RESP) {
           router.push(ROUTE_BUILDERS.respProcedureDetail(notification.id_tramite));
         } else if (currentRole === ROLES.TRAB) {
@@ -109,46 +102,45 @@ export default function NotificationList({
   };
 
   const getNotificationIcon = (tipo: string) => {
+    const iconClass = 'w-5 h-5';
     switch (tipo) {
       case 'TRAMITE_RECIBIDO':
-        return <FileText className='w-5 h-5 text-blue-600' />;
+        return <FileText className={`${iconClass} text-blue-400`} />;
       case 'TRAMITE_FIRMADO':
-        return <PenTool className='w-5 h-5 text-green-600' />;
+        return <PenTool className={`${iconClass} text-green-400`} />;
       case 'TRAMITE_ANULADO':
-        return <XCircle className='w-5 h-5 text-red-600' />;
+        return <XCircle className={`${iconClass} text-red-400`} />;
       case 'OBSERVACION_CREADA':
-        return <MessageSquare className='w-5 h-5 text-orange-600' />;
+        return <MessageSquare className={`${iconClass} text-orange-400`} />;
       case 'OBSERVACION_RESUELTA':
-        return <CheckCheck className='w-5 h-5 text-green-600' />;
+        return <CheckCheck className={`${iconClass} text-green-400`} />;
       case 'DOCUMENTO_REQUIERE_FIRMA':
-        return <AlertTriangle className='w-5 h-5 text-yellow-600' />;
+        return <AlertTriangle className={`${iconClass} text-yellow-400`} />;
       case 'TRAMITE_REENVIADO':
-        return <RefreshCw className='w-5 h-5 text-purple-600' />;
+        return <RefreshCw className={`${iconClass} text-purple-400`} />;
       default:
-        return <Info className='w-5 h-5 text-gray-600' />;
+        return <Info className={`${iconClass} text-gray-400`} />;
     }
   };
 
-  const getNotificationBgColor = (tipo: string, visto: boolean) => {
-    if (visto) return 'bg-white';
-
+  const getNotificationAccent = (tipo: string) => {
     switch (tipo) {
       case 'TRAMITE_RECIBIDO':
-        return 'bg-blue-50';
+        return 'border-blue-500/40 hover:border-blue-400/60';
       case 'TRAMITE_FIRMADO':
-        return 'bg-green-50';
+        return 'border-green-500/40 hover:border-green-400/60';
       case 'TRAMITE_ANULADO':
-        return 'bg-red-50';
+        return 'border-red-500/40 hover:border-red-400/60';
       case 'OBSERVACION_CREADA':
-        return 'bg-orange-50';
+        return 'border-orange-500/40 hover:border-orange-400/60';
       case 'OBSERVACION_RESUELTA':
-        return 'bg-green-50';
+        return 'border-green-500/40 hover:border-green-400/60';
       case 'DOCUMENTO_REQUIERE_FIRMA':
-        return 'bg-yellow-50';
+        return 'border-yellow-500/40 hover:border-yellow-400/60';
       case 'TRAMITE_REENVIADO':
-        return 'bg-purple-50';
+        return 'border-purple-500/40 hover:border-purple-400/60';
       default:
-        return 'bg-gray-50';
+        return 'border-gray-600 hover:border-gray-500';
     }
   };
 
@@ -156,103 +148,139 @@ export default function NotificationList({
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className='py-12'>
-          <div className='text-center'>
-            <Loader2 className='w-12 h-12 text-blue-600 animate-spin mx-auto mb-3' />
-            <p className='text-gray-600'>Cargando notificaciones...</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className='bg-[#242b34] rounded-3xl p-16 shadow-2xl backdrop-blur-sm'>
+        <div className='text-center'>
+          <Loader2 className='w-14 h-14 text-blue-400 animate-spin mx-auto mb-4' />
+          <p className='text-gray-400 text-lg'>Cargando notificaciones...</p>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className='flex items-center justify-between'>
-          <CardTitle>Notificaciones</CardTitle>
-          <Button variant='ghost' size='sm' onClick={handleRefresh} disabled={isRefreshing}>
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Actualizar
-          </Button>
+    <div className='bg-[#242b34] rounded-3xl shadow-2xl overflow-hidden backdrop-blur-sm'>
+      {/* Header */}
+      <div className='border-b border-gray-700/50 px-8 py-6'>
+        <div className='flex items-center justify-between mb-6'>
+          <h2 className='text-2xl font-bold text-white'>Todas las notificaciones</h2>
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className='group flex items-center gap-2.5 px-5 py-2.5 bg-gray-700/50 hover:bg-gray-600/50 text-white rounded-xl transition-all duration-300 disabled:opacity-50 hover:shadow-lg hover:shadow-gray-900/50'
+          >
+            <RefreshCw
+              className={`w-4 h-4 transition-transform duration-500 ${isRefreshing ? 'animate-spin' : 'group-hover:rotate-180'}`}
+            />
+            <span className='font-medium'>Actualizar</span>
+          </button>
         </div>
-      </CardHeader>
 
-      <CardContent>
         {/* Filtros */}
-        <div className='flex gap-2 mb-4'>
-          <Button
-            variant={filter === 'all' ? 'primary' : 'outline'}
-            size='sm'
+        <div className='flex gap-3'>
+          <button
             onClick={() => setFilter('all')}
+            className={`relative px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
+              filter === 'all'
+                ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
+                : 'bg-gray-700/30 text-gray-300 hover:bg-gray-700/50 hover:text-white'
+            }`}
           >
-            Todas
-          </Button>
-          <Button
-            variant={filter === 'unread' ? 'primary' : 'outline'}
-            size='sm'
+            {filter === 'all' && (
+              <div className='absolute inset-0 bg-gradient-to-r from-blue-400/20 to-blue-600/20 rounded-xl animate-pulse' />
+            )}
+            <span className='relative z-10'>Todas</span>
+          </button>
+          <button
             onClick={() => setFilter('unread')}
+            className={`relative px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
+              filter === 'unread'
+                ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
+                : 'bg-gray-700/30 text-gray-300 hover:bg-gray-700/50 hover:text-white'
+            }`}
           >
-            No leídas
-          </Button>
-          <Button
-            variant={filter === 'read' ? 'primary' : 'outline'}
-            size='sm'
+            {filter === 'unread' && (
+              <div className='absolute inset-0 bg-gradient-to-r from-blue-400/20 to-blue-600/20 rounded-xl animate-pulse' />
+            )}
+            <span className='relative z-10'>No leídas</span>
+          </button>
+          <button
             onClick={() => setFilter('read')}
+            className={`relative px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
+              filter === 'read'
+                ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
+                : 'bg-gray-700/30 text-gray-300 hover:bg-gray-700/50 hover:text-white'
+            }`}
           >
-            Leídas
-          </Button>
+            {filter === 'read' && (
+              <div className='absolute inset-0 bg-gradient-to-r from-blue-400/20 to-blue-600/20 rounded-xl animate-pulse' />
+            )}
+            <span className='relative z-10'>Leídas</span>
+          </button>
         </div>
+      </div>
 
-        {/* Lista */}
+      {/* Lista */}
+      <div className='p-6'>
         {filteredNotifications.length === 0 ? (
-          <div className='text-center py-12'>
-            <Bell className='w-12 h-12 text-gray-400 mx-auto mb-3' />
-            <p className='text-gray-600'>No hay notificaciones</p>
+          <div className='text-center py-20'>
+            <div className='w-20 h-20 bg-gray-700/30 rounded-2xl flex items-center justify-center mx-auto mb-5 backdrop-blur-sm'>
+              <Bell className='w-10 h-10 text-gray-500' />
+            </div>
+            <p className='text-gray-400 text-lg font-medium'>No hay notificaciones</p>
+            <p className='text-gray-500 text-sm mt-2'>Tus notificaciones aparecerán aquí</p>
           </div>
         ) : (
-          <div className='space-y-2'>
+          <div className='space-y-3'>
             {filteredNotifications.map((notification) => (
               <button
                 key={notification.id_notificacion}
                 onClick={() => handleNotificationClick(notification)}
-                className={`w-full text-left p-4 rounded-lg border transition-all hover:shadow-md ${getNotificationBgColor(
-                  notification.tipo,
-                  notification.visto,
-                )} ${!notification.visto ? 'border-blue-200' : 'border-gray-200'}`}
+                className={`group w-full text-left p-5 rounded-2xl transition-all duration-300 hover:scale-[1.01] hover:shadow-xl relative overflow-hidden ${
+                  !notification.visto
+                    ? `bg-gray-800/80 border-l-4 ${getNotificationAccent(notification.tipo)}`
+                    : 'bg-gray-800/40 border border-gray-700/30 hover:bg-gray-800/60 hover:border-gray-600/50'
+                }`}
               >
-                <div className='flex items-start gap-3'>
+                {/* Hover effect overlay */}
+                <div className='absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700' />
+
+                <div className='relative z-10 flex items-start gap-4'>
                   {/* Icono */}
-                  <div className='flex-shrink-0 mt-0.5'>
+                  <div className='flex-shrink-0 w-12 h-12 bg-gray-900/60 backdrop-blur-sm rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 border border-gray-700/50'>
                     {getNotificationIcon(notification.tipo)}
                   </div>
 
                   {/* Contenido */}
                   <div className='flex-1 min-w-0'>
-                    <div className='flex items-start justify-between gap-2'>
-                      <div className='flex-1'>
-                        <p className='text-sm font-medium text-gray-900'>{notification.titulo}</p>
-                        <p className='text-sm text-gray-600 mt-1'>{notification.mensaje}</p>
-                      </div>
+                    <div className='flex items-start justify-between gap-3 mb-2'>
+                      <h3 className='text-base font-semibold text-white group-hover:text-blue-300 transition-colors duration-300'>
+                        {notification.titulo}
+                      </h3>
                       {!notification.visto && (
-                        <div className='w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 mt-2' />
+                        <div className='relative flex-shrink-0 mt-1'>
+                          <div className='w-3 h-3 bg-blue-500 rounded-full' />
+                          <div className='absolute inset-0 w-3 h-3 bg-blue-500 rounded-full animate-ping' />
+                        </div>
                       )}
                     </div>
 
+                    <p className='text-sm text-gray-400 leading-relaxed mb-3'>
+                      {notification.mensaje}
+                    </p>
+
                     {/* Footer */}
-                    <div className='flex items-center gap-3 mt-2 text-xs text-gray-500'>
-                      <span>
+                    <div className='flex items-center gap-3 text-xs'>
+                      <span className='text-gray-500 font-medium'>
                         {formatDistanceToNow(new Date(notification.fecha_creacion), {
                           addSuffix: true,
                           locale: es,
                         })}
                       </span>
-                      <span className='text-gray-400'>•</span>
-                      <span>
+                      <div className='w-1 h-1 bg-gray-600 rounded-full' />
+                      <span className='text-gray-500 bg-gray-700/30 px-3 py-1 rounded-lg'>
                         {NOTIFICATION_LABELS[
                           notification.tipo as keyof typeof NOTIFICATION_LABELS
-                        ] || notification.tipo}
+                          ] || notification.tipo}
                       </span>
                     </div>
                   </div>
@@ -261,7 +289,7 @@ export default function NotificationList({
             ))}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
