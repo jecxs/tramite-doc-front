@@ -8,15 +8,27 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  children,
-}: Readonly<{
+                                     children,
+                                   }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='es'>
-      <body className='antialiased'>
-        <Providers>{children}</Providers>
-      </body>
+    <html lang='es' className='dark' suppressHydrationWarning>
+    <head>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+              try {
+                const theme = localStorage.getItem('theme') || 'dark';
+                document.documentElement.classList.add(theme);
+              } catch (e) {}
+            `,
+        }}
+      />
+    </head>
+    <body className='antialiased'>
+    <Providers>{children}</Providers>
+    </body>
     </html>
   );
 }

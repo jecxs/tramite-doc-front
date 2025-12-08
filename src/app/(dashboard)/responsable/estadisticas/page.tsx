@@ -124,7 +124,7 @@ export default function EstadisticasPage() {
     })) || [];
 
   return (
-    <div className="min-h-screen bg-gray-900 p-8">
+    <div className="min-h-screen p-8">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-6">

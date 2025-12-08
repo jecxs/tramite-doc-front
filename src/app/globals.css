@@ -1,27 +1,32 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 /* Variables personalizadas usando @theme */
 @theme {
-  /* Colors */
-  --color-background: #091a25;
-  --color-foreground: #0a0a0b;
+  /* Light Theme - Colores más suaves y elegantes */
+  --color-background: #f8fafc;
+  --color-foreground: #0f172a;
   --color-card: #ffffff;
-  --color-card-foreground: #0a0a0b;
+  --color-card-foreground: #1e293b;
   --color-popover: #ffffff;
-  --color-popover-foreground: #0a0a0b;
-  --color-primary: #18181b;
-  --color-primary-foreground: #fafafa;
-  --color-secondary: #f4f4f5;
-  --color-secondary-foreground: #18181b;
-  --color-muted: #f4f4f5;
-  --color-muted-foreground: #71717a;
-  --color-accent: #f4f4f5;
-  --color-accent-foreground: #18181b;
+  --color-popover-foreground: #0f172a;
+  --color-primary: #267992;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f1f5f9;
+  --color-secondary-foreground: #1e293b;
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #64748b;
+  --color-accent: #e0f2fe;
+  --color-accent-foreground: #0c4a6e;
   --color-destructive: #ef4444;
-  --color-destructive-foreground: #fafafa;
-  --color-border: #e4e4e7;
-  --color-input: #e4e4e7;
-  --color-ring: #18181b;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #e2e8f0;
+  --color-input: #e2e8f0;
+  --color-ring: #267992;
+  --color-chart-1: #267992;
+  --color-chart-2: #122547;
+  --color-chart-3: #10b981;
+  --color-chart-4: #f59e0b;
+  --color-chart-5: #ef4444;
 
   /* Radius */
   --radius-sm: 0.5rem;
@@ -30,34 +35,156 @@
 }
 
 .dark {
-  --color-background: #0a0a0b;
+  --color-background: #1a1f26;
   --color-foreground: #fafafa;
-  --color-card: #0a0a0b;
+  --color-card: #272d34;  /* ← Cambiar de #0a0a0b a #272d34 */
   --color-card-foreground: #fafafa;
-  --color-popover: #0a0a0b;
+  --color-popover: #272d34;  /* ← Cambiar de #0a0a0b a #272d34 */
   --color-popover-foreground: #fafafa;
   --color-primary: #fafafa;
   --color-primary-foreground: #18181b;
-  --color-secondary: #27272a;
+  --color-secondary: #1e242b;  /* ← Un poco más claro que el card */
   --color-secondary-foreground: #fafafa;
-  --color-muted: #27272a;
+  --color-muted: #1e242b;
   --color-muted-foreground: #a1a1aa;
-  --color-accent: #27272a;
+  --color-accent: #2a3139;
   --color-accent-foreground: #fafafa;
   --color-destructive: #7f1d1d;
   --color-destructive-foreground: #fafafa;
-  --color-border: #27272a;
-  --color-input: #27272a;
+  --color-border: #3a4149;  /* ← Borde más visible */
+  --color-input: #2a3139;
   --color-ring: #d4d4d8;
+  --color-chart-1: #267992;
+  --color-chart-2: #122547;
+  --color-chart-3: #10b981;
+  --color-chart-4: #f59e0b;
+  --color-chart-5: #ef4444;
 }
 
 /* Estilos base */
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Gradientes para tema claro */
+.bg-gradient-light {
+  background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #f8fafc 100%);
+}
+
+.dark .bg-gradient-light {
+  background: linear-gradient(135deg, rgba(10, 10, 11, 0) 0%, rgba(18, 37, 71, 0) 50%, rgba(10, 10, 11, 0) 100%);
+}
+
+/* Cards con efecto sutil en tema claro */
+.card-light-shadow {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--color-border);
+}
+
+.dark .card-light-shadow {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.26);
+  border: 1px solid var(--color-border);
+}
+
+/* Hover effects que funcionen en ambos temas */
+.card-hover-effect {
+  transition: all 0.3s ease;
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(38, 121, 146, 0.1);
+}
+
+.dark .card-hover-effect:hover {
+  box-shadow: 0 10px 25px rgba(38, 121, 146, 0.2);
+}
+
+/* Estilos para gráficos que se adapten a ambos temas */
+.recharts-wrapper {
+  color: var(--color-foreground);
+}
+
+.recharts-cartesian-grid line {
+  stroke: var(--color-border);
+}
+
+.recharts-text {
+  fill: var(--color-muted-foreground);
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted-foreground);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Animaciones suaves para transiciones de tema */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 0.2s;
+  transition-timing-function: ease-in-out;
+}
+
+/* Excluir elementos que no deben tener transición */
+.no-transition,
+.no-transition * {
+  transition: none !important;
 }
 
 /* Estilos personalizados */
 .text-balance {
   text-wrap: balance;
+}
+
+/* Mejoras para inputs en tema claro */
+input, textarea, select {
+  background-color: var(--color-input);
+  border: 1px solid var(--color-border);
+  color: var(--color-foreground);
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+  border-color: var(--color-ring);
+}
+
+/* Badges y estados */
+.badge {
+  background-color: var(--color-muted);
+  color: var(--color-muted-foreground);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Botones con mejor contraste en tema claro */
+button:not(.no-theme-button) {
+  transition: all 0.2s ease;
+}
+
+button:not(.no-theme-button):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(38, 121, 146, 0.15);
+}
+
+.dark button:not(.no-theme-button):hover {
+  box-shadow: 0 4px 12px rgba(38, 121, 146, 0.3);
 }

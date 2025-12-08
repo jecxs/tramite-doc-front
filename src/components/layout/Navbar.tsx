@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { LogOut, User, Menu, Bell, Search, Settings, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import NotificationBadge from '@/components/notifications/NotificationBadge';
+import {ThemeToggle} from "@/components/ui/ThemeToggle";
 
 interface NavbarProps {
   onMenuClick: () => void;
@@ -207,7 +208,6 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                                   <p className='text-xs text-white/40'>Ver información personal</p>
                                 </div>
                               </Link>
-
                               <Link
                                 href='/configuracion'
                                 onClick={() => setShowUserMenu(false)}
@@ -221,7 +221,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                                   <p className='text-xs text-white/40'>Ajustes del sistema</p>
                                 </div>
                               </Link>
-
+                              <ThemeToggle />
                               <div className='my-2 h-px bg-white/10'></div>
 
                               <motion.button
@@ -398,6 +398,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                                 </div>
                               </Link>
 
+                              <ThemeToggle />
                               <div className='my-2 h-px bg-white/10'></div>
 
                               <motion.button
