@@ -227,52 +227,50 @@ export default function ResponderObservacionPage() {
           {/* Columna Izquierda - Información de la Observación */}
           <div className='lg:col-span-1 space-y-6'>
             {/* Card de Observación */}
-            <div className='relative overflow-hidden rounded-2xl bg-card backdrop-blur-sm border border-slate-700/50 shadow-xl'>
+            <div className='relative overflow-hidden rounded-2xl bg-white dark:bg-card backdrop-blur-sm border border-slate-200 dark:border-slate-700/50 shadow-lg dark:shadow-xl transition-all duration-300'>
               <div className='absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-400 via-red-500 to-red-800'></div>
               <div className='p-6'>
                 <div className='flex items-center gap-3 mb-4'>
-                  <div className='p-3 bg-gradient-to-br from-red-500 to-red-500 rounded-xl shadow-lg'>
+                  <div className='p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg shadow-red-500/20'>
                     <AlertCircle className='w-6 h-6 text-white' />
                   </div>
                   <div>
-                    <p className='text-xs text-slate-400 uppercase tracking-wide'>Tipo</p>
-                    <span className='inline-block px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-lg text-sm font-semibold border border-yellow-500/30'>
-                      {observacion.tipo.replace('_', ' ')}
-                    </span>
+                    <p className='text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide font-medium'>Tipo</p>
+                    <span className='inline-block px-3 py-1 bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-400 dark:border-yellow-500/30 rounded-lg text-sm font-semibold border mt-1'>
+              {observacion.tipo.replace('_', ' ')}
+            </span>
                   </div>
                 </div>
 
-                <h3 className='text-lg font-bold text-white mb-3 leading-tight'>
+                <h3 className='text-lg font-bold text-slate-900 dark:text-white mb-3 leading-tight'>
                   {observacion.tramite?.asunto}
                 </h3>
 
-                <div className='p-4 bg-slate-900/50 rounded-xl mb-4 border border-slate-700/30'>
-                  <p className='text-slate-300 text-sm leading-relaxed'>
-                    {observacion.descripcion}
-                  </p>
+                <div className='p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl mb-4 border border-slate-200 dark:border-slate-700/30'>
+                  <p className='text-slate-700 dark:text-slate-300 text-sm leading-relaxed'>{observacion.descripcion}</p>
                 </div>
 
                 <div className='space-y-3'>
-                  <div className='flex items-start gap-3 p-3 bg-slate-900/30 rounded-xl'>
-                    <User className='w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0' />
+                  <div className='flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-900/30 rounded-xl border border-slate-100 dark:border-transparent'>
+                    <User className='w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0' />
                     <div className='flex-1 min-w-0'>
-                      <p className='text-xs text-slate-400 mb-1'>Creada por</p>
-                      <p className='font-medium text-white truncate'>
+                      <p className='text-xs text-slate-500 dark:text-slate-400 mb-1'>Creada por</p>
+                      <p className='font-medium text-slate-900 dark:text-white truncate'>
                         {observacion.creador?.nombres} {observacion.creador?.apellidos}
                       </p>
                     </div>
                   </div>
 
-                  <div className='flex items-start gap-3 p-3 bg-slate-900/30 rounded-xl'>
-                    <FileText className='w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0' />
+                  <div className='flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-900/30 rounded-xl border border-slate-100 dark:border-transparent'>
+                    <FileText className='w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0' />
                     <div className='flex-1 min-w-0'>
-                      <p className='text-xs text-slate-400 mb-1'>Documento</p>
-                      <p className='font-medium text-white text-sm'>
+                      <p className='text-xs text-slate-500 dark:text-slate-400 mb-1'>Documento</p>
+                      <p className='font-medium text-slate-900 dark:text-white text-sm'>
                         {observacion.tramite?.documento?.titulo}
                       </p>
-                      <span className='inline-block mt-1 px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded text-xs border border-blue-500/30'>
-                        v{observacion.tramite?.documento?.version}
-                      </span>
+                      <span className='inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/20 dark:text-blue-400 rounded text-xs border dark:border-blue-500/30'>
+                v{observacion.tramite?.documento?.version}
+              </span>
                     </div>
                   </div>
                 </div>
@@ -281,44 +279,44 @@ export default function ResponderObservacionPage() {
           </div>
 
           {/* Columna Derecha - Formulario de Respuesta */}
-          <div className='lg:col-span-2 space-y-6 '>
+          <div className='lg:col-span-2 space-y-6'>
             {/* Card de Respuesta */}
-            <div className='rounded-2xl bg-[#272d34] backdrop-blur-sm border border-slate-700/50 shadow-xl overflow-hidden'>
-              <div className='bg-[#272d34] px-6 py-4 border-b border-slate-700/50'>
-                <h2 className='text-xl font-bold text-white'>Tu Respuesta</h2>
+            <div className='rounded-2xl bg-white dark:bg-[#272d34] backdrop-blur-sm border border-slate-200 dark:border-slate-700/50 shadow-lg dark:shadow-xl overflow-hidden transition-all duration-300'>
+              <div className='bg-white dark:bg-[#272d34] px-6 py-4 border-b border-slate-200 dark:border-slate-700/50'>
+                <h2 className='text-xl font-bold text-slate-900 dark:text-white'>Tu Respuesta</h2>
               </div>
 
               <div className='p-6 space-y-6'>
                 {/* Textarea de Respuesta */}
                 <div>
-                  <label className='block text-sm font-semibold text-slate-300 mb-3'>
-                    Mensaje de respuesta <span className='text-red-400'>*</span>
+                  <label className='block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3'>
+                    Mensaje de respuesta <span className='text-red-500 dark:text-red-400'>*</span>
                   </label>
                   <textarea
                     value={respuestaText}
                     onChange={(e) => setRespuestaText(e.target.value)}
                     rows={6}
                     placeholder='Explica al trabajador cómo has resuelto su observación...'
-                    className='w-full px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none transition-all duration-300'
+                    className='w-full px-4 py-3 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none transition-all duration-300'
                   />
                 </div>
 
                 {/* Opción de Reenvío */}
-                <div className='rounded-xl bg-slate-900/30 border border-slate-700/30 p-6'>
+                <div className='rounded-xl bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-700/30 p-6'>
                   <label className='flex items-start gap-4 cursor-pointer group'>
                     <div className='relative flex items-center'>
                       <input
                         type='checkbox'
                         checked={incluyeReenvio}
                         onChange={(e) => setIncluyeReenvio(e.target.checked)}
-                        className='w-5 h-5 text-blue-600 bg-slate-900 border-slate-600 rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 focus:ring-offset-slate-900 cursor-pointer'
+                        className='w-5 h-5 text-blue-600 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer'
                       />
                     </div>
                     <div className='flex-1'>
-                      <span className='text-base font-semibold text-white group-hover:text-blue-400 transition-colors'>
-                        Incluir documento corregido
-                      </span>
-                      <p className='text-sm text-slate-400 mt-1'>
+              <span className='text-base font-semibold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors'>
+                Incluir documento corregido
+              </span>
+                      <p className='text-sm text-slate-500 dark:text-slate-400 mt-1'>
                         El trabajador recibirá una nueva versión del documento
                       </p>
                     </div>
@@ -329,27 +327,27 @@ export default function ResponderObservacionPage() {
                     <div className='mt-6 space-y-5 pl-9 border-l-2 border-blue-500/50'>
                       {/* Asunto del Reenvío */}
                       <div>
-                        <label className='block text-sm font-semibold text-slate-300 mb-2'>
-                          Asunto <span className='text-slate-500'>(opcional)</span>
+                        <label className='block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2'>
+                          Asunto <span className='text-slate-400 dark:text-slate-500'>(opcional)</span>
                         </label>
                         <input
                           type='text'
                           value={asuntoReenvio}
                           onChange={(e) => setAsuntoReenvio(e.target.value)}
                           placeholder='Deja vacío para usar el mismo asunto'
-                          className='w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300'
+                          className='w-full px-4 py-2.5 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300'
                         />
                       </div>
 
                       {/* Tipo de Documento */}
                       <div>
-                        <label className='block text-sm font-semibold text-slate-300 mb-2'>
-                          Tipo de documentos<span className='text-red-400'>*</span>
+                        <label className='block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2'>
+                          Tipo de documento <span className='text-red-500 dark:text-red-400'>*</span>
                         </label>
                         <select
                           value={selectedDocType}
                           onChange={(e) => setSelectedDocType(e.target.value)}
-                          className='w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300'
+                          className='w-full px-4 py-2.5 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300'
                           disabled={!!documentoCorregidoId}
                         >
                           <option value=''>Selecciona un tipo</option>
@@ -364,11 +362,9 @@ export default function ResponderObservacionPage() {
                       {/* Upload de Archivo */}
                       {!documentoCorregidoId ? (
                         <div>
-                          <label className='block text-sm font-semibold text-slate-300 mb-2'>
-                            Archivo corregido <span className='text-red-400'>*</span>
-                            <span className='text-slate-500 font-normal ml-2'>
-                              (PDF, DOC, DOCX - Máx 10MB)
-                            </span>
+                          <label className='block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2'>
+                            Archivo corregido <span className='text-red-500 dark:text-red-400'>*</span>
+                            <span className='text-slate-400 dark:text-slate-500 font-normal ml-2'>(PDF, DOC, DOCX - Máx 10MB)</span>
                           </label>
                           <div className='flex gap-3'>
                             <div className='flex-1 relative'>
@@ -376,13 +372,13 @@ export default function ResponderObservacionPage() {
                                 type='file'
                                 accept='.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document'
                                 onChange={handleFileSelect}
-                                className='w-full text-sm text-slate-400 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-blue-600 file:to-blue-700 file:text-white hover:file:from-blue-700 hover:file:to-blue-800 file:cursor-pointer file:transition-all file:duration-300 file:shadow-lg cursor-pointer'
+                                className='w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-gradient-to-r dark:file:from-blue-600 dark:file:to-blue-700 dark:file:text-white hover:file:bg-blue-100 dark:hover:file:from-blue-700 dark:hover:file:to-blue-800 file:cursor-pointer file:transition-all file:duration-300 cursor-pointer border border-slate-200 dark:border-transparent rounded-xl'
                               />
                             </div>
                             <button
                               onClick={handleUploadDocument}
                               disabled={!selectedFile || !selectedDocType || isUploadingDoc}
-                              className='px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 disabled:from-slate-700 disabled:to-slate-700 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-300 shadow-lg font-semibold'
+                              className='px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 disabled:from-slate-400 disabled:to-slate-500 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-300 shadow-lg font-semibold'
                             >
                               {isUploadingDoc ? (
                                 <>
@@ -398,34 +394,32 @@ export default function ResponderObservacionPage() {
                             </button>
                           </div>
                           {selectedFile && (
-                            <p className='mt-2 text-sm text-slate-400 flex items-center gap-2'>
+                            <p className='mt-2 text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2'>
                               <FileText className='w-4 h-4' />
                               {selectedFile.name}
                             </p>
                           )}
                         </div>
                       ) : (
-                        <div className='relative overflow-hidden rounded-xl bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 p-4'>
+                        <div className='relative overflow-hidden rounded-xl bg-green-50 border border-green-200 dark:bg-gradient-to-r dark:from-green-500/10 dark:to-emerald-500/10 dark:border-green-500/30 p-4'>
                           <div className='flex items-center gap-3'>
-                            <div className='p-2 bg-green-500/20 rounded-lg'>
-                              <CheckCircle2 className='w-5 h-5 text-green-400' />
+                            <div className='p-2 bg-green-100 dark:bg-green-500/20 rounded-lg'>
+                              <CheckCircle2 className='w-5 h-5 text-green-600 dark:text-green-400' />
                             </div>
                             <div className='flex-1'>
-                              <p className='text-sm font-semibold text-green-400'>
+                              <p className='text-sm font-semibold text-green-700 dark:text-green-400'>
                                 Documento cargado correctamente
                               </p>
-                              <p className='text-xs text-green-500/80 mt-0.5'>
-                                {selectedFile?.name}
-                              </p>
+                              <p className='text-xs text-green-600 dark:text-green-500/80 mt-0.5'>{selectedFile?.name}</p>
                             </div>
                             <button
                               onClick={() => {
                                 setDocumentoCorregidoId(null);
                                 setSelectedFile(null);
                               }}
-                              className='p-2 hover:bg-green-500/20 rounded-lg transition-colors'
+                              className='p-2 hover:bg-green-100 dark:hover:bg-green-500/20 rounded-lg transition-colors'
                             >
-                              <X className='w-4 h-4 text-green-400' />
+                              <X className='w-4 h-4 text-green-600 dark:text-green-400' />
                             </button>
                           </div>
                         </div>
@@ -440,7 +434,7 @@ export default function ResponderObservacionPage() {
             <div className='flex justify-end gap-4'>
               <button
                 onClick={() => router.back()}
-                className='px-8 py-3.5 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 text-slate-300 rounded-xl hover:bg-slate-700/50 hover:border-slate-600/50 transition-all duration-300 font-semibold shadow-lg'
+                className='px-8 py-3.5 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600/50 transition-all duration-300 font-semibold shadow-sm dark:shadow-lg'
                 disabled={isSubmitting}
               >
                 Cancelar
@@ -450,7 +444,7 @@ export default function ResponderObservacionPage() {
                 disabled={
                   isSubmitting || !respuestaText.trim() || (incluyeReenvio && !documentoCorregidoId)
                 }
-                className='px-8 py-3.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:from-slate-700 disabled:to-slate-700 disabled:cursor-not-allowed flex items-center gap-3 transition-all duration-300 shadow-xl font-semibold'
+                className='px-8 py-3.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:from-slate-400 disabled:to-slate-400 disabled:cursor-not-allowed flex items-center gap-3 transition-all duration-300 shadow-xl font-semibold'
               >
                 {isSubmitting ? (
                   <>
