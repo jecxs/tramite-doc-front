@@ -18,7 +18,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className='w-full'>
         {label && (
-          <label className='block text-sm font-medium text-gray-700 mb-2'>
+          <label className='block text-sm font-medium text-foreground mb-2'>
             {label}
             {props.required && <span className='text-red-500 ml-1'>*</span>}
           </label>
@@ -31,10 +31,10 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
             maxLength={maxLength}
             className={`
                             block w-full px-3 py-2 border rounded-lg
-                            focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                            transition-colors resize-y
-                            ${error ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}
-                            ${props.disabled ? 'bg-gray-50 cursor-not-allowed' : 'bg-white'}
+                            focus:ring-2 focus:ring-primary/30 focus:border-primary
+                            transition-colors resize-y bg-input text-foreground
+                            ${error ? 'border-red-500 focus:ring-red-500' : 'border-border'}
+                            ${props.disabled ? 'opacity-50 cursor-not-allowed bg-muted' : ''}
                             ${className}
                         `}
             {...props}
@@ -50,11 +50,11 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
               </div>
             )}
 
-            {helperText && !error && <p className='text-sm text-gray-500'>{helperText}</p>}
+            {helperText && !error && <p className='text-sm text-muted-foreground'>{helperText}</p>}
           </div>
 
           {showCharCount && maxLength && (
-            <span className='text-xs text-gray-500 ml-2'>
+            <span className='text-xs text-muted-foreground ml-2'>
               {currentLength}/{maxLength}
             </span>
           )}

@@ -250,7 +250,6 @@ export default function SendIndividualForm({
               }))}
               error={errors.id_tipo_documento}
               required
-              // CAMBIO 5: Select adaptable
               className='bg-secondary/50 border-input text-foreground focus:border-purple-500/50 focus:ring-purple-500/20 transition-all duration-200'
             />
 

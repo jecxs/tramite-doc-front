@@ -108,10 +108,10 @@ export default function Step1Selection({
   };
 
   return (
-    <Card className='bg-[#272d34] backdrop-blur-md shadow-2xl'>
+    <Card className='bg-card backdrop-blur-md shadow-2xl'>
       <CardHeader className='border-b border-[#3D4153]/40 pb-5'>
-        <CardTitle className='text-white text-lg font-medium'>Paso 1: Seleccionar Documentos</CardTitle>
-        <CardDescription className='text-gray-400 text-sm mt-2'>
+        <CardTitle className='text-foreground text-lg font-medium'>Paso 1: Seleccionar Documentos</CardTitle>
+        <CardDescription className='text-gray-500 text-sm mt-2'>
           Elija el tipo de documento y suba los archivos. Los nombres deben iniciar con el DNI del
           destinatario.
         </CardDescription>

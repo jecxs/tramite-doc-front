@@ -103,7 +103,7 @@ const WorkerSelector: React.FC<WorkerSelectorProps> = ({
   return (
     <div className='w-full'>
       {/* Label */}
-      <label className='block text-sm font-medium text-white mb-2'>
+      <label className='block text-sm font-medium text-foreground mb-2'>
         Destinatario (Trabajador)
         {required && <span className='text-red-500 ml-1'>*</span>}
       </label>

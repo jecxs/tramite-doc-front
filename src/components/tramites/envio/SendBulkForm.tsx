@@ -171,14 +171,14 @@ export default function SendBulkForm({ workers, documentTypes, onError }: SendBu
     >
       {/* Información del Trámite */}
       <motion.div variants={itemVariants}>
-        <Card className='bg-[#272d34] backdrop-blur-md shadow-2xl'>
+        <Card className='bg-card backdrop-blur-md shadow-2xl'>
           <CardHeader className='border-b border-[#3D4153]/40 pb-5'>
             <div className='flex items-center gap-3'>
               <div className='w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/15 to-purple-600/15 flex items-center justify-center border border-purple-500/20'>
                 <MessageSquare className='w-5 h-5 text-purple-400' />
               </div>
               <div>
-                <CardTitle className='text-white text-base font-medium'>Datos básicos del envío de documento</CardTitle>
+                <CardTitle className='text-foreground text-base font-medium'>Datos básicos del envío de documento</CardTitle>
               </div>
             </div>
           </CardHeader>
@@ -245,14 +245,14 @@ export default function SendBulkForm({ workers, documentTypes, onError }: SendBu
 
       {/* Información del Documento */}
       <motion.div variants={itemVariants}>
-        <Card className='bg-[#272d34] backdrop-blur-md shadow-2xl'>
+        <Card className='bg-card backdrop-blur-md shadow-2xl'>
           <CardHeader className='border-b border-[#3D4153]/40 pb-5'>
             <div className='flex items-center gap-3'>
               <div className='w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/15 to-blue-600/15 flex items-center justify-center border border-blue-500/20'>
                 <FileText className='w-5 h-5 text-blue-400' />
               </div>
               <div>
-                <CardTitle className='text-white text-base font-medium'>Detalles del archivo a enviar</CardTitle>
+                <CardTitle className='text-foreground text-base font-medium'>Detalles del archivo a enviar</CardTitle>
               </div>
             </div>
           </CardHeader>
