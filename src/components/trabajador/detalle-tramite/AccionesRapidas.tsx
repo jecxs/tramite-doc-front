@@ -22,17 +22,14 @@ export default function AccionesRapidas({ procedure, onFirmarClick }: AccionesRa
   }
 
   return (
-    <div
-      style={{ backgroundColor: '#272d34' }}
-      className='rounded-2xl p-6 shadow-2xl border border-slate-700/50'
-    >
-      <h3 className='text-lg font-semibold text-white mb-4'>Acciones Rápidas</h3>
+    <div className='bg-card rounded-2xl p-6 shadow-2xl border border-slate-700/50' >
+      <h3 className='text-lg font-semibold text-foreground mb-4'>Acciones Rápidas</h3>
 
       <div className='space-y-3'>
         {canSign && (
           <Button
             onClick={onFirmarClick}
-            className='w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white shadow-lg shadow-purple-500/20 h-11'
+            className='w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-foreground shadow-lg shadow-purple-500/20 h-11'
           >
             <PenTool className='w-4 h-4' />
             Firmar Documento
@@ -43,7 +40,7 @@ export default function AccionesRapidas({ procedure, onFirmarClick }: AccionesRa
           <Link href={`/trabajador/tramites/${procedure.id_tramite}/observacion`} className='block'>
             <Button
               variant='outline'
-              className='w-full bg-slate-700/30 hover:bg-slate-600/40 text-white border border-slate-600/50 h-11'
+              className='w-full bg-slate-700/30 hover:bg-slate-600/40 text-foreground border border-slate-600/50 h-11'
             >
               <MessageSquare className='w-4 h-4' />
               Hacer Observación

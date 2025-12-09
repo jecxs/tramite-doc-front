@@ -75,13 +75,20 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
           stiffness: 300,
           damping: 30,
         }}
-        className='relative backdrop-blur-2xl rounded-[1.75rem] border shadow-2xl
-            border-gray-200/50 dark:border-white/10
-            shadow-gray-350/100 dark:shadow-black/50'
+        className='relative backdrop-blur-xl rounded-[1.75rem]
+            bg-white/60
+            border border-white/40
+            ring-1 ring-black/5
+            shadow-[0_8px_30px_rgb(0,0,0,0.04)]
+
+            dark:bg-slate-900/60
+            dark:border-white/10
+            dark:ring-white/10
+            dark:shadow-black/50'
         style={{
           background: isScrolled
-            ? 'var(--navbar-bg-scrolled, rgba(255, 255, 255, 0.95))'
-            : 'var(--navbar-bg, rgba(255, 255, 255, 0.7))',
+            ? 'var(--navbar-bg-scrolled)'
+            : 'var(--navbar-bg)',
           width: navbarWidth,
         }}
       >
