@@ -15,7 +15,7 @@
   --color-secondary: #f1f5f9;
   --color-secondary-foreground: #1e293b;
   --color-muted: #f1f5f9;
-  --color-muted-foreground: #64748b;
+  --color-muted-foreground: #617086;
   --color-accent: #e0f2fe;
   --color-accent-foreground: #0c4a6e;
   --color-destructive: #ef4444;
@@ -42,13 +42,13 @@
 .dark {
   --color-background: #1a1f26;
   --color-foreground: #fafafa;
-  --color-card: #272d34;  /* ← Cambiar de #0a0a0b a #272d34 */
+  --color-card: #272d34;
   --color-card-foreground: #fafafa;
-  --color-popover: #272d34;  /* ← Cambiar de #0a0a0b a #272d34 */
+  --color-popover: #272d34;
   --color-popover-foreground: #fafafa;
   --color-primary: #fafafa;
   --color-primary-foreground: #18181b;
-  --color-secondary: #1e242b;  /* ← Un poco más claro que el card */
+  --color-secondary: #1e242b;
   --color-secondary-foreground: #fafafa;
   --color-muted: #1e242b;
   --color-muted-foreground: #a1a1aa;

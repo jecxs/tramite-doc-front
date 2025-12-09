@@ -56,6 +56,7 @@ export default function RemitenteInfo({ remitente }: RemitenteInfoProps) {
               <p className='text-sm text-white font-medium break-words flex-1'>
                 {contacto.value}
               </p>
+
             </div>
           ))}
       </div>

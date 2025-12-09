@@ -20,13 +20,13 @@ export default function TramiteHeader({ codigo, isDownloading, onDownload }: Tra
           className='flex items-center gap-2 text-gray-400 hover:text-white transition-colors group'
         >
           <div className='w-8 h-8 rounded-lg bg-slate-700/50 flex items-center justify-center group-hover:bg-slate-700 transition-colors'>
-            <ArrowLeft className='w-4 h-4' />
+            <ArrowLeft className='w-4 h-4 text-white' />
           </div>
-          <span className='text-sm font-medium'>Volver</span>
+          <span className='text-sm font-medium text-muted-foreground'>Volver</span>
         </button>
         <div className='h-8 w-px bg-slate-700'></div>
         <div>
-          <h1 className='text-xl sm:text-2xl font-bold text-white'>Detalles del Trámite</h1>
+          <h1 className='text-xl sm:text-2xl font-bold text-foreground'>Detalles del Trámite</h1>
           <p className='text-sm text-gray-400 mt-0.5'>
             <span className='font-mono font-medium text-blue-400'>{codigo}</span>
           </p>

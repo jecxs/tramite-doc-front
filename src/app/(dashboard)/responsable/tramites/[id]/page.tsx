@@ -78,10 +78,10 @@ export default function ProcedureDetailPage() {
 
   if (isLoading) {
     return (
-      <div className='flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'>
+      <div className='flex items-center justify-center min-h-screen bg-background'>
         <div className='text-center'>
-          <Loader2 className='w-8 h-8 animate-spin text-blue-400 mx-auto mb-4' />
-          <p className='text-gray-300'>Cargando trámite...</p>
+          <Loader2 className='w-8 h-8 animate-spin text-primary mx-auto mb-4' />
+          <p className='text-muted-foreground'>Cargando trámite...</p>
         </div>
       </div>
     );
@@ -89,15 +89,15 @@ export default function ProcedureDetailPage() {
 
   if (error || !procedure) {
     return (
-      <div className='min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8'>
+      <div className='min-h-screen bg-background p-8'>
         <div className='max-w-2xl mx-auto'>
-          <div className='bg-[#272d34] backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-2xl p-8'>
+          <div className='bg-card backdrop-blur-xl rounded-2xl border border-border shadow-2xl p-8'>
             <div className='text-center'>
-              <AlertCircle className='w-16 h-16 text-red-400 mx-auto mb-4' />
-              <h3 className='text-lg font-medium text-white mb-2'>
+              <AlertCircle className='w-16 h-16 text-destructive mx-auto mb-4' />
+              <h3 className='text-lg font-medium text-foreground mb-2'>
                 Error al cargar el trámite
               </h3>
-              <p className='text-gray-400 mb-6'>{error}</p>
+              <p className='text-muted-foreground mb-6'>{error}</p>
               <Button onClick={() => router.back()}>Volver</Button>
             </div>
           </div>
@@ -105,12 +105,12 @@ export default function ProcedureDetailPage() {
       </div>
     );
   }
-
+  const cardClasses = 'bg-card backdrop-blur-xl rounded-2xl border border-border shadow-lg';
   return (
-    <div className='min-h-screen p-6 lg:p-8'>
+    <div className='min-h-screen bg-background p-6 lg:p-8 transition-colors duration-300'>
       <div className='max-w-7xl mx-auto space-y-6'>
         {/* Header flotante */}
-        <div className='bg-slate-800/60 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-2xl p-6'>
+        <div className='bg-card-800/60 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-2xl p-6'>
           <TramiteHeader
             codigo={procedure.codigo}
             isDownloading={isDownloading}
@@ -119,7 +119,7 @@ export default function ProcedureDetailPage() {
         </div>
 
         {/* Timeline de estado */}
-        <div className='bg-[#272d34] backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-2xl'>
+        <div className={cardClasses}>
           <EstadoTimeline procedure={procedure} />
         </div>
 
@@ -128,12 +128,12 @@ export default function ProcedureDetailPage() {
           {/* COLUMNA PRINCIPAL */}
           <div className='xl:col-span-2 space-y-6'>
             {/* Información del documento */}
-            <div className='bg-[#272d34] backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-2xl'>
+            <div className={cardClasses}>
               <InformacionDocumento procedure={procedure} />
             </div>
 
             {/* Historial */}
-            <div className='bg-[#272d34] backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-2xl'>
+            <div className={cardClasses}>
               <HistorialTramite
                 procedure={procedure}
                 isLoading={isLoading}
@@ -143,26 +143,26 @@ export default function ProcedureDetailPage() {
 
             {/* Respuesta del trabajador */}
             {procedure.requiere_respuesta && (
-              <div className='bg-[#272d34] backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-2xl p-6'>
-                <h3 className='text-lg font-semibold text-white mb-4'>
+              <div className={cardClasses} style={{padding: '15px'}}>
+                <h3 className='text-lg font-semibold text-foreground mb-4'>
                   Respuesta del Trabajador
                 </h3>
                 {procedure.respuesta ? (
                   <VisualizarRespuesta respuesta={procedure.respuesta} mostrarDetallesTecnicos />
                 ) : (
-                  <p className='text-sm text-gray-400'>El trabajador aún no ha respondido</p>
+                  <p className='text-sm text-muted-foreground'>El trabajador aún no ha respondido</p>
                 )}
               </div>
             )}
 
             {/* Observaciones */}
-            <div className='bg-[#272d34] backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-2xl'>
+            <div className={cardClasses}>
               <ObservacionesList observaciones={procedure.observaciones} />
             </div>
 
             {/* Firma electrónica */}
             {procedure.firma && (
-              <div className='bg-slate-800/60 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-2xl'>
+              <div className={cardClasses}>
                 <FirmaElectronicaInfo firma={procedure.firma} procedure={procedure} />
               </div>
             )}
@@ -171,7 +171,7 @@ export default function ProcedureDetailPage() {
           {/* COLUMNA LATERAL */}
           <div className='space-y-6'>
             {/* Información del remitente */}
-            <div className='bg-[#272d34] backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-2xl'>
+            <div className={cardClasses}>
               <InformacionPersona
                 tipo='remitente'
                 persona={procedure.remitente}
@@ -180,12 +180,12 @@ export default function ProcedureDetailPage() {
             </div>
 
             {/* Información del receptor */}
-            <div className='bg-[#272d34] backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-2xl'>
+            <div className={cardClasses}>
               <InformacionPersona tipo='receptor' persona={procedure.receptor} />
             </div>
 
             {/* Fechas importantes */}
-            <div className='bg-[#272d34] backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-2xl'>
+            <div className={cardClasses}>
               <FechasImportantes
                 fechas={{
                   fecha_envio: procedure.fecha_envio,

@@ -34,7 +34,7 @@ export default function InformacionPersona({ tipo, persona, area }: InformacionP
               <User className={`w-6 h-6 ${isRemitente ? 'text-blue-600' : 'text-green-600'}`} />
             </div>
             <div>
-              <p className='text-sm font-medium text-gray-900'>
+              <p className='text-sm font-medium text-foreground-900'>
                 {persona.nombres} {persona.apellidos}
               </p>
               <p className='text-xs text-gray-500'>{isRemitente ? 'Remitente' : 'Receptor'}</p>
@@ -43,18 +43,18 @@ export default function InformacionPersona({ tipo, persona, area }: InformacionP
           <div className='pt-3 border-t space-y-2'>
             <div className='flex items-center gap-2 text-sm'>
               <Mail className='w-4 h-4 text-gray-400' />
-              <span className='text-gray-600'>{persona.correo}</span>
+              <span className='text-muted-foreground'>{persona.correo}</span>
             </div>
             {persona.telefono && (
               <div className='flex items-center gap-2 text-sm'>
                 <Phone className='w-4 h-4 text-gray-400' />
-                <span className='text-gray-600'>{persona.telefono}</span>
+                <span className='text-muted-foreground'>{persona.telefono}</span>
               </div>
             )}
             {area && (
               <div className='flex items-center gap-2 text-sm'>
                 <Building2 className='w-4 h-4 text-gray-400' />
-                <span className='text-gray-600'>{area.nombre}</span>
+                <span className='text-muted-foreground'>{area.nombre}</span>
               </div>
             )}
           </div>

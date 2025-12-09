@@ -45,7 +45,7 @@ export default function DocumentTypeInfo({ documentType }: DocumentTypeInfoProps
               flex items-center gap-3 p-3.5 rounded-lg border transition-all duration-200
               ${
               documentType.requiere_firma
-                ? 'bg-green-500/10 border-green-500/30 hover:bg-green-500/20'
+                ? 'bg-purple-500/10 border-purple-500/30 hover:bg-purple-500/20'
                 : 'bg-muted/50 border-border/50'
             }
             `}
@@ -53,25 +53,25 @@ export default function DocumentTypeInfo({ documentType }: DocumentTypeInfoProps
             <div
               className={`
               w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 border
-              ${documentType.requiere_firma ? 'bg-green-500/15 border-green-500/20' : 'bg-background/60 border-border/50'}
+              ${documentType.requiere_firma ? 'bg-purple-500/15 border-purple-500/20' : 'bg-background/60 border-border/50'}
             `}
             >
-              <FileSignature className={`w-4.5 h-4.5 ${documentType.requiere_firma ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground/70'}`} />
+              <FileSignature className={`w-4.5 h-4.5 ${documentType.requiere_firma ? 'text-purple-600 dark:text-purple-400' : 'text-muted-foreground/70'}`} />
             </div>
             <div className='flex-1 min-w-0'>
               <p
-                className={`text-xs font-medium ${documentType.requiere_firma ? 'text-green-700 dark:text-green-300' : 'text-muted-foreground'}`}
+                className={`text-xs font-medium ${documentType.requiere_firma ? 'text-purple-700 dark:text-purple-300' : 'text-muted-foreground'}`}
               >
                 Firma Electrónica
               </p>
               <p
-                className={`text-xs mt-0.5 ${documentType.requiere_firma ? 'text-green-600/80 dark:text-green-400/80' : 'text-muted-foreground/60'}`}
+                className={`text-xs mt-0.5 ${documentType.requiere_firma ? 'text-purple-600/80 dark:text-purple-400/80' : 'text-muted-foreground/60'}`}
               >
                 {documentType.requiere_firma ? 'Requerida' : 'No requerida'}
               </p>
             </div>
             {documentType.requiere_firma && (
-              <CheckCircle2 className='w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0' />
+              <CheckCircle2 className='w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0' />
             )}
           </motion.div>
 
@@ -84,7 +84,7 @@ export default function DocumentTypeInfo({ documentType }: DocumentTypeInfoProps
               flex items-center gap-3 p-3.5 rounded-lg border transition-all duration-200
               ${
               documentType.requiere_respuesta
-                ? 'bg-amber-500/10 border-amber-400/30 hover:bg-amber-500/20'
+                ? 'bg-blue-600/10 border-blue-400/30 hover:bg-blue-500/20'
                 : 'bg-muted/10 border-border/50'
             }
             `}
@@ -92,25 +92,25 @@ export default function DocumentTypeInfo({ documentType }: DocumentTypeInfoProps
             <div
               className={`
               w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 border
-              ${documentType.requiere_respuesta ? 'bg-amber-500/15 border-amber-500/20' : 'bg-background/60 border-border/50'}
+              ${documentType.requiere_respuesta ? 'bg-blue-500/15 border-blue-500/20' : 'bg-background/60 border-border/50'}
             `}
             >
-              <MessageSquareReply className={`w-4.5 h-4.5 ${documentType.requiere_respuesta ? 'text-amber-600' : 'text-muted-foreground/70'}`} />
+              <MessageSquareReply className={`w-4.5 h-4.5 ${documentType.requiere_respuesta ? 'text-blue-600' : 'text-muted-foreground/70'}`} />
             </div>
             <div className='flex-1 min-w-0'>
               <p
-                className={`text-xs font-medium ${documentType.requiere_respuesta ? 'text-amber-700 dark:text-amber-300' : 'text-muted-foreground'}`}
+                className={`text-xs font-medium ${documentType.requiere_respuesta ? 'text-blue-700 dark:text-blue-300' : 'text-muted-foreground'}`}
               >
                 Conformidad
               </p>
               <p
-                className={`text-xs mt-0.5 ${documentType.requiere_respuesta ? 'text-amber-600/80 dark:text-amber-400/80' : 'text-muted-foreground/60'}`}
+                className={`text-xs mt-0.5 ${documentType.requiere_respuesta ? 'text-blue-600/80 dark:text-blue-400/80' : 'text-muted-foreground/60'}`}
               >
                 {documentType.requiere_respuesta ? 'Requerida' : 'No requerida'}
               </p>
             </div>
             {documentType.requiere_respuesta && (
-              <CheckCircle2 className='w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0' />
+              <CheckCircle2 className='w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0' />
             )}
           </motion.div>
         </div>

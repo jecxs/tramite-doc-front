@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { Loader2, AlertCircle } from 'lucide-react';
 
-import { Card, CardContent } from '@/components/ui/Card';
+
 import Button from '@/components/ui/Button';
 import DocumentViewer from '@/components/documents/DocumentViewer';
 import FirmaElectronicaModal from '@/components/firma/FirmaElectronicaModal';
