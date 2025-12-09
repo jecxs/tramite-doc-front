@@ -175,14 +175,16 @@ export default function SendIndividualForm({
     >
       {/* Información del Trámite */}
       <motion.div variants={itemVariants}>
-        <Card className='bg-[#272d34] backdrop-blur-md shadow-2xl'>
-          <CardHeader className='border-b border-[#3D4153]/40 pb-5'>
+        {/* CAMBIO 1: bg-card en lugar de color fijo, text-card-foreground */}
+        <Card className='bg-card backdrop-blur-md shadow-lg border border-border'>
+          <CardHeader className='border-b border-border/50 pb-5'>
             <div className='flex items-center gap-3'>
-              <div className='w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/15 to-blue-600/15 flex items-center justify-center border border-blue-500/20'>
-                <MessageSquare className='w-5 h-5 text-blue-400' />
+              <div className='w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20'>
+                <MessageSquare className='w-5 h-5 text-blue-500 dark:text-blue-400' />
               </div>
               <div>
-                <CardTitle className='text-white text-base font-medium'>Datos básicos del envío de documento</CardTitle>
+                {/* CAMBIO 2: text-foreground en lugar de text-white */}
+                <CardTitle className='text-card-foreground text-base font-medium'>Datos básicos del envío de documento</CardTitle>
               </div>
             </div>
           </CardHeader>
@@ -196,7 +198,8 @@ export default function SendIndividualForm({
               required
               maxLength={255}
               helperText='Resumen breve del documento a enviar'
-              className='bg-[#1E2029]/60 border-[#3D4153]/50 text-white placeholder:text-gray-500 focus:border-blue-400/60 focus:ring-1 focus:ring-blue-400/30 transition-all duration-200'
+              // CAMBIO 3: Estilos de input adaptables
+              className='bg-secondary/50 border-input text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:ring-blue-500/20 transition-all duration-200'
             />
 
             <WorkerSelector
@@ -215,7 +218,8 @@ export default function SendIndividualForm({
               rows={4}
               maxLength={1000}
               showCharCount
-              className='bg-[#1E2029]/60 border-[#3D4153]/50 text-black placeholder:text-gray-500 focus:border-blue-400/60 focus:ring-1 focus:ring-blue-400/30 transition-all duration-200 resize-none'
+              // CAMBIO 4: Estilos de textarea adaptables
+              className='bg-secondary/50 border-input text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:ring-blue-500/20 transition-all duration-200 resize-none'
             />
           </CardContent>
         </Card>
@@ -223,14 +227,14 @@ export default function SendIndividualForm({
 
       {/* Información del Documento */}
       <motion.div variants={itemVariants}>
-        <Card className='bg-[#272d34] backdrop-blur-md shadow-2xl'>
-          <CardHeader className='border-b border-[#3D4153]/40 pb-5'>
+        <Card className='bg-card backdrop-blur-md shadow-lg border border-border'>
+          <CardHeader className='border-b border-border/50 pb-5'>
             <div className='flex items-center gap-3'>
-              <div className='w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/15 to-purple-600/15 flex items-center justify-center border border-purple-500/20'>
-                <FileText className='w-5 h-5 text-purple-400' />
+              <div className='w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20'>
+                <FileText className='w-5 h-5 text-purple-500 dark:text-purple-400' />
               </div>
               <div>
-                <CardTitle className='text-white text-base font-medium'>Detalles del archivo a enviar</CardTitle>
+                <CardTitle className='text-card-foreground text-base font-medium'>Detalles del archivo a enviar</CardTitle>
               </div>
             </div>
           </CardHeader>
@@ -246,7 +250,8 @@ export default function SendIndividualForm({
               }))}
               error={errors.id_tipo_documento}
               required
-              className='bg-[#1E2029]/60 border-[#3D4153]/50 text-white focus:border-purple-400/60 focus:ring-1 focus:ring-purple-400/30 transition-all duration-200'
+              // CAMBIO 5: Select adaptable
+              className='bg-secondary/50 border-input text-foreground focus:border-purple-500/50 focus:ring-purple-500/20 transition-all duration-200'
             />
 
             {selectedDocType && <DocumentTypeInfo documentType={selectedDocType} />}
@@ -260,7 +265,7 @@ export default function SendIndividualForm({
               required
               maxLength={255}
               helperText='Este será el nombre que verá el trabajador'
-              className='bg-[#1E2029]/60 border-[#3D4153]/50 text-white placeholder:text-gray-500 focus:border-purple-400/60 focus:ring-1 focus:ring-purple-400/30 transition-all duration-200'
+              className='bg-secondary/50 border-input text-foreground placeholder:text-muted-foreground focus:border-purple-500/50 focus:ring-purple-500/20 transition-all duration-200'
             />
 
             <FileUpload
@@ -281,7 +286,8 @@ export default function SendIndividualForm({
             type='button'
             variant='ghost'
             disabled={isLoading}
-            className='bg-[#2A2D3A]/60 hover:bg-[#2A2D3A]/80 text-gray-300 hover:text-white border border-[#3D4153]/60 transition-all duration-200 px-6 h-11'
+            // CAMBIO 6: Botón cancelar adaptable
+            className='bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground border border-border transition-all duration-200 px-6 h-11'
           >
             Cancelar
           </Button>

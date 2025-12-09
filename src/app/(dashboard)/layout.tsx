@@ -1,5 +1,5 @@
 'use client';
-
+import '@/app/globals.css'
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -28,7 +28,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className='min-h-screen bg[#071B2EFF]'>
+    <div className='min-h-screen bg-background'>
       {/* Navbar */}
       <Navbar onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 

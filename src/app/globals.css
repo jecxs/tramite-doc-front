@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
 /* Variables personalizadas usando @theme */
 @theme {
   /* Light Theme - Colores más suaves y elegantes */
@@ -32,6 +33,10 @@
   --radius-sm: 0.5rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.5rem;
+
+  /* Navbar backgrounds */
+  --navbar-bg: rgba(255, 255, 255, 0.7);
+  --navbar-bg-scrolled: rgba(255, 255, 255, 0.95);
 }
 
 .dark {
@@ -59,6 +64,10 @@
   --color-chart-3: #10b981;
   --color-chart-4: #f59e0b;
   --color-chart-5: #ef4444;
+
+  /* Navbar backgrounds para dark */
+  --navbar-bg: rgba(39, 45, 52, 0.4);
+  --navbar-bg-scrolled: rgba(39, 45, 52, 0.95);
 }
 
 /* Estilos base */
