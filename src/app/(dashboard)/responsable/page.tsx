@@ -17,6 +17,7 @@ import { ProcedureStateBadge } from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import Link from 'next/link';
 import {motion, Variants} from 'framer-motion';
+import { formatearFechaSinZonaHoraria, formatearFechaHora } from '@/lib/date-utils';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useTramites } from '@/hooks/useTramites';
@@ -71,6 +72,8 @@ export default function ResponsableDashboard() {
     };
 
     fetchDashboardData();
+    const interval = setInterval(fetchDashboardData, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   // Animación de las tarjetas
@@ -131,10 +134,10 @@ export default function ResponsableDashboard() {
     },
   ];
 
-  // Preparar datos para el gráfico de actividad
   const actividadChartData = actividad?.actividad_diaria.map(item => ({
-    fecha: format(new Date(item.fecha), 'dd MMM', { locale: es }),
+    fecha: formatearFechaSinZonaHoraria(item.fecha, 'EEE dd'),
     cantidad: item.cantidad,
+    fechaCompleta: formatearFechaSinZonaHoraria(item.fecha, "dd 'de' MMM"),
   })) || [];
 
   return (
@@ -244,6 +247,11 @@ export default function ResponsableDashboard() {
                           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                           color: 'var(--color-foreground)',
                         }}
+                        labelFormatter={(label) => {
+                          const item = actividadChartData.find(d => d.fecha === label);
+                          return item?.fechaCompleta || label;
+                        }}
+                        formatter={(value: any) => [`${value} acciones`, 'Actividad']}
                       />
                       <Line
                         type="monotone"
@@ -412,7 +420,7 @@ export default function ResponsableDashboard() {
                           </p>
                           <p className="text-xs text-muted-foreground">
                             Destinatario: {tramite.receptor.nombres} {tramite.receptor.apellidos} •{' '}
-                            {format(new Date(tramite.fecha_envio), "dd 'de' MMMM, yyyy", { locale: es })}
+                            {formatearFechaHora(tramite.fecha_envio, "dd 'de' MMMM, yyyy")}
                           </p>
                         </div>
                         <Link href={`/responsable/tramites/${tramite.id_tramite}`}>
@@ -476,7 +484,7 @@ export default function ResponsableDashboard() {
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {obs.creador?.nombres} {obs.creador?.apellidos} •{' '}
-                            {format(new Date(obs.fecha_creacion), "dd MMM yyyy", { locale: es })}
+                            {formatearFechaHora(obs.fecha_creacion, "dd MMM yyyy")}
                           </p>
                         </div>
                         <Link href={`/responsable/observaciones/${obs.id_observacion}`}>

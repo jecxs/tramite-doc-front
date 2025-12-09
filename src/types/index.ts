@@ -397,10 +397,8 @@ export interface ProcedureFilters extends PaginationParams {
   requiere_respuesta?: boolean;
   es_reenvio?: boolean;
 
-  // ✅ NUEVOS: Filtro por tipo de documento
   id_tipo_documento?: string;
 
-  // ✅ NUEVOS: Filtros por rango de fechas
   fecha_envio_desde?: string; // YYYY-MM-DD
   fecha_envio_hasta?: string; // YYYY-MM-DD
   fecha_leido_desde?: string;
@@ -408,12 +406,10 @@ export interface ProcedureFilters extends PaginationParams {
   fecha_firmado_desde?: string;
   fecha_firmado_hasta?: string;
 
-  // ✅ NUEVOS: Filtros adicionales
   tiene_observaciones?: boolean;
   observaciones_pendientes?: boolean;
   con_respuesta?: boolean;
 
-  // ✅ NUEVOS: Ordenamiento
   ordenar_por?: 'fecha_envio' | 'fecha_leido' | 'fecha_firmado' | 'asunto' | 'codigo' | 'estado';
   orden?: 'asc' | 'desc';
 }

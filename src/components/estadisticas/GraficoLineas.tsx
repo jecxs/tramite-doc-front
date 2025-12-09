@@ -1,3 +1,4 @@
+// src/components/estadisticas/GraficoLineas.tsx
 'use client';
 
 import {
@@ -10,8 +11,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatearFechaSinZonaHoraria } from '@/lib/date-utils';
 
 interface GraficoLineasProps {
   data: Array<{ fecha: string; cantidad: number }>;
@@ -19,22 +19,20 @@ interface GraficoLineasProps {
   altura?: number;
 }
 
-export default function GraficoLineas({ data, titulo, altura = 300 }: GraficoLineasProps) {
-  const formatearFecha = (fecha: string) => {
-    try {
-      return format(new Date(fecha), 'dd MMM', { locale: es });
-    } catch {
-      return fecha;
-    }
-  };
 
+export default function GraficoLineas({ data, titulo, altura = 300 }: GraficoLineasProps) {
   return (
     <div>
       {titulo && <h3 className='text-sm font-medium text-gray-700 mb-4'>{titulo}</h3>}
       <ResponsiveContainer width='100%' height={altura}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray='3 3' stroke='#e5e7eb' />
-          <XAxis dataKey='fecha' tickFormatter={formatearFecha} stroke='#6b7280' fontSize={12} />
+          <XAxis
+            dataKey='fecha'
+            tickFormatter={(fecha) => formatearFechaSinZonaHoraria(fecha, 'dd MMM')}
+            stroke='#6b7280'
+            fontSize={12}
+          />
           <YAxis stroke='#6b7280' fontSize={12} />
           <Tooltip
             contentStyle={{
@@ -42,7 +40,7 @@ export default function GraficoLineas({ data, titulo, altura = 300 }: GraficoLin
               border: '1px solid #e5e7eb',
               borderRadius: '8px',
             }}
-            labelFormatter={formatearFecha}
+            labelFormatter={(fecha) => formatearFechaSinZonaHoraria(fecha, 'dd MMM yyyy')}
           />
           <Legend />
           <Line
@@ -58,4 +56,5 @@ export default function GraficoLineas({ data, titulo, altura = 300 }: GraficoLin
       </ResponsiveContainer>
     </div>
   );
+
 }
