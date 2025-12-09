@@ -60,14 +60,14 @@ export default function NotificationBadge() {
       {/* Bell button */}
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className='relative p-2 rounded-md hover:bg-gray-100 transition-colors'
+        className='relative p-2 rounded-md hover:bg-muted transition-colors'
         aria-label='Notificaciones'
       >
-        <Bell className='w-6 h-6 text-gray-600' />
+        <Bell className='w-6 h-6 text-muted-foreground' />
 
         {/* Badge de contador */}
         {unreadCount > 0 && (
-          <span className='absolute top-1 right-1 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full'>
+          <span className='absolute top-1 right-1 flex items-center justify-center w-5 h-5 text-xs font-bold bg-primary text-primary-foreground rounded-full'>
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -85,15 +85,15 @@ export default function NotificationBadge() {
           <div className='fixed inset-0 z-40' onClick={() => setShowDropdown(false)} />
 
           {/* Dropdown content */}
-          <div className='absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-[500px] overflow-hidden flex flex-col'>
+          <div className='absolute right-0 mt-2 w-80 sm:w-96 bg-card rounded-lg shadow-lg border border-border z-50 max-h-[500px] overflow-hidden flex flex-col'>
             {/* Header */}
-            <div className='flex items-center justify-between p-4 border-b border-gray-200'>
-              <h3 className='text-lg font-semibold text-gray-900'>Notificaciones</h3>
+            <div className='flex items-center justify-between p-4 border-b border-border'>
+              <h3 className='text-lg font-semibold text-foreground'>Notificaciones</h3>
               {unreadCount > 0 && (
                 <button
                   onClick={handleMarkAllAsRead}
                   disabled={isMarkingAll}
-                  className='flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 disabled:opacity-50'
+                  className='flex items-center gap-1 text-sm text-primary hover:opacity-80 disabled:opacity-50'
                 >
                   {isMarkingAll ? (
                     <Loader2 className='w-4 h-4 animate-spin' />
@@ -109,19 +109,19 @@ export default function NotificationBadge() {
             <div className='overflow-y-auto flex-1'>
               {notifications.length === 0 ? (
                 <div className='p-8 text-center'>
-                  <Bell className='w-12 h-12 text-gray-400 mx-auto mb-3' />
-                  <p className='text-gray-600 mb-4'>No tienes notificaciones nuevas</p>
+                  <Bell className='w-12 h-12 text-muted-foreground mx-auto mb-3' />
+                  <p className='text-muted-foreground mb-4'>No tienes notificaciones nuevas</p>
                   <Link
                     href={getNotificationsRoute()}
                     onClick={() => setShowDropdown(false)}
-                    className='inline-flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:text-blue-700 font-medium hover:bg-blue-50 rounded-lg transition-colors'
+                    className='inline-flex items-center gap-2 px-4 py-2 text-sm text-primary hover:opacity-80 font-medium hover:bg-muted rounded-lg transition-colors'
                   >
                     <Bell className='w-4 h-4' />
                     Ver notificaciones anteriores
                   </Link>
                 </div>
               ) : (
-                <div className='divide-y divide-gray-100'>
+                <div className='divide-y divide-border'>
                   {notifications.slice(0, 5).map((notification) => (
                     <button
                       key={notification.id_notificacion}
@@ -131,20 +131,22 @@ export default function NotificationBadge() {
                           notification.id_tramite,
                         )
                       }
-                      className={`w-full text-left p-4 hover:bg-gray-50 transition-colors ${
-                        !notification.visto ? 'bg-blue-50' : ''
+                      className={`w-full text-left p-4 hover:bg-muted transition-colors ${
+                        !notification.visto ? 'bg-primary/10' : ''
                       }`}
                     >
                       <div className='flex items-start gap-3'>
                         {!notification.visto && (
-                          <div className='w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0' />
+                          <div className='w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0' />
                         )}
                         <div className='flex-1 min-w-0'>
-                          <p className='text-sm font-medium text-gray-900'>{notification.titulo}</p>
-                          <p className='text-sm text-gray-600 mt-1 line-clamp-2'>
+                          <p className='text-sm font-medium text-foreground'>
+                            {notification.titulo}
+                          </p>
+                          <p className='text-sm text-muted-foreground mt-1 line-clamp-2'>
                             {notification.mensaje}
                           </p>
-                          <p className='text-xs text-gray-500 mt-1'>
+                          <p className='text-xs text-muted-foreground mt-1'>
                             {formatDistanceToNow(new Date(notification.fecha_creacion), {
                               addSuffix: true,
                               locale: es,
@@ -160,11 +162,11 @@ export default function NotificationBadge() {
 
             {/* Footer - Siempre visible */}
             {notifications.length > 0 && (
-              <div className='p-3 border-t border-gray-200'>
+              <div className='p-3 border-t border-border'>
                 <Link
                   href={getNotificationsRoute()}
                   onClick={() => setShowDropdown(false)}
-                  className='block w-full text-center text-sm text-blue-600 hover:text-blue-700 font-medium'
+                  className='block w-full text-center text-sm text-primary hover:opacity-80 font-medium'
                 >
                   Ver todas las notificaciones
                 </Link>

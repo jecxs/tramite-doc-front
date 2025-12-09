@@ -35,31 +35,47 @@ interface ObservationWithTramite extends Observation {
 }
 
 // Componente de Card Flotante
-const FloatingCard = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-  <div className={`bg-[#272d34] rounded-2xl p-6 shadow-2xl border border-gray-700/50 ${className}`}>
+const FloatingCard = ({
+  children,
+  className = '',
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => (
+  <div className={`bg-card rounded-2xl p-6 shadow-2xl border border-border ${className}`}>
     {children}
   </div>
 );
 
 // Componente de StatCard compacto
-const CompactStatCard = ({ label, value, icon: Icon, color }: { label: string; value: number; icon: any; color: string }) => {
+const CompactStatCard = ({
+  label,
+  value,
+  icon: Icon,
+  color,
+}: {
+  label: string;
+  value: number;
+  icon: any;
+  color: string;
+}) => {
   const colorMap: any = {
     blue: { bg: 'bg-blue-500/20', text: 'text-blue-400', border: 'border-blue-500/30' },
     orange: { bg: 'bg-orange-500/20', text: 'text-orange-400', border: 'border-orange-500/30' },
-    green: { bg: 'bg-green-500/20', text: 'text-green-400', border: 'border-green-500/30' }
+    green: { bg: 'bg-green-500/20', text: 'text-green-400', border: 'border-green-500/30' },
   };
 
   const colors = colorMap[color] || colorMap.blue;
 
   return (
     <FloatingCard className={`${colors.border}`}>
-      <div className="flex items-center gap-4">
+      <div className='flex items-center gap-4'>
         <div className={`p-3 rounded-2xl ${colors.bg}`}>
           <Icon className={`w-6 h-6 ${colors.text}`} />
         </div>
         <div>
-          <p className="text-gray-400 text-sm">{label}</p>
-          <p className="text-white text-2xl font-bold">{value}</p>
+          <p className='text-gray-400 text-sm'>{label}</p>
+          <p className='text-white text-2xl font-bold'>{value}</p>
         </div>
       </div>
     </FloatingCard>
@@ -137,28 +153,35 @@ export default function TrabajadorObservacionesPage() {
 
   if (isLoading) {
     return (
-      <div className='flex items-center justify-center min-h-screen bg-gray-900'>
+      <div className='flex items-center justify-center min-h-screen bg-background'>
         <div className='text-center'>
           <Loader2 className='w-8 h-8 animate-spin text-purple-600 mx-auto mb-4' />
-          <p className='text-gray-400'>Cargando observaciones...</p>
+          <p className='text-muted-foreground'>Cargando observaciones...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 p-8 space-y-6">
+    <div className='min-h-screen bg-background p-8 space-y-6'>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className='text-4xl font-bold text-white mb-2'>Mis Observaciones</h1>
-        <p className='text-gray-400'>Consulta el estado de tus observaciones y las respuestas recibidas</p>
+      <div className='mb-8'>
+        <h1 className='text-4xl font-bold text-foreground mb-2'>Mis Observaciones</h1>
+        <p className='text-muted-foreground'>
+          Consulta el estado de tus observaciones y las respuestas recibidas
+        </p>
       </div>
 
       {/* Stats */}
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-        <CompactStatCard label="Total" value={totalCount} icon={MessageSquare} color="blue" />
-        <CompactStatCard label="Pendientes" value={pendientesCount} icon={Clock} color="orange" />
-        <CompactStatCard label="Resueltas" value={resueltasCount} icon={CheckCircle} color="green" />
+        <CompactStatCard label='Total' value={totalCount} icon={MessageSquare} color='blue' />
+        <CompactStatCard label='Pendientes' value={pendientesCount} icon={Clock} color='orange' />
+        <CompactStatCard
+          label='Resueltas'
+          value={resueltasCount}
+          icon={CheckCircle}
+          color='green'
+        />
       </div>
 
       {/* Filters */}
@@ -166,13 +189,13 @@ export default function TrabajadorObservacionesPage() {
         <div className='flex flex-col sm:flex-row gap-4'>
           {/* Search */}
           <div className='flex-1 relative'>
-            <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500' />
+            <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground' />
             <input
               type='text'
               placeholder='Buscar por código, asunto o descripción...'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className='w-full pl-10 pr-4 py-2.5 bg-gray-700 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500'
+              className='w-full pl-10 pr-4 py-2.5 bg-input border border-border rounded-xl text-foreground placeholder-muted-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary'
             />
           </div>
 
@@ -180,7 +203,7 @@ export default function TrabajadorObservacionesPage() {
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className='px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500'
+            className='px-4 py-2.5 bg-input border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary'
           >
             <option value='all'>Todos los tipos</option>
             <option value='CONSULTA'>Consulta</option>
@@ -192,7 +215,7 @@ export default function TrabajadorObservacionesPage() {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className='px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500'
+            className='px-4 py-2.5 bg-input border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary'
           >
             <option value='all'>Todos los estados</option>
             <option value='pendiente'>Pendientes</option>
@@ -203,7 +226,7 @@ export default function TrabajadorObservacionesPage() {
           <button
             onClick={fetchObservaciones}
             disabled={isLoading}
-            className='px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-xl text-gray-400 hover:bg-gray-600 hover:text-white transition-all disabled:opacity-50'
+            className='px-4 py-2.5 bg-muted border border-border rounded-xl text-foreground hover:opacity-90 transition-all disabled:opacity-50'
           >
             <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
@@ -213,16 +236,16 @@ export default function TrabajadorObservacionesPage() {
       {/* Observaciones List */}
       <FloatingCard>
         <div className='flex items-center justify-between mb-6'>
-          <h3 className="text-white text-xl font-bold">
+          <h3 className='text-foreground text-xl font-bold'>
             Mis Observaciones ({filteredObservaciones.length})
           </h3>
         </div>
 
         {filteredObservaciones.length === 0 ? (
           <div className='text-center py-12'>
-            <MessageSquare className='w-16 h-16 text-gray-600 mx-auto mb-4' />
-            <h3 className='text-lg font-medium text-white mb-2'>No hay observaciones</h3>
-            <p className='text-gray-400'>
+            <MessageSquare className='w-16 h-16 text-muted-foreground mx-auto mb-4' />
+            <h3 className='text-lg font-medium text-foreground mb-2'>No hay observaciones</h3>
+            <p className='text-muted-foreground'>
               {observaciones.length === 0
                 ? 'Aún no has creado ninguna observación'
                 : 'No se encontraron observaciones con los filtros aplicados'}
@@ -233,13 +256,15 @@ export default function TrabajadorObservacionesPage() {
             {filteredObservaciones.map((observacion) => (
               <div
                 key={observacion.id_observacion}
-                className='bg-gray-800/50 border border-gray-700 rounded-2xl p-5 hover:border-purple-500/50 transition-all'
+                className='bg-card border border-border rounded-2xl p-5 hover:border-purple-500/50 transition-all'
               >
                 {/* Header */}
                 <div className='flex items-start justify-between mb-4'>
                   <div className='flex-1'>
                     <div className='flex items-center gap-2 mb-3 flex-wrap'>
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium border ${getTipoColor(observacion.tipo)}`}>
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium border ${getTipoColor(observacion.tipo)}`}
+                      >
                         {getTipoIcon(observacion.tipo)}
                         {getTipoLabel(observacion.tipo)}
                       </span>
@@ -257,37 +282,39 @@ export default function TrabajadorObservacionesPage() {
                     </div>
                     <Link
                       href={`/trabajador/tramites/${observacion.id_tramite}`}
-                      className='text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1'
+                      className='text-sm font-medium text-blue-600 dark:text-blue-400 hover:opacity-80 hover:underline flex items-center gap-1'
                     >
                       <FileText className='w-4 h-4' />
                       {observacion.tramite?.codigo || 'N/A'} - {observacion.tramite?.asunto}
                     </Link>
                   </div>
-                  <p className='text-xs text-gray-500'>
-                    {format(new Date(observacion.fecha_creacion), 'dd/MM/yyyy HH:mm', { locale: es })}
+                  <p className='text-xs text-muted-foreground'>
+                    {format(new Date(observacion.fecha_creacion), 'dd/MM/yyyy HH:mm', {
+                      locale: es,
+                    })}
                   </p>
                 </div>
 
                 {/* Tu Observación */}
                 <div className='mb-4'>
-                  <p className='text-sm font-medium text-gray-300 mb-2'>Tu observación:</p>
-                  <p className='text-sm text-gray-400 bg-gray-700/50 p-4 rounded-xl border border-gray-600'>
+                  <p className='text-sm font-medium text-foreground mb-2'>Tu observación:</p>
+                  <p className='text-sm text-foreground bg-muted p-4 rounded-xl border border-border'>
                     {observacion.descripcion}
                   </p>
                 </div>
 
                 {/* Respuesta */}
                 {observacion.resuelta && observacion.respuesta ? (
-                  <div className='mt-4 pt-4 border-t border-gray-700'>
+                  <div className='mt-4 pt-4 border-t border-border'>
                     <div className='flex items-start gap-3 p-4 bg-green-500/10 rounded-xl border border-green-500/30'>
                       <CheckCircle className='w-5 h-5 text-green-400 mt-0.5 flex-shrink-0' />
                       <div className='flex-1'>
                         <p className='text-sm font-medium text-green-400 mb-2'>
                           Respuesta del responsable:
                         </p>
-                        <p className='text-sm text-gray-300'>{observacion.respuesta}</p>
+                        <p className='text-sm text-foreground'>{observacion.respuesta}</p>
                         {observacion.fecha_resolucion && (
-                          <p className='text-xs text-gray-500 mt-2'>
+                          <p className='text-xs text-muted-foreground mt-2'>
                             Respondida el{' '}
                             {format(
                               new Date(observacion.fecha_resolucion),
@@ -297,7 +324,7 @@ export default function TrabajadorObservacionesPage() {
                           </p>
                         )}
                         {observacion.resolutor && (
-                          <p className='text-xs text-gray-500'>
+                          <p className='text-xs text-muted-foreground'>
                             Por: {observacion.resolutor.nombres} {observacion.resolutor.apellidos}
                           </p>
                         )}
@@ -305,14 +332,14 @@ export default function TrabajadorObservacionesPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className='mt-4 pt-4 border-t border-gray-700'>
+                  <div className='mt-4 pt-4 border-t border-border'>
                     <div className='flex items-start gap-3 p-4 bg-orange-500/10 rounded-xl border border-orange-500/30'>
                       <Clock className='w-5 h-5 text-orange-400 mt-0.5 flex-shrink-0' />
                       <div className='flex-1'>
                         <p className='text-sm font-medium text-orange-400 mb-1'>
                           Esperando respuesta
                         </p>
-                        <p className='text-sm text-gray-300'>
+                        <p className='text-sm text-foreground'>
                           El responsable ha sido notificado y te responderá pronto.
                         </p>
                       </div>
@@ -321,9 +348,9 @@ export default function TrabajadorObservacionesPage() {
                 )}
 
                 {/* Ver Trámite */}
-                <div className='mt-4 pt-4 border-t border-gray-700'>
+                <div className='mt-4 pt-4 border-t border-border'>
                   <Link href={`/trabajador/tramites/${observacion.id_tramite}`}>
-                    <button className='flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white transition-all border border-gray-600'>
+                    <button className='flex items-center gap-2 px-4 py-2 rounded-xl bg-muted text-foreground hover:opacity-90 transition-all border border-border'>
                       <Eye className='w-4 h-4' />
                       Ver Trámite Completo
                     </button>
@@ -336,7 +363,7 @@ export default function TrabajadorObservacionesPage() {
       </FloatingCard>
 
       {/* Info Card */}
-      <FloatingCard className="border-blue-500/30 bg-blue-500/10">
+      <FloatingCard className='border-blue-500/30 bg-blue-500/10'>
         <div className='flex items-start gap-4'>
           <div className='p-2 rounded-xl bg-blue-500/20'>
             <Info className='w-5 h-5 text-blue-400' />
@@ -345,7 +372,7 @@ export default function TrabajadorObservacionesPage() {
             <p className='text-sm font-medium text-blue-400 mb-1'>
               ¿Necesitas crear una observación?
             </p>
-            <p className='text-sm text-gray-300'>
+            <p className='text-sm text-muted-foreground'>
               Ve al detalle del trámite y haz clic en &ldquo;Crear Observación&rdquo; para reportar
               dudas o solicitar correcciones.
             </p>

@@ -4,10 +4,11 @@
 import { useState, useEffect } from 'react';
 import { Search, X, Calendar, Users, FileText, SlidersHorizontal } from 'lucide-react';
 import Button from '@/components/ui/Button';
-import { ProcedureFilters, DocumentType, User } from '@/types';
-import { PROCEDURE_STATE_LABELS } from '@/lib/constants';
-import { getDocumentTypes } from '@/lib/api/document-type';
+import { ProcedureFilters, User, DocumentType } from '@/types';
+import { PROCEDURE_STATE_LABELS, PROCEDURE_STATES } from '@/lib/constants';
 import { getWorkers } from '@/lib/api/usuarios';
+import { getDocumentTypes } from '@/lib/api/document-type';
+import { useRole } from '@/contexts/AuthContext';
 
 interface TramitesFiltersProps {
   onApplyFilters: (filters: ProcedureFilters) => void;
@@ -20,6 +21,8 @@ export default function TramitesFilters({
   onClearFilters,
   currentFilters = {},
 }: TramitesFiltersProps) {
+  const { isAdmin, isResponsible } = useRole();
+  const canFilterWorkers = isAdmin || isResponsible;
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState(currentFilters.search || '');
 
@@ -58,8 +61,8 @@ export default function TramitesFilters({
   const [orden, setOrden] = useState<'asc' | 'desc'>(currentFilters.orden || 'desc');
 
   // Datos para selects
-  const [tiposDocumento, setTiposDocumento] = useState<DocumentType[]>([]);
   const [trabajadores, setTrabajadores] = useState<User[]>([]);
+  const [tiposDocumento, setTiposDocumento] = useState<DocumentType[]>([]);
   const [loadingOptions, setLoadingOptions] = useState(false);
 
   // Cargar opciones al abrir filtros
@@ -72,9 +75,14 @@ export default function TramitesFilters({
   const loadFilterOptions = async () => {
     setLoadingOptions(true);
     try {
-      const [tipos, workers] = await Promise.all([getDocumentTypes(), getWorkers()]);
-      setTiposDocumento(tipos);
-      setTrabajadores(workers);
+      if (canFilterWorkers) {
+        const workers = await getWorkers();
+        setTrabajadores(workers);
+        setTiposDocumento([]);
+      } else {
+        setTrabajadores([]);
+        setTiposDocumento([]);
+      }
     } catch (error) {
       console.error('Error loading filter options:', error);
     } finally {
@@ -92,7 +100,7 @@ export default function TramitesFilters({
 
     // Filtros básicos
     if (selectedEstado) {
-      filters.estado = selectedEstado as any;
+      filters.estado = selectedEstado as PROCEDURE_STATES;
     }
 
     if (requiereFirma !== undefined) {
@@ -108,7 +116,7 @@ export default function TramitesFilters({
       filters.id_tipo_documento = selectedTipoDocumento;
     }
 
-    if (selectedReceptor) {
+    if (canFilterWorkers && selectedReceptor) {
       filters.id_receptor = selectedReceptor;
     }
 
@@ -169,7 +177,7 @@ export default function TramitesFilters({
     requiereFirma !== undefined ||
     esReenvio !== undefined ||
     selectedTipoDocumento ||
-    selectedReceptor ||
+    (canFilterWorkers && selectedReceptor) ||
     fechaEnvioDesde ||
     fechaEnvioHasta ||
     tieneObservaciones !== undefined ||
@@ -182,7 +190,7 @@ export default function TramitesFilters({
     requiereFirma !== undefined,
     esReenvio !== undefined,
     selectedTipoDocumento,
-    selectedReceptor,
+    canFilterWorkers && selectedReceptor,
     fechaEnvioDesde || fechaEnvioHasta,
     tieneObservaciones !== undefined,
     observacionesPendientes !== undefined,
@@ -194,14 +202,14 @@ export default function TramitesFilters({
       {/* Search Bar */}
       <div className='flex gap-3'>
         <div className='flex-1 relative'>
-          <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white' />
+          <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground' />
           <input
             type='text'
             placeholder='Buscar por código o asunto...'
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleApply()}
-            className='w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white'
+            className='w-full pl-10 pr-4 py-2.5 bg-input border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary'
           />
         </div>
 
@@ -213,7 +221,7 @@ export default function TramitesFilters({
           <SlidersHorizontal className='w-4 h-4' />
           Filtros
           {activeFiltersCount > 0 && (
-            <span className='ml-1 bg-white text-blue-600 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold'>
+            <span className='ml-1 bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold'>
               {activeFiltersCount}
             </span>
           )}
@@ -225,13 +233,13 @@ export default function TramitesFilters({
         <>
           <div className='fixed inset-0 z-10' onClick={() => setIsOpen(false)} />
 
-          <div className='absolute right-0 mt-2 w-96 bg-white border border-gray-200 rounded-lg shadow-lg z-20 max-h-[80vh] flex flex-col'>
+          <div className='absolute right-0 mt-2 w-96 bg-card border border-border rounded-lg shadow-lg z-20 max-h-[80vh] flex flex-col'>
             {/* Header */}
-            <div className='p-4 border-b border-gray-200 flex-shrink-0'>
+            <div className='p-4 border-b border-border flex-shrink-0'>
               <div className='flex items-center justify-between'>
-                <h3 className='font-semibold text-gray-900'>Filtros Avanzados</h3>
-                <button onClick={() => setIsOpen(false)} className='p-1 rounded hover:bg-gray-100'>
-                  <X className='w-4 h-4 text-gray-500' />
+                <h3 className='font-semibold text-foreground'>Filtros Avanzados</h3>
+                <button onClick={() => setIsOpen(false)} className='p-1 rounded hover:bg-muted'>
+                  <X className='w-4 h-4 text-muted-foreground' />
                 </button>
               </div>
             </div>
@@ -240,8 +248,8 @@ export default function TramitesFilters({
             <div className='p-4 space-y-6 overflow-y-auto flex-1'>
               {loadingOptions && (
                 <div className='text-center py-4'>
-                  <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto'></div>
-                  <p className='text-sm text-gray-600 mt-2'>Cargando opciones...</p>
+                  <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto'></div>
+                  <p className='text-sm text-muted-foreground mt-2'>Cargando opciones...</p>
                 </div>
               )}
 
@@ -249,11 +257,11 @@ export default function TramitesFilters({
                 <>
                   {/* Estado */}
                   <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-2'>Estado</label>
+                    <label className='block text-sm font-medium text-foreground mb-2'>Estado</label>
                     <select
                       value={selectedEstado}
                       onChange={(e) => setSelectedEstado(e.target.value)}
-                      className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500'
+                      className='w-full px-3 py-2 bg-input border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary'
                     >
                       <option value=''>Todos los estados</option>
                       {Object.entries(PROCEDURE_STATE_LABELS).map(([key, label]) => (
@@ -265,68 +273,72 @@ export default function TramitesFilters({
                   </div>
 
                   {/* ✅ NUEVO: Tipo de Documento */}
-                  <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2'>
-                      <FileText className='w-4 h-4' />
-                      Tipo de Documento
-                    </label>
-                    <select
-                      value={selectedTipoDocumento}
-                      onChange={(e) => setSelectedTipoDocumento(e.target.value)}
-                      className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500'
-                    >
-                      <option value=''>Todos los tipos</option>
-                      {tiposDocumento.map((tipo) => (
-                        <option key={tipo.id_tipo} value={tipo.id_tipo}>
-                          {tipo.nombre}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {canFilterWorkers && (
+                    <div>
+                      <label className='block text-sm font-medium text-foreground mb-2 flex items-center gap-2'>
+                        <FileText className='w-4 h-4' />
+                        Tipo de Documento
+                      </label>
+                      <select
+                        value={selectedTipoDocumento}
+                        onChange={(e) => setSelectedTipoDocumento(e.target.value)}
+                        className='w-full px-3 py-2 bg-input border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary'
+                      >
+                        <option value=''>Todos los tipos</option>
+                        {tiposDocumento.map((tipo) => (
+                          <option key={tipo.id_tipo} value={tipo.id_tipo}>
+                            {tipo.nombre}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
-                  {/* ✅ NUEVO: Trabajador (Receptor) */}
-                  <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2'>
-                      <Users className='w-4 h-4' />
-                      Trabajador
-                    </label>
-                    <select
-                      value={selectedReceptor}
-                      onChange={(e) => setSelectedReceptor(e.target.value)}
-                      className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500'
-                    >
-                      <option value=''>Todos los trabajadores</option>
-                      {trabajadores.map((trabajador) => (
-                        <option key={trabajador.id_usuario} value={trabajador.id_usuario}>
-                          {trabajador.apellidos}, {trabajador.nombres}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {/* ✅ Trabajador (solo Admin o Responsable) */}
+                  {canFilterWorkers && (
+                    <div>
+                      <label className='block text-sm font-medium text-foreground mb-2 flex items-center gap-2'>
+                        <Users className='w-4 h-4' />
+                        Trabajador
+                      </label>
+                      <select
+                        value={selectedReceptor}
+                        onChange={(e) => setSelectedReceptor(e.target.value)}
+                        className='w-full px-3 py-2 bg-input border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary'
+                      >
+                        <option value=''>Todos los trabajadores</option>
+                        {trabajadores.map((trabajador) => (
+                          <option key={trabajador.id_usuario} value={trabajador.id_usuario}>
+                            {trabajador.apellidos}, {trabajador.nombres}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   {/* ✅ NUEVO: Rango de Fechas de Envío */}
                   <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2'>
+                    <label className='block text-sm font-medium text-foreground mb-2 flex items-center gap-2'>
                       <Calendar className='w-4 h-4' />
                       Fecha de Envío
                     </label>
                     <div className='grid grid-cols-2 gap-2'>
                       <div>
-                        <label className='block text-xs text-gray-600 mb-1'>Desde</label>
+                        <label className='block text-xs text-muted-foreground mb-1'>Desde</label>
                         <input
                           type='date'
                           value={fechaEnvioDesde}
                           onChange={(e) => setFechaEnvioDesde(e.target.value)}
-                          className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm'
+                          className='w-full px-3 py-2 bg-input border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm text-foreground'
                         />
                       </div>
                       <div>
-                        <label className='block text-xs text-gray-600 mb-1'>Hasta</label>
+                        <label className='block text-xs text-muted-foreground mb-1'>Hasta</label>
                         <input
                           type='date'
                           value={fechaEnvioHasta}
                           onChange={(e) => setFechaEnvioHasta(e.target.value)}
-                          className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm'
+                          className='w-full px-3 py-2 bg-input border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm text-foreground'
                         />
                       </div>
                     </div>
@@ -334,7 +346,7 @@ export default function TramitesFilters({
 
                   {/* Requiere Firma */}
                   <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-2'>
+                    <label className='block text-sm font-medium text-foreground mb-2'>
                       Requiere Firma
                     </label>
                     <div className='space-y-2'>
@@ -349,8 +361,8 @@ export default function TramitesFilters({
                           onClick={() => setRequiereFirma(option.value)}
                           className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
                             requiereFirma === option.value
-                              ? 'border-blue-500 bg-blue-50 text-blue-700'
-                              : 'border-gray-200 hover:bg-gray-50'
+                              ? 'border-primary bg-primary/10 text-primary'
+                              : 'border-border hover:bg-muted'
                           }`}
                         >
                           {option.label}
@@ -361,7 +373,7 @@ export default function TramitesFilters({
 
                   {/* ✅ NUEVO: Observaciones */}
                   <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-2'>
+                    <label className='block text-sm font-medium text-foreground mb-2'>
                       Observaciones
                     </label>
                     <div className='space-y-2'>
@@ -373,8 +385,8 @@ export default function TramitesFilters({
                         }}
                         className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
                           tieneObservaciones === undefined && observacionesPendientes === undefined
-                            ? 'border-blue-500 bg-blue-50 text-blue-700'
-                            : 'border-gray-200 hover:bg-gray-50'
+                            ? 'border-primary bg-primary/10 text-primary'
+                            : 'border-border hover:bg-muted'
                         }`}
                       >
                         Todos
@@ -387,8 +399,8 @@ export default function TramitesFilters({
                         }}
                         className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
                           tieneObservaciones === true && observacionesPendientes === undefined
-                            ? 'border-blue-500 bg-blue-50 text-blue-700'
-                            : 'border-gray-200 hover:bg-gray-50'
+                            ? 'border-primary bg-primary/10 text-primary'
+                            : 'border-border hover:bg-muted'
                         }`}
                       >
                         Con observaciones
@@ -401,8 +413,8 @@ export default function TramitesFilters({
                         }}
                         className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
                           observacionesPendientes === true
-                            ? 'border-blue-500 bg-blue-50 text-blue-700'
-                            : 'border-gray-200 hover:bg-gray-50'
+                            ? 'border-primary bg-primary/10 text-primary'
+                            : 'border-border hover:bg-muted'
                         }`}
                       >
                         Con observaciones pendientes
@@ -412,7 +424,7 @@ export default function TramitesFilters({
 
                   {/* ✅ NUEVO: Con Respuesta */}
                   <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-2'>
+                    <label className='block text-sm font-medium text-foreground mb-2'>
                       Respuesta de Conformidad
                     </label>
                     <div className='space-y-2'>
@@ -427,8 +439,8 @@ export default function TramitesFilters({
                           onClick={() => setConRespuesta(option.value)}
                           className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
                             conRespuesta === option.value
-                              ? 'border-blue-500 bg-blue-50 text-blue-700'
-                              : 'border-gray-200 hover:bg-gray-50'
+                              ? 'border-primary bg-primary/10 text-primary'
+                              : 'border-border hover:bg-muted'
                           }`}
                         >
                           {option.label}
@@ -439,7 +451,7 @@ export default function TramitesFilters({
 
                   {/* Tipo de Envío */}
                   <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-2'>
+                    <label className='block text-sm font-medium text-foreground mb-2'>
                       Tipo de Envío
                     </label>
                     <div className='space-y-2'>
@@ -454,8 +466,8 @@ export default function TramitesFilters({
                           onClick={() => setEsReenvio(option.value)}
                           className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
                             esReenvio === option.value
-                              ? 'border-blue-500 bg-blue-50 text-blue-700'
-                              : 'border-gray-200 hover:bg-gray-50'
+                              ? 'border-primary bg-primary/10 text-primary'
+                              : 'border-border hover:bg-muted'
                           }`}
                         >
                           {option.label}
@@ -466,14 +478,14 @@ export default function TramitesFilters({
 
                   {/* ✅ NUEVO: Ordenamiento */}
                   <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-2'>
+                    <label className='block text-sm font-medium text-foreground mb-2'>
                       Ordenar por
                     </label>
                     <div className='grid grid-cols-2 gap-2'>
                       <select
                         value={ordenarPor}
                         onChange={(e) => setOrdenarPor(e.target.value)}
-                        className='px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm'
+                        className='px-3 py-2 bg-input border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm text-foreground'
                       >
                         <option value='fecha_envio'>Fecha envío</option>
                         <option value='fecha_leido'>Fecha lectura</option>
@@ -485,7 +497,7 @@ export default function TramitesFilters({
                       <select
                         value={orden}
                         onChange={(e) => setOrden(e.target.value as 'asc' | 'desc')}
-                        className='px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm'
+                        className='px-3 py-2 bg-input border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm text-foreground'
                       >
                         <option value='desc'>Descendente</option>
                         <option value='asc'>Ascendente</option>
@@ -497,7 +509,7 @@ export default function TramitesFilters({
             </div>
 
             {/* Footer */}
-            <div className='p-4 border-t border-gray-200 flex gap-3 flex-shrink-0'>
+            <div className='p-4 border-t border-border flex gap-3 flex-shrink-0'>
               <Button type='button' variant='outline' onClick={handleClear} className='flex-1'>
                 Limpiar
               </Button>

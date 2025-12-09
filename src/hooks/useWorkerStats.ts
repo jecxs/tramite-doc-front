@@ -50,9 +50,7 @@ export function useWorkerStats(): UseWorkerStatsReturn {
       const total = allProcedures.length;
       const sinLeer = allProcedures.filter((p) => p.estado === PROCEDURE_STATES.ENVIADO).length;
       const paraFirmar = allProcedures.filter(
-        (p) =>
-          p.requiere_firma &&
-          p.estado === PROCEDURE_STATES.LEIDO
+        (p) => p.requiere_firma && p.estado === PROCEDURE_STATES.LEIDO,
       ).length;
       const firmados = allProcedures.filter((p) => p.estado === PROCEDURE_STATES.FIRMADO).length;
 

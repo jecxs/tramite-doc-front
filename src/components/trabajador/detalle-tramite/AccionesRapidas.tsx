@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { PenTool, MessageSquare } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { Procedure } from '@/types';
+import { PROCEDURE_STATES } from '@/lib/constants';
 
 interface AccionesRapidasProps {
   procedure: Procedure;
@@ -11,10 +12,20 @@ interface AccionesRapidasProps {
 }
 
 export default function AccionesRapidas({ procedure, onFirmarClick }: AccionesRapidasProps) {
-  const canSign = procedure.requiere_firma && procedure.estado === 'LEIDO' && !procedure.firma;
+  const canSign =
+    procedure.requiere_firma && procedure.estado === PROCEDURE_STATES.LEIDO && !procedure.firma;
+
+  const canAddObservation = procedure.estado !== PROCEDURE_STATES.FIRMADO;
+
+  if (!canSign && !canAddObservation) {
+    return null;
+  }
 
   return (
-    <div style={{ backgroundColor: '#272d34' }} className='rounded-2xl p-6 shadow-2xl border border-slate-700/50'>
+    <div
+      style={{ backgroundColor: '#272d34' }}
+      className='rounded-2xl p-6 shadow-2xl border border-slate-700/50'
+    >
       <h3 className='text-lg font-semibold text-white mb-4'>Acciones Rápidas</h3>
 
       <div className='space-y-3'>
@@ -28,15 +39,17 @@ export default function AccionesRapidas({ procedure, onFirmarClick }: AccionesRa
           </Button>
         )}
 
-        <Link href={`/trabajador/tramites/${procedure.id_tramite}/observacion`} className='block'>
-          <Button
-            variant='outline'
-            className='w-full bg-slate-700/30 hover:bg-slate-600/40 text-white border border-slate-600/50 h-11'
-          >
-            <MessageSquare className='w-4 h-4' />
-            Hacer Observación
-          </Button>
-        </Link>
+        {canAddObservation && (
+          <Link href={`/trabajador/tramites/${procedure.id_tramite}/observacion`} className='block'>
+            <Button
+              variant='outline'
+              className='w-full bg-slate-700/30 hover:bg-slate-600/40 text-white border border-slate-600/50 h-11'
+            >
+              <MessageSquare className='w-4 h-4' />
+              Hacer Observación
+            </Button>
+          </Link>
+        )}
       </div>
     </div>
   );

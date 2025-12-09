@@ -4,7 +4,7 @@ import { Send, Eye, FileCheck, CheckCircle, XCircle, FileText, PenTool } from 'l
 import { ProcedureStateBadge } from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import FirmaElectronicaInfo from '@/components/firma/FirmaElectronicaInfo';
-import { PROCEDURE_STATE_LABELS } from '@/lib/constants';
+import { PROCEDURE_STATE_LABELS, PROCEDURE_STATES } from '@/lib/constants';
 import { Procedure } from '@/types';
 
 interface EstadoActualCardProps {
@@ -25,15 +25,14 @@ export default function EstadoActualCard({ procedure, onFirmarClick }: EstadoAct
     return icons[estado as keyof typeof icons] || <FileText className='w-5 h-5 text-slate-400' />;
   };
 
-  const canSign = procedure.requiere_firma && procedure.estado === 'LEIDO' && !procedure.firma;
+  const canSign =
+    procedure.requiere_firma && procedure.estado === PROCEDURE_STATES.LEIDO && !procedure.firma;
 
   return (
     <div className='bg-[#272d34] border border-slate-700/50 rounded-2xl p-6 shadow-2xl'>
       <div className='flex items-center justify-between mb-6'>
         <div className='flex items-center gap-4'>
-          <div className='bg-slate-900/60 p-3 rounded-xl'>
-            {getEstadoIcon(procedure.estado)}
-          </div>
+          <div className='bg-slate-900/60 p-3 rounded-xl'>{getEstadoIcon(procedure.estado)}</div>
           <div>
             <p className='text-sm text-slate-400 mb-1'>Estado actual</p>
             <p className='text-xl font-semibold text-white'>

@@ -28,12 +28,12 @@ interface Step1SelectionProps {
 }
 
 export default function Step1Selection({
-                                         documentTypes,
-                                         selectedDocType,
-                                         onDocTypeChange,
-                                         onDetectionComplete,
-                                         onError,
-                                       }: Step1SelectionProps) {
+  documentTypes,
+  selectedDocType,
+  onDocTypeChange,
+  onDetectionComplete,
+  onError,
+}: Step1SelectionProps) {
   const [archivos, setArchivos] = useState<File[]>([]);
   const [isDetecting, setIsDetecting] = useState(false);
   const [errors, setErrors] = useState<{ id_tipo_documento?: string; archivos_lote?: string }>({});
@@ -110,7 +110,9 @@ export default function Step1Selection({
   return (
     <Card className='bg-card backdrop-blur-md shadow-2xl'>
       <CardHeader className='border-b border-[#3D4153]/40 pb-5'>
-        <CardTitle className='text-foreground text-lg font-medium'>Paso 1: Seleccionar Documentos</CardTitle>
+        <CardTitle className='text-foreground text-lg font-medium'>
+          Paso 1: Seleccionar Documentos
+        </CardTitle>
         <CardDescription className='text-gray-500 text-sm mt-2'>
           Elija el tipo de documento y suba los archivos. Los nombres deben iniciar con el DNI del
           destinatario.
@@ -145,8 +147,12 @@ export default function Step1Selection({
                 <Info className='w-4.5 h-4.5 text-blue-300' />
               </div>
               <div className='text-sm'>
-                <p className='font-medium text-white mb-1'>Tipo seleccionado: {selectedDoc.nombre}</p>
-                {selectedDoc.descripcion && <p className='text-xs text-gray-400'>{selectedDoc.descripcion}</p>}
+                <p className='font-medium text-white mb-1'>
+                  Tipo seleccionado: {selectedDoc.nombre}
+                </p>
+                {selectedDoc.descripcion && (
+                  <p className='text-xs text-gray-400'>{selectedDoc.descripcion}</p>
+                )}
               </div>
             </div>
           </motion.div>

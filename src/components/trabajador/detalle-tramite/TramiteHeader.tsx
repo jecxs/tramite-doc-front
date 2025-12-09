@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Eye, FileCheck, Loader2, LayoutGrid } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { Procedure } from '@/types';
+import { PROCEDURE_STATES } from '@/lib/constants';
 
 interface TramiteHeaderProps {
   procedure: Procedure;
@@ -14,12 +15,12 @@ interface TramiteHeaderProps {
 }
 
 export default function TramiteHeader({
-                                        procedure,
-                                        viewMode,
-                                        onViewModeChange,
-                                        onMarkAsRead,
-                                        isMarking,
-                                      }: TramiteHeaderProps) {
+  procedure,
+  viewMode,
+  onViewModeChange,
+  onMarkAsRead,
+  isMarking,
+}: TramiteHeaderProps) {
   const router = useRouter();
 
   return (
@@ -38,7 +39,8 @@ export default function TramiteHeader({
           <div className='border-l border-slate-700 pl-4'>
             <h1 className='text-2xl font-bold text-white'>Detalles del Documento</h1>
             <p className='text-sm text-slate-400 mt-1'>
-              Código: <span className='font-mono font-medium text-purple-400'>{procedure.codigo}</span>
+              Código:{' '}
+              <span className='font-mono font-medium text-purple-400'>{procedure.codigo}</span>
             </p>
           </div>
         </div>
@@ -69,7 +71,7 @@ export default function TramiteHeader({
             </button>
           </div>
 
-          {procedure.estado === 'ABIERTO' && viewMode === 'details' && (
+          {procedure.estado === PROCEDURE_STATES.ABIERTO && viewMode === 'details' && (
             <Button
               onClick={onMarkAsRead}
               disabled={isMarking}

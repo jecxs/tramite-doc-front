@@ -4,6 +4,7 @@ import { MessageSquare, Info } from 'lucide-react';
 import VisualizarRespuesta from '@/components/respuesta/VisualizarRespuesta';
 import ConfirmarConformidad from '@/components/respuesta/ConfirmarConformidad';
 import { Procedure } from '@/types';
+import { PROCEDURE_STATES } from '@/lib/constants';
 
 interface SeccionRespuestaProps {
   procedure: Procedure;
@@ -21,7 +22,7 @@ export default function SeccionRespuesta({ procedure, onUpdate }: SeccionRespues
         </div>
       ) : (
         <>
-          {procedure.estado === 'LEIDO' && (
+          {procedure.estado === PROCEDURE_STATES.LEIDO && (
             <>
               <div className='bg-gradient-to-br from-teal-900/40 to-teal-800/30 border border-teal-500/30 rounded-2xl p-5 shadow-2xl'>
                 <div className='flex items-start gap-4'>
@@ -54,7 +55,8 @@ export default function SeccionRespuesta({ procedure, onUpdate }: SeccionRespues
             </>
           )}
 
-          {(procedure.estado === 'ENVIADO' || procedure.estado === 'ABIERTO') && (
+          {(procedure.estado === PROCEDURE_STATES.ENVIADO ||
+            procedure.estado === PROCEDURE_STATES.ABIERTO) && (
             <div className='bg-gradient-to-br from-blue-900/40 to-blue-800/30 border border-blue-500/30 rounded-2xl p-5 shadow-2xl'>
               <div className='flex items-start gap-4'>
                 <div className='bg-blue-500/20 p-2.5 rounded-lg flex-shrink-0'>

@@ -25,6 +25,30 @@ export function isRole(value: string): value is ROLES {
   return Object.values(ROLES).includes(value as ROLES);
 }
 
+export const PROCEDURE_TYPES = {
+  DOCUMENTO_REQUIERE_FIRMA: 'DOCUMENTO_REQUIERE_FIRMA',
+  TRAMITE_REENVIADO: 'TRAMITE_REENVIADO',
+  TRAMITE_RECIBIDO: 'TRAMITE_RECIBIDO',
+  RESPUESTA_RECIBIDA: 'RESPUESTA_RECIBIDA',
+  TRAMITE_FIRMADO: 'TRAMITE_FIRMADO',
+  TRAMITE_ANULADO: 'TRAMITE_ANULADO',
+  OBSERVACION_CREADA: 'OBSERVACION_CREADA',
+  OBSERVACION_RESUELTA: 'OBSERVACION_RESUELTA',
+} as const;
+
+export type PROCEDURE_TYPES = (typeof PROCEDURE_TYPES)[keyof typeof PROCEDURE_TYPES];
+
+export const PROCEDURE_TYPES_LABELS: Record<PROCEDURE_TYPES, string> = {
+  DOCUMENTO_REQUIERE_FIRMA: 'Requiere firma',
+  TRAMITE_REENVIADO: 'Trámite reenviado',
+  TRAMITE_RECIBIDO: 'Trámite recibido',
+  RESPUESTA_RECIBIDA: 'Respuesta recibida',
+  TRAMITE_FIRMADO: 'Trámite firmado',
+  TRAMITE_ANULADO: 'Trámite anulado',
+  OBSERVACION_CREADA: 'Observación creada',
+  OBSERVACION_RESUELTA: 'Observación resuelta',
+};
+
 // Procedure States
 export const PROCEDURE_STATES = {
   ENVIADO: 'ENVIADO',
@@ -37,7 +61,6 @@ export const PROCEDURE_STATES = {
 
 export type PROCEDURE_STATES = (typeof PROCEDURE_STATES)[keyof typeof PROCEDURE_STATES];
 
-// Estado labels en español
 export const PROCEDURE_STATE_LABELS: Record<PROCEDURE_STATES, string> = {
   ENVIADO: 'Enviado',
   ABIERTO: 'Abierto',

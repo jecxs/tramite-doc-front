@@ -5,27 +5,30 @@ import React from 'react';
 import { Bell, FileText, MessageSquare, PenTool } from 'lucide-react';
 import NotificationList from '@/components/notifications/NotificationList';
 import { useNotifications } from '@/hooks/useNotifications';
+import { PROCEDURE_TYPES } from '@/lib/constants';
 
 export default function TrabajadorNotificationsPage() {
   const { notifications, unreadCount, isConnected } = useNotifications();
 
   // Calcular estadísticas por tipo
-  const documentosRecibidos = notifications.filter((n) => n.tipo === 'TRAMITE_RECIBIDO').length;
+  const documentosRecibidos = notifications.filter(
+    (n) => n.tipo === PROCEDURE_TYPES.TRAMITE_RECIBIDO,
+  ).length;
   const observacionesResueltas = notifications.filter(
-    (n) => n.tipo === 'OBSERVACION_RESUELTA',
+    (n) => n.tipo === PROCEDURE_TYPES.OBSERVACION_RESUELTA,
   ).length;
   const documentosRequierenFirma = notifications.filter(
-    (n) => n.tipo === 'DOCUMENTO_REQUIERE_FIRMA' && !n.visto,
+    (n) => n.tipo === PROCEDURE_TYPES.DOCUMENTO_REQUIERE_FIRMA && !n.visto,
   ).length;
 
   return (
-    <div className='min-h-screen' style={{ backgroundColor: '#1a1f26' }}>
+    <div className='min-h-screen bg-background'>
       <div className='max-w-[1400px] mx-auto px-8 py-8'>
         {/* Header */}
         <div className='flex items-center justify-between mb-10'>
           <div>
-            <h1 className='text-4xl font-bold text-white mb-2'>Notificaciones</h1>
-            <p className='text-gray-400'>Centro de notificaciones y alertas</p>
+            <h1 className='text-4xl font-bold text-foreground mb-2'>Notificaciones</h1>
+            <p className='text-muted-foreground'>Centro de notificaciones y alertas</p>
           </div>
         </div>
 
@@ -88,7 +91,9 @@ export default function TrabajadorNotificationsPage() {
             <div className='relative z-10'>
               <div className='flex items-start justify-between'>
                 <div>
-                  <div className='text-3xl font-bold text-white mb-1'>{documentosRequierenFirma}</div>
+                  <div className='text-3xl font-bold text-white mb-1'>
+                    {documentosRequierenFirma}
+                  </div>
                   <p className='text-orange-100 text-sm font-medium'>Requieren firma</p>
                 </div>
                 <div className='w-10 h-10 bg-white/15 backdrop-blur-sm rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:rotate-12'>

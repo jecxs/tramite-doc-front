@@ -115,10 +115,10 @@ const WorkerSelector: React.FC<WorkerSelectorProps> = ({
           onClick={() => setIsOpen(!isOpen)}
           className={`
                         w-full flex items-center justify-between px-4 py-3
-                        border rounded-lg bg-white transition-colors
-                        ${error ? 'border-red-300' : 'border-gray-300'}
-                        ${isOpen ? 'border-blue-500 ring-2 ring-blue-500' : ''}
-                        hover:border-blue-400
+                        border rounded-lg bg-input text-foreground transition-colors
+                        ${error ? 'border-red-500' : 'border-border'}
+                        ${isOpen ? 'border-primary ring-2 ring-primary' : ''}
+                        hover:border-primary
                     `}
         >
           {selectedWorker ? (
@@ -127,10 +127,10 @@ const WorkerSelector: React.FC<WorkerSelectorProps> = ({
                 <Users className='w-5 h-5 text-blue-600' />
               </div>
               <div className='flex-1 min-w-0'>
-                <p className='text-sm font-medium text-gray-900 truncate'>
+                <p className='text-sm font-medium text-foreground truncate'>
                   {selectedWorker.apellidos}, {selectedWorker.nombres}
                 </p>
-                <div className='flex items-center gap-2 text-xs text-gray-500'>
+                <div className='flex items-center gap-2 text-xs text-muted-foreground'>
                   <Building2 className='w-3 h-3' />
                   <span className='truncate'>{selectedWorker.area?.nombre}</span>
                   <span>•</span>
@@ -143,13 +143,13 @@ const WorkerSelector: React.FC<WorkerSelectorProps> = ({
                   e.stopPropagation();
                   onSelect('');
                 }}
-                className='p-1 rounded hover:bg-gray-100'
+                className='p-1 rounded hover:bg-muted'
               >
-                <X className='w-4 h-4 text-gray-500' />
+                <X className='w-4 h-4 text-muted-foreground' />
               </button>
             </div>
           ) : (
-            <span className='text-gray-500'>Seleccione un trabajador...</span>
+            <span className='text-muted-foreground'>Seleccione un trabajador...</span>
           )}
         </div>
 
@@ -160,9 +160,9 @@ const WorkerSelector: React.FC<WorkerSelectorProps> = ({
             <div className='fixed inset-0 z-10' onClick={() => setIsOpen(false)} />
 
             {/* Menu */}
-            <div className='absolute z-20 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 flex flex-col'>
+            <div className='absolute z-20 w-full mt-2 bg-card border border-border rounded-lg shadow-lg max-h-96 flex flex-col'>
               {/* Search */}
-              <div className='p-3 border-b border-gray-200'>
+              <div className='p-3 border-b border-border'>
                 <div className='relative'>
                   <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400' />
                   <input
@@ -170,11 +170,11 @@ const WorkerSelector: React.FC<WorkerSelectorProps> = ({
                     placeholder='Buscar por nombre, DNI, correo, área...'
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className='w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                    className='w-full pl-10 pr-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground'
                     autoFocus
                   />
                 </div>
-                <p className='text-xs text-gray-500 mt-2'>
+                <p className='text-xs text-muted-foreground mt-2'>
                   {totalResults} trabajador{totalResults !== 1 ? 'es' : ''} encontrado
                   {totalResults !== 1 ? 's' : ''}
                 </p>
@@ -183,8 +183,8 @@ const WorkerSelector: React.FC<WorkerSelectorProps> = ({
               {/* Results */}
               <div className='overflow-y-auto flex-1'>
                 {totalResults === 0 ? (
-                  <div className='p-8 text-center text-gray-500'>
-                    <Users className='w-12 h-12 mx-auto mb-3 text-gray-400' />
+                  <div className='p-8 text-center text-muted-foreground'>
+                    <Users className='w-12 h-12 mx-auto mb-3 text-muted-foreground' />
                     <p className='text-sm'>No se encontraron trabajadores</p>
                     <p className='text-xs mt-1'>Intente con otros términos de búsqueda</p>
                   </div>
@@ -193,11 +193,11 @@ const WorkerSelector: React.FC<WorkerSelectorProps> = ({
                     {Object.entries(filteredWorkers).map(([area, areaWorkers]) => (
                       <div key={area}>
                         {/* Area Header */}
-                        <div className='px-4 py-2 bg-gray-50 border-b border-gray-200 sticky top-0'>
-                          <div className='flex items-center gap-2 text-xs font-medium text-gray-700'>
+                        <div className='px-4 py-2 bg-muted border-b border-border sticky top-0'>
+                          <div className='flex items-center gap-2 text-xs font-medium text-foreground'>
                             <Building2 className='w-4 h-4' />
                             <span>{area}</span>
-                            <span className='text-gray-500'>({areaWorkers.length})</span>
+                            <span className='text-muted-foreground'>({areaWorkers.length})</span>
                           </div>
                         </div>
 
@@ -212,25 +212,25 @@ const WorkerSelector: React.FC<WorkerSelectorProps> = ({
                               onClick={() => handleSelect(worker.id_usuario)}
                               className={`
                                                                 w-full px-4 py-3 flex items-center gap-3
-                                                                transition-colors hover:bg-blue-50
-                                                                ${isSelected ? 'bg-blue-50' : ''}
+                                                                transition-colors hover:bg-muted
+                                                                ${isSelected ? 'bg-muted' : ''}
                                                             `}
                             >
                               <div className='w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0'>
                                 <Users className='w-5 h-5 text-blue-600' />
                               </div>
                               <div className='flex-1 text-left min-w-0'>
-                                <p className='text-sm font-medium text-gray-900 truncate'>
+                                <p className='text-sm font-medium text-foreground truncate'>
                                   {worker.apellidos}, {worker.nombres}
                                 </p>
-                                <div className='flex items-center gap-2 text-xs text-gray-500'>
+                                <div className='flex items-center gap-2 text-xs text-muted-foreground'>
                                   <span>DNI: {worker.dni}</span>
                                   <span>•</span>
                                   <span className='truncate'>{worker.correo}</span>
                                 </div>
                               </div>
                               {isSelected && (
-                                <Check className='w-5 h-5 text-blue-600 flex-shrink-0' />
+                                <Check className='w-5 h-5 text-primary flex-shrink-0' />
                               )}
                             </button>
                           );
@@ -255,7 +255,7 @@ const WorkerSelector: React.FC<WorkerSelectorProps> = ({
 
       {/* Helper Text */}
       {!error && (
-        <p className='mt-2 text-sm text-gray-500'>
+        <p className='mt-2 text-sm text-muted-foreground'>
           {workers.length} trabajador{workers.length !== 1 ? 'es' : ''} disponible
           {workers.length !== 1 ? 's' : ''} en todas las áreas
         </p>

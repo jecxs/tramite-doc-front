@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Send, Eye, FileCheck, PenTool, XCircle, Clock } from 'lucide-react';
 import { ProcedureStateBadge } from '@/components/ui/Badge';
-import { PROCEDURE_STATE_LABELS } from '@/lib/constants';
+import { PROCEDURE_STATE_LABELS, PROCEDURE_STATES } from '@/lib/constants';
 import { Procedure } from '@/types';
 
 interface EstadoTimelineProps {
@@ -12,7 +12,7 @@ interface EstadoTimelineProps {
 
 export default function EstadoTimeline({ procedure }: EstadoTimelineProps) {
   // Colores consistentes con HistorialTramite
-  const getEstadoConfig = (estado: string) => {
+  const getEstadoConfig = (estado: PROCEDURE_STATES) => {
     const configs = {
       ENVIADO: {
         icon: <Send className='w-5 h-5' />,
@@ -69,7 +69,7 @@ export default function EstadoTimeline({ procedure }: EstadoTimelineProps) {
     fecha,
     isActive,
   }: {
-    estado: string;
+    estado: PROCEDURE_STATES;
     label: string;
     fecha?: string;
     isActive: boolean;
@@ -143,7 +143,7 @@ export default function EstadoTimeline({ procedure }: EstadoTimelineProps) {
       <div className='relative py-6 px-2'>
         <div className='flex items-center justify-between gap-3'>
           <TimelineStep
-            estado='ENVIADO'
+            estado={PROCEDURE_STATES.ENVIADO}
             label='Enviado'
             fecha={procedure.fecha_envio}
             isActive={!!procedure.fecha_envio}
@@ -154,7 +154,7 @@ export default function EstadoTimeline({ procedure }: EstadoTimelineProps) {
             <div
               className={`absolute inset-0 rounded-full transition-all duration-500 ${
                 procedure.fecha_abierto
-                  ? `bg-gradient-to-r ${getEstadoConfig('ENVIADO').line}`
+                  ? `bg-gradient-to-r ${getEstadoConfig(PROCEDURE_STATES.ENVIADO).line}`
                   : 'bg-transparent'
               }`}
               style={{
@@ -164,7 +164,7 @@ export default function EstadoTimeline({ procedure }: EstadoTimelineProps) {
           </div>
 
           <TimelineStep
-            estado='ABIERTO'
+            estado={PROCEDURE_STATES.ABIERTO}
             label='Abierto'
             fecha={procedure.fecha_abierto}
             isActive={!!procedure.fecha_abierto}
@@ -185,7 +185,7 @@ export default function EstadoTimeline({ procedure }: EstadoTimelineProps) {
           </div>
 
           <TimelineStep
-            estado='LEIDO'
+            estado={PROCEDURE_STATES.LEIDO}
             label='Leído'
             fecha={procedure.fecha_leido}
             isActive={!!procedure.fecha_leido}
@@ -207,7 +207,7 @@ export default function EstadoTimeline({ procedure }: EstadoTimelineProps) {
                 />
               </div>
               <TimelineStep
-                estado='FIRMADO'
+                estado={PROCEDURE_STATES.FIRMADO}
                 label='Firmado'
                 fecha={procedure.fecha_firmado}
                 isActive={!!procedure.fecha_firmado}
@@ -218,7 +218,7 @@ export default function EstadoTimeline({ procedure }: EstadoTimelineProps) {
       </div>
 
       {/* Alertas - Rediseñadas */}
-      {procedure.estado === 'ANULADO' && (
+      {procedure.estado === PROCEDURE_STATES.ANULADO && (
         <div className='relative overflow-hidden rounded-2xl'>
           <div className='absolute inset-0 bg-gradient-to-r from-red-500/5 via-red-500/10 to-red-500/5' />
           <div className='relative flex items-start gap-4 p-5 bg-slate-800/40 backdrop-blur-sm border border-red-500/20 rounded-2xl'>
@@ -246,22 +246,26 @@ export default function EstadoTimeline({ procedure }: EstadoTimelineProps) {
         </div>
       )}
 
-      {procedure.requiere_firma && !procedure.firma && procedure.estado === 'LEIDO' && (
-        <div className='relative overflow-hidden rounded-2xl'>
-          <div className='absolute inset-0 bg-gradient-to-r from-yellow-500/5 via-yellow-500/10 to-yellow-500/5' />
-          <div className='relative flex items-start gap-4 p-5 bg-slate-800/40 backdrop-blur-sm border border-yellow-500/20 rounded-2xl'>
-            <div className='w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 border border-yellow-500/30 flex items-center justify-center flex-shrink-0'>
-              <Clock className='w-6 h-6 text-yellow-400' />
-            </div>
-            <div className='flex-1 pt-1'>
-              <p className='text-sm font-bold text-yellow-300 mb-1'>Esperando firma electrónica</p>
-              <p className='text-sm text-gray-300 leading-relaxed'>
-                Este documento requiere la firma del trabajador para completar el trámite.
-              </p>
+      {procedure.requiere_firma &&
+        !procedure.firma &&
+        procedure.estado === PROCEDURE_STATES.LEIDO && (
+          <div className='relative overflow-hidden rounded-2xl'>
+            <div className='absolute inset-0 bg-gradient-to-r from-yellow-500/5 via-yellow-500/10 to-yellow-500/5' />
+            <div className='relative flex items-start gap-4 p-5 bg-slate-800/40 backdrop-blur-sm border border-yellow-500/20 rounded-2xl'>
+              <div className='w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 border border-yellow-500/30 flex items-center justify-center flex-shrink-0'>
+                <Clock className='w-6 h-6 text-yellow-400' />
+              </div>
+              <div className='flex-1 pt-1'>
+                <p className='text-sm font-bold text-yellow-300 mb-1'>
+                  Esperando firma electrónica
+                </p>
+                <p className='text-sm text-gray-300 leading-relaxed'>
+                  Este documento requiere la firma del trabajador para completar el trámite.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
 }

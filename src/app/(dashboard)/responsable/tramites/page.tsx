@@ -18,7 +18,6 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { ProcedureStateBadge } from '@/components/ui/Badge';
 import TramitesFiltersInline from '@/components/tramites/TramitesFiltersInline';
@@ -27,6 +26,7 @@ import TramitesAdvancedFilters from '@/components/tramites/TramitesAdvancedFilte
 import { useTramites } from '@/hooks/useTramites';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { PROCEDURE_STATES } from '@/lib/constants';
 
 export default function ResponsableTramitesPage() {
   const searchParams = useSearchParams();
@@ -48,7 +48,6 @@ export default function ResponsableTramitesPage() {
 
   useEffect(() => {
     if (searchParams.get('success') === 'true') {
-      setShowSuccessMessage(true);
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
       setTimeout(() => setShowSuccessMessage(false), 5000);
@@ -63,16 +62,16 @@ export default function ResponsableTramitesPage() {
     }
   };
 
-  const getEstadoIcon = (estado: string) => {
+  const getEstadoIcon = (estado: PROCEDURE_STATES) => {
     switch (estado) {
-      case 'ENVIADO':
+      case PROCEDURE_STATES.ENVIADO:
         return <Send className='w-4 h-4' />;
-      case 'ABIERTO':
-      case 'LEIDO':
+      case PROCEDURE_STATES.ABIERTO:
+      case PROCEDURE_STATES.LEIDO:
         return <Eye className='w-4 h-4' />;
-      case 'FIRMADO':
+      case PROCEDURE_STATES.FIRMADO:
         return <CheckCircle className='w-4 h-4' />;
-      case 'ANULADO':
+      case PROCEDURE_STATES.ANULADO:
         return <AlertCircle className='w-4 h-4' />;
       default:
         return <FileText className='w-4 h-4' />;
@@ -184,8 +183,15 @@ export default function ResponsableTramitesPage() {
               <p className='text-sm text-foreground-400 mb-2'>Pendientes</p>
               <p className='text-3xl font-bold text-foreground'>
                 {
-                  tramites.filter((t) => ['ENVIADO', 'ABIERTO', 'LEIDO'].includes(t.estado))
-                    .length
+                  tramites.filter((t) =>
+                    (
+                      [
+                        PROCEDURE_STATES.ENVIADO,
+                        PROCEDURE_STATES.ABIERTO,
+                        PROCEDURE_STATES.LEIDO,
+                      ] as PROCEDURE_STATES[]
+                    ).includes(t.estado),
+                  ).length
                 }
               </p>
             </div>
@@ -200,7 +206,7 @@ export default function ResponsableTramitesPage() {
             <div>
               <p className='text-sm text-foreground-400 mb-2'>Firmados</p>
               <p className='text-3xl font-bold text-foreground'>
-                {tramites.filter((t) => t.estado === 'FIRMADO').length}
+                {tramites.filter((t) => t.estado === PROCEDURE_STATES.FIRMADO).length}
               </p>
             </div>
             <div className='p-4 bg-gradient-to-br from-green-600/20 to-emerald-600/20 rounded-xl'>
@@ -291,100 +297,100 @@ export default function ResponsableTramitesPage() {
               <div className='overflow-x-auto'>
                 <table className='w-full'>
                   <thead>
-                  <tr className='border-b border-slate-700/50'>
-                    <th className='text-left py-4 px-4 text-sm font-semibold text-foreground-300'>
-                      Código
-                    </th>
-                    <th className='text-left py-4 px-4 text-sm font-semibold text-foreground-300'>
-                      Asunto
-                    </th>
-                    <th className='text-left py-4 px-4 text-sm font-semibold text-foreground-300'>
-                      Destinatario
-                    </th>
-                    <th className='text-left py-4 px-4 text-sm font-semibold text-foreground-300'>
-                      Estado
-                    </th>
-                    <th className='text-left py-4 px-4 text-sm font-semibold text-foreground-300'>
-                      Fecha Envío
-                    </th>
-                    <th className='text-left py-4 px-4 text-sm font-semibold text-foreground-300'>
-                      Acciones
-                    </th>
-                  </tr>
+                    <tr className='border-b border-slate-700/50'>
+                      <th className='text-left py-4 px-4 text-sm font-semibold text-foreground-300'>
+                        Código
+                      </th>
+                      <th className='text-left py-4 px-4 text-sm font-semibold text-foreground-300'>
+                        Asunto
+                      </th>
+                      <th className='text-left py-4 px-4 text-sm font-semibold text-foreground-300'>
+                        Destinatario
+                      </th>
+                      <th className='text-left py-4 px-4 text-sm font-semibold text-foreground-300'>
+                        Estado
+                      </th>
+                      <th className='text-left py-4 px-4 text-sm font-semibold text-foreground-300'>
+                        Fecha Envío
+                      </th>
+                      <th className='text-left py-4 px-4 text-sm font-semibold text-foreground-300'>
+                        Acciones
+                      </th>
+                    </tr>
                   </thead>
                   <tbody>
-                  {tramites.map((tramite) => (
-                    <tr
-                      key={tramite.id_tramite}
-                      className='border-b border-slate-700/30 hover:bg-slate-700/20 transition-colors'
-                    >
-                      <td className='py-4 px-4'>
-                        <div className='flex items-center gap-2'>
-                          <div className='text-purple-400'>{getEstadoIcon(tramite.estado)}</div>
-                          <span className='font-mono text-sm font-medium text-foreground'>
+                    {tramites.map((tramite) => (
+                      <tr
+                        key={tramite.id_tramite}
+                        className='border-b border-slate-700/30 hover:bg-slate-700/20 transition-colors'
+                      >
+                        <td className='py-4 px-4'>
+                          <div className='flex items-center gap-2'>
+                            <div className='text-purple-400'>{getEstadoIcon(tramite.estado)}</div>
+                            <span className='font-mono text-sm font-medium text-foreground'>
                               {tramite.codigo}
                             </span>
-                          {tramite.es_reenvio && (
-                            <span className='inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium bg-orange-900/30 text-orange-400 border border-orange-700/50'>
+                            {tramite.es_reenvio && (
+                              <span className='inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium bg-orange-900/30 text-orange-400 border border-orange-700/50'>
                                 v{tramite.numero_version}
                               </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className='py-4 px-4'>
-                        <div className='max-w-xs'>
-                          <p className='text-sm font-medium text-foreground truncate'>
-                            {tramite.asunto}
-                          </p>
-                          <div className='flex items-center gap-2 mt-1'>
+                            )}
+                          </div>
+                        </td>
+                        <td className='py-4 px-4'>
+                          <div className='max-w-xs'>
+                            <p className='text-sm font-medium text-foreground truncate'>
+                              {tramite.asunto}
+                            </p>
+                            <div className='flex items-center gap-2 mt-1'>
                               <span className='text-xs text-gray-400'>
                                 {tramite.documento.tipo.nombre}
                               </span>
-                            {tramite.requiere_firma && (
-                              <span className='inline-flex items-center text-xs text-purple-400'>
+                              {tramite.requiere_firma && (
+                                <span className='inline-flex items-center text-xs text-purple-400'>
                                   <PenTool className='w-3 h-3 mr-1' />
                                   Firma
                                 </span>
-                            )}
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className='py-4 px-4'>
-                        <div className='flex items-center gap-3'>
-                          <div className='w-10 h-10 bg-gradient-to-br from-purple-600/30 to-blue-600/30 rounded-full flex items-center justify-center border border-purple-500/30'>
-                            <User className='w-5 h-5 text-purple-300' />
+                        </td>
+                        <td className='py-4 px-4'>
+                          <div className='flex items-center gap-3'>
+                            <div className='w-10 h-10 bg-gradient-to-br from-purple-600/30 to-blue-600/30 rounded-full flex items-center justify-center border border-purple-500/30'>
+                              <User className='w-5 h-5 text-purple-300' />
+                            </div>
+                            <div>
+                              <p className='text-sm font-medium text-foreground'>
+                                {tramite.receptor.apellidos}, {tramite.receptor.nombres}
+                              </p>
+                              <p className='text-xs text-gray-400'>{tramite.receptor.correo}</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className='text-sm font-medium text-foreground'>
-                              {tramite.receptor.apellidos}, {tramite.receptor.nombres}
-                            </p>
-                            <p className='text-xs text-gray-400'>{tramite.receptor.correo}</p>
+                        </td>
+                        <td className='py-4 px-4'>
+                          <ProcedureStateBadge estado={tramite.estado} />
+                        </td>
+                        <td className='py-4 px-4'>
+                          <div className='flex items-center gap-2 text-sm text-foreground-300'>
+                            <Calendar className='w-4 h-4 text-gray-400' />
+                            {formatDate(tramite.fecha_envio)}
                           </div>
-                        </div>
-                      </td>
-                      <td className='py-4 px-4'>
-                        <ProcedureStateBadge estado={tramite.estado} />
-                      </td>
-                      <td className='py-4 px-4'>
-                        <div className='flex items-center gap-2 text-sm text-foreground-300'>
-                          <Calendar className='w-4 h-4 text-gray-400' />
-                          {formatDate(tramite.fecha_envio)}
-                        </div>
-                      </td>
-                      <td className='py-4 px-4'>
-                        <Link href={`/responsable/tramites/${tramite.id_tramite}`}>
-                          <Button
-                            variant='ghost'
-                            size='sm'
-                            className=' text-purple-400 hover:text-purple-300 hover:bg-purple-900/20'
-                          >
-                            <Eye className='w-4 h-4 mr-2' />
-                            Ver
-                          </Button>
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className='py-4 px-4'>
+                          <Link href={`/responsable/tramites/${tramite.id_tramite}`}>
+                            <Button
+                              variant='ghost'
+                              size='sm'
+                              className=' text-purple-400 hover:text-purple-300 hover:bg-purple-900/20'
+                            >
+                              <Eye className='w-4 h-4 mr-2' />
+                              Ver
+                            </Button>
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -394,7 +400,8 @@ export default function ResponsableTramitesPage() {
                 <div className='flex items-center justify-between mt-6 pt-6 border-t border-slate-700/50'>
                   <div className='text-sm text-gray-400'>
                     Mostrando <span className='text-white font-medium'>{tramites.length}</span> de{' '}
-                    <span className='text-white font-medium'>{paginacion.total_registros}</span> trámites
+                    <span className='text-white font-medium'>{paginacion.total_registros}</span>{' '}
+                    trámites
                   </div>
 
                   <div className='flex items-center gap-2'>

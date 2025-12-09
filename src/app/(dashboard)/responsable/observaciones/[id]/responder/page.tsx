@@ -4,7 +4,18 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { toast } from 'sonner';
-import { ArrowLeft, Send, Upload, CheckCircle2, AlertCircle, Loader2, X, FileText, User, Calendar } from 'lucide-react';
+import {
+  ArrowLeft,
+  Send,
+  Upload,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  X,
+  FileText,
+  User,
+  Calendar,
+} from 'lucide-react';
 import { getObservationById, resolveObservation } from '@/lib/api/observaciones';
 import { uploadDocument } from '@/lib/api/documents';
 import { getDocumentTypes } from '@/lib/api/document-type';
@@ -171,7 +182,10 @@ export default function ResponderObservacionPage() {
         <div className='text-center'>
           <div className='relative'>
             <div className='w-20 h-20 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-6'></div>
-            <div className='absolute inset-0 w-20 h-20 border-4 border-transparent border-t-blue-500 rounded-full animate-spin mx-auto' style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+            <div
+              className='absolute inset-0 w-20 h-20 border-4 border-transparent border-t-blue-500 rounded-full animate-spin mx-auto'
+              style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}
+            ></div>
           </div>
           <p className='text-slate-300 text-lg font-medium'>Cargando información...</p>
         </div>
@@ -233,7 +247,9 @@ export default function ResponderObservacionPage() {
                 </h3>
 
                 <div className='p-4 bg-slate-900/50 rounded-xl mb-4 border border-slate-700/30'>
-                  <p className='text-slate-300 text-sm leading-relaxed'>{observacion.descripcion}</p>
+                  <p className='text-slate-300 text-sm leading-relaxed'>
+                    {observacion.descripcion}
+                  </p>
                 </div>
 
                 <div className='space-y-3'>
@@ -274,7 +290,7 @@ export default function ResponderObservacionPage() {
 
               <div className='p-6 space-y-6'>
                 {/* Textarea de Respuesta */}
-                <div >
+                <div>
                   <label className='block text-sm font-semibold text-slate-300 mb-3'>
                     Mensaje de respuesta <span className='text-red-400'>*</span>
                   </label>
@@ -328,7 +344,7 @@ export default function ResponderObservacionPage() {
                       {/* Tipo de Documento */}
                       <div>
                         <label className='block text-sm font-semibold text-slate-300 mb-2'>
-                          Tipo de documento <span className='text-red-400'>*</span>
+                          Tipo de documentos<span className='text-red-400'>*</span>
                         </label>
                         <select
                           value={selectedDocType}
@@ -350,7 +366,9 @@ export default function ResponderObservacionPage() {
                         <div>
                           <label className='block text-sm font-semibold text-slate-300 mb-2'>
                             Archivo corregido <span className='text-red-400'>*</span>
-                            <span className='text-slate-500 font-normal ml-2'>(PDF, DOC, DOCX - Máx 10MB)</span>
+                            <span className='text-slate-500 font-normal ml-2'>
+                              (PDF, DOC, DOCX - Máx 10MB)
+                            </span>
                           </label>
                           <div className='flex gap-3'>
                             <div className='flex-1 relative'>
@@ -396,7 +414,9 @@ export default function ResponderObservacionPage() {
                               <p className='text-sm font-semibold text-green-400'>
                                 Documento cargado correctamente
                               </p>
-                              <p className='text-xs text-green-500/80 mt-0.5'>{selectedFile?.name}</p>
+                              <p className='text-xs text-green-500/80 mt-0.5'>
+                                {selectedFile?.name}
+                              </p>
                             </div>
                             <button
                               onClick={() => {

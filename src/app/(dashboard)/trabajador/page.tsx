@@ -1,7 +1,5 @@
-// src/app/(protected)/trabajador/page.tsx
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { FileText, Eye, PenTool, MessageSquare, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProcedureStateBadge } from '@/components/ui/Badge';
@@ -64,7 +62,7 @@ export default function TrabajadorDashboard() {
     {
       title: 'Firmados',
       value: stats.firmados.toString(),
-      icon: <FileText   className='w-5 h-5' />,
+      icon: <FileText className='w-5 h-5' />,
       description: 'Completados',
       color: 'text-emerald-400',
       bgColor: 'bg-emerald-500/10',
@@ -72,14 +70,12 @@ export default function TrabajadorDashboard() {
   ];
 
   return (
-    <div className='min-h-screen p-6'>
+    <div className='min-h-screen bg-background p-6'>
       <div className='max-w-7xl mx-auto space-y-6'>
         {/* Header */}
         <div className='mb-8'>
-          <h1 className='text-3xl font-bold text-white mb-2'>
-            Bienvenido, {user?.nombres}
-          </h1>
-          <p className='text-slate-400'>
+          <h1 className='text-3xl font-bold text-foreground mb-2'>Bienvenido, {user?.nombres}</h1>
+          <p className='text-muted-foreground'>
             Aquí encontrarás todos los documentos que han sido enviados para ti
           </p>
         </div>
@@ -89,19 +85,17 @@ export default function TrabajadorDashboard() {
           {statsData.map((stat, index) => (
             <div
               key={index}
-              className={`bg-[#272d34] rounded-2xl p-6 transition-all duration-300 hover:translate-y-[-4px] hover:shadow-xl ${
+              className={`bg-card rounded-2xl p-6 transition-all duration-300 hover:translate-y-[-4px] hover:shadow-xl border border-border ${
                 stat.highlight ? 'ring-2 ring-amber-400/50' : ''
               }`}
             >
               <div className='flex items-start justify-between mb-4'>
-                <div className={`p-3 ${stat.bgColor} rounded-xl ${stat.color}`}>
-                  {stat.icon}
-                </div>
+                <div className={`p-3 ${stat.bgColor} rounded-xl ${stat.color}`}>{stat.icon}</div>
               </div>
               <div>
-                <p className='text-slate-400 text-sm font-medium mb-1'>{stat.title}</p>
-                <p className='text-white text-3xl font-bold mb-1'>{stat.value}</p>
-                <p className='text-slate-500 text-xs'>{stat.description}</p>
+                <p className='text-muted-foreground text-sm font-medium mb-1'>{stat.title}</p>
+                <p className='text-foreground text-3xl font-bold mb-1'>{stat.value}</p>
+                <p className='text-muted-foreground text-xs'>{stat.description}</p>
               </div>
             </div>
           ))}
@@ -111,12 +105,12 @@ export default function TrabajadorDashboard() {
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
           {/* Documentos Recientes - Takes 2 columns */}
           <div className='lg:col-span-2'>
-            <div className='bg-[#272d34] rounded-2xl p-6 h-full'>
+            <div className='bg-card rounded-2xl p-6 h-full border border-border'>
               <div className='flex items-center justify-between mb-6'>
-                <h2 className='text-xl font-bold text-white'>Documentos Recientes</h2>
+                <h2 className='text-xl font-bold text-foreground'>Documentos Recientes</h2>
                 <Link
                   href='/trabajador/tramites'
-                  className='text-sm text-blue-400 hover:text-blue-300 font-medium transition-colors'
+                  className='text-sm text-blue-600 dark:text-blue-400 hover:opacity-80 font-medium transition-colors'
                 >
                   Ver todos →
                 </Link>
@@ -124,20 +118,20 @@ export default function TrabajadorDashboard() {
 
               {recentProcedures.length === 0 ? (
                 <div className='text-center py-12'>
-                  <FileText className='w-12 h-12 text-slate-600 mx-auto mb-3' />
-                  <p className='text-slate-400'>No hay documentos recientes</p>
+                  <FileText className='w-12 h-12 text-muted-foreground mx-auto mb-3' />
+                  <p className='text-muted-foreground'>No hay documentos recientes</p>
                 </div>
               ) : (
                 <div className='space-y-3'>
                   {recentProcedures.map((procedure) => (
                     <div
                       key={procedure.id_tramite}
-                      className='bg-slate-800/50 rounded-xl p-4 hover:bg-slate-800 transition-all duration-200 group'
+                      className='bg-card rounded-xl p-4 border border-border hover:bg-muted transition-all duration-200 group'
                     >
                       <div className='flex items-start justify-between gap-4'>
                         <div className='flex-1 min-w-0'>
                           <div className='flex items-center gap-2 flex-wrap mb-2'>
-                            <span className='text-white font-semibold text-sm'>
+                            <span className='text-foreground font-semibold text-sm'>
                               {procedure.codigo}
                             </span>
                             <ProcedureStateBadge estado={procedure.estado} />
@@ -156,10 +150,10 @@ export default function TrabajadorDashboard() {
                                 </span>
                               )}
                           </div>
-                          <p className='text-slate-300 text-sm mb-2 line-clamp-1'>
+                          <p className='text-muted-foreground text-sm mb-2 line-clamp-1'>
                             {procedure.asunto}
                           </p>
-                          <div className='flex items-center gap-2 text-xs text-slate-500'>
+                          <div className='flex items-center gap-2 text-xs text-muted-foreground'>
                             <span>
                               {procedure.remitente.nombres} {procedure.remitente.apellidos}
                             </span>
@@ -176,9 +170,7 @@ export default function TrabajadorDashboard() {
                         <Link href={`/trabajador/tramites/${procedure.id_tramite}`}>
                           <Button
                             variant={
-                              procedure.estado === PROCEDURE_STATES.ENVIADO
-                                ? 'primary'
-                                : 'ghost'
+                              procedure.estado === PROCEDURE_STATES.ENVIADO ? 'primary' : 'ghost'
                             }
                             size='sm'
                           >
@@ -198,43 +190,37 @@ export default function TrabajadorDashboard() {
           {/* Quick Actions Sidebar */}
           <div className='space-y-4'>
             {/* Documentos para firmar */}
-            <div className='bg-[#272d34] rounded-2xl p-6'>
+            <div className='bg-card rounded-2xl p-6 border border-border'>
               <div className='flex items-center gap-3 mb-4'>
                 <div className='p-3 bg-rose-500/10 rounded-xl'>
                   <PenTool className='w-5 h-5 text-rose-400' />
                 </div>
-                <h3 className='text-lg font-bold text-white'>Para Firmar</h3>
+                <h3 className='text-lg font-bold text-foreground'>Para Firmar</h3>
               </div>
               <div className='mb-4'>
-                <p className='text-4xl font-bold text-white mb-1'>{stats.para_firmar}</p>
-                <p className='text-slate-400 text-sm'>Requieren tu firma electrónica</p>
+                <p className='text-4xl font-bold text-foreground mb-1'>{stats.para_firmar}</p>
+                <p className='text-muted-foreground text-sm'>Requieren tu firma electrónica</p>
               </div>
-              <Link
-                href='/trabajador/tramites?requiere_firma=true&estado=LEIDO'
-                className='block'
-              >
-                <Button
-                  disabled={stats.para_firmar === 0}
-                  className='w-full'
-                >
+              <Link href='/trabajador/tramites?requiere_firma=true&estado=LEIDO' className='block'>
+                <Button disabled={stats.para_firmar === 0} className='w-full'>
                   {stats.para_firmar > 0 ? 'Firmar ahora' : 'Sin pendientes'}
                 </Button>
               </Link>
             </div>
 
             {/* Mis Observaciones */}
-            <div className='bg-[#272d34] rounded-2xl p-6'>
+            <div className='bg-card rounded-2xl p-6 border border-border'>
               <div className='flex items-center gap-3 mb-4'>
                 <div className='p-3 bg-purple-500/10 rounded-xl'>
                   <MessageSquare className='w-5 h-5 text-purple-400' />
                 </div>
-                <h3 className='text-lg font-bold text-white'>Observaciones</h3>
+                <h3 className='text-lg font-bold text-foreground'>Observaciones</h3>
               </div>
               <div className='mb-4'>
-                <p className='text-4xl font-bold text-white mb-1'>
+                <p className='text-4xl font-bold text-foreground mb-1'>
                   {stats.observaciones_pendientes}
                 </p>
-                <p className='text-slate-400 text-sm'>Observaciones pendientes</p>
+                <p className='text-muted-foreground text-sm'>Observaciones pendientes</p>
               </div>
               <Link href='/trabajador/observaciones' className='block'>
                 <Button variant='outline' className='w-full'>

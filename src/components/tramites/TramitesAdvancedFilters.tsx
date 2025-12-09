@@ -6,7 +6,7 @@ import Button from '@/components/ui/Button';
 import { ProcedureFilters, DocumentType, User } from '@/types';
 import { getDocumentTypes } from '@/lib/api/document-type';
 import { getWorkers } from '@/lib/api/usuarios';
-import {backgroundColor} from "html2canvas/dist/types/css/property-descriptors/background-color";
+import { useRole } from '@/contexts/AuthContext';
 
 interface TramitesAdvancedFiltersProps {
   onApplyFilters: (filters: ProcedureFilters) => void;
@@ -15,10 +15,12 @@ interface TramitesAdvancedFiltersProps {
 }
 
 export default function TramitesAdvancedFilters({
-                                                  onApplyFilters,
-                                                  currentFilters = {},
-                                                  isOpen,
-                                                }: TramitesAdvancedFiltersProps) {
+  onApplyFilters,
+  currentFilters = {},
+  isOpen,
+}: TramitesAdvancedFiltersProps) {
+  const { isAdmin, isResponsible } = useRole();
+  const canFilterWorkers = isAdmin || isResponsible;
   const [selectedTipoDocumento, setSelectedTipoDocumento] = useState<string>(
     currentFilters.id_tipo_documento || '',
   );
@@ -57,9 +59,14 @@ export default function TramitesAdvancedFilters({
   const loadFilterOptions = async () => {
     setLoadingOptions(true);
     try {
-      const [tipos, workers] = await Promise.all([getDocumentTypes(), getWorkers()]);
+      const tipos = await getDocumentTypes();
       setTiposDocumento(tipos);
-      setTrabajadores(workers);
+      if (canFilterWorkers) {
+        const workers = await getWorkers();
+        setTrabajadores(workers);
+      } else {
+        setTrabajadores([]);
+      }
     } catch (error) {
       console.error('Error loading filter options:', error);
     } finally {
@@ -73,7 +80,7 @@ export default function TramitesAdvancedFilters({
     };
 
     if (selectedTipoDocumento) advancedFilters.id_tipo_documento = selectedTipoDocumento;
-    if (selectedReceptor) advancedFilters.id_receptor = selectedReceptor;
+    if (canFilterWorkers && selectedReceptor) advancedFilters.id_receptor = selectedReceptor;
     if (fechaEnvioDesde) advancedFilters.fecha_envio_desde = fechaEnvioDesde;
     if (fechaEnvioHasta) advancedFilters.fecha_envio_hasta = fechaEnvioHasta;
     if (tieneObservaciones !== undefined) advancedFilters.tiene_observaciones = tieneObservaciones;
@@ -91,31 +98,31 @@ export default function TramitesAdvancedFilters({
   if (!isOpen) return null;
 
   return (
-    <div className='bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 shadow-lg animate-in slide-in-from-top duration-300' style={{backgroundColor:'#272d34'}}>
+    <div className='bg-card border border-border rounded-2xl p-6 shadow-lg animate-in slide-in-from-top duration-300'>
       <div className='flex items-center gap-3 mb-6'>
-        <div className='p-2 bg-purple-900/30 rounded-lg border border-purple-700/50'>
+        <div className='p-2 bg-purple-900/20 rounded-lg border border-purple-700/30'>
           <Filter className='w-5 h-5 text-purple-400' />
         </div>
-        <h3 className='font-semibold text-white text-lg'>Filtros Avanzados</h3>
+        <h3 className='font-semibold text-foreground text-lg'>Filtros Avanzados</h3>
       </div>
 
       {loadingOptions ? (
         <div className='text-center py-12'>
           <div className='animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600 mx-auto mb-4'></div>
-          <p className='text-sm text-gray-400'>Cargando opciones...</p>
+          <p className='text-sm text-muted-foreground'>Cargando opciones...</p>
         </div>
       ) : (
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
           {/* Tipo de Documento */}
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2'>
-              <FileText className='w-4 h-4 text-gray-400' />
+            <label className='block text-sm font-medium text-foreground mb-2 flex items-center gap-2'>
+              <FileText className='w-4 h-4 text-muted-foreground' />
               Tipo de Documento
             </label>
             <select
               value={selectedTipoDocumento}
               onChange={(e) => setSelectedTipoDocumento(e.target.value)}
-              className='w-full px-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all appearance-none cursor-pointer'
+              className='w-full px-4 py-3 bg-input border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all appearance-none cursor-pointer'
             >
               <option value=''>Todos los tipos</option>
               {tiposDocumento.map((tipo) => (
@@ -126,57 +133,59 @@ export default function TramitesAdvancedFilters({
             </select>
           </div>
 
-          {/* Trabajador */}
-          <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2'>
-              <Users className='w-4 h-4 text-gray-400' />
-              Trabajador
-            </label>
-            <select
-              value={selectedReceptor}
-              onChange={(e) => setSelectedReceptor(e.target.value)}
-              className='w-full px-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all appearance-none cursor-pointer'
-            >
-              <option value=''>Todos los trabajadores</option>
-              {trabajadores.map((trabajador) => (
-                <option key={trabajador.id_usuario} value={trabajador.id_usuario}>
-                  {trabajador.apellidos}, {trabajador.nombres}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Trabajador (solo Admin o Responsable) */}
+          {canFilterWorkers && (
+            <div>
+              <label className='block text-sm font-medium text-foreground mb-2 flex items-center gap-2'>
+                <Users className='w-4 h-4 text-muted-foreground' />
+                Trabajador
+              </label>
+              <select
+                value={selectedReceptor}
+                onChange={(e) => setSelectedReceptor(e.target.value)}
+                className='w-full px-4 py-3 bg-input border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all appearance-none cursor-pointer'
+              >
+                <option value=''>Todos los trabajadores</option>
+                {trabajadores.map((trabajador) => (
+                  <option key={trabajador.id_usuario} value={trabajador.id_usuario}>
+                    {trabajador.apellidos}, {trabajador.nombres}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Fecha Desde */}
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2'>
-              <Calendar className='w-4 h-4 text-gray-400' />
+            <label className='block text-sm font-medium text-foreground mb-2 flex items-center gap-2'>
+              <Calendar className='w-4 h-4 text-muted-foreground' />
               Fecha Desde
             </label>
             <input
               type='date'
               value={fechaEnvioDesde}
               onChange={(e) => setFechaEnvioDesde(e.target.value)}
-              className='w-full px-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all'
+              className='w-full px-4 py-3 bg-input border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all'
             />
           </div>
 
           {/* Fecha Hasta */}
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2'>
-              <Calendar className='w-4 h-4 text-gray-400' />
+            <label className='block text-sm font-medium text-foreground mb-2 flex items-center gap-2'>
+              <Calendar className='w-4 h-4 text-muted-foreground' />
               Fecha Hasta
             </label>
             <input
               type='date'
               value={fechaEnvioHasta}
               onChange={(e) => setFechaEnvioHasta(e.target.value)}
-              className='w-full px-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all'
+              className='w-full px-4 py-3 bg-input border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all'
             />
           </div>
 
           {/* Observaciones */}
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>Observaciones</label>
+            <label className='block text-sm font-medium text-foreground mb-2'>Observaciones</label>
             <select
               value={observacionesPendientes ? 'pendientes' : tieneObservaciones ? 'con' : ''}
               onChange={(e) => {
@@ -191,7 +200,7 @@ export default function TramitesAdvancedFilters({
                   setObservacionesPendientes(undefined);
                 }
               }}
-              className='w-full px-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all appearance-none cursor-pointer'
+              className='w-full px-4 py-3 bg-input border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all appearance-none cursor-pointer'
             >
               <option value=''>Todas</option>
               <option value='con'>Con observaciones</option>
@@ -201,13 +210,13 @@ export default function TramitesAdvancedFilters({
 
           {/* Respuesta */}
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>Respuesta</label>
+            <label className='block text-sm font-medium text-foreground mb-2'>Respuesta</label>
             <select
               value={conRespuesta === undefined ? '' : String(conRespuesta)}
               onChange={(e) =>
                 setConRespuesta(e.target.value === '' ? undefined : e.target.value === 'true')
               }
-              className='w-full px-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all appearance-none cursor-pointer'
+              className='w-full px-4 py-3 bg-input border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all appearance-none cursor-pointer'
             >
               <option value=''>Todas</option>
               <option value='true'>Con respuesta</option>
@@ -217,13 +226,13 @@ export default function TramitesAdvancedFilters({
 
           {/* Tipo de Envío */}
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>Tipo de Envío</label>
+            <label className='block text-sm font-medium text-foreground mb-2'>Tipo de Envío</label>
             <select
               value={esReenvio === undefined ? '' : String(esReenvio)}
               onChange={(e) =>
                 setEsReenvio(e.target.value === '' ? undefined : e.target.value === 'true')
               }
-              className='w-full px-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all appearance-none cursor-pointer'
+              className='w-full px-4 py-3 bg-input border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all appearance-none cursor-pointer'
             >
               <option value=''>Todos</option>
               <option value='true'>Reenvíos</option>
@@ -233,11 +242,11 @@ export default function TramitesAdvancedFilters({
 
           {/* Ordenar Por */}
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>Ordenar por</label>
+            <label className='block text-sm font-medium text-foreground mb-2'>Ordenar por</label>
             <select
               value={ordenarPor}
               onChange={(e) => setOrdenarPor(e.target.value)}
-              className='w-full px-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all appearance-none cursor-pointer'
+              className='w-full px-4 py-3 bg-input border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all appearance-none cursor-pointer'
             >
               <option value='fecha_envio'>Fecha envío</option>
               <option value='fecha_leido'>Fecha lectura</option>
@@ -250,11 +259,11 @@ export default function TramitesAdvancedFilters({
 
           {/* Orden */}
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>Orden</label>
+            <label className='block text-sm font-medium text-foreground mb-2'>Orden</label>
             <select
               value={orden}
               onChange={(e) => setOrden(e.target.value as 'asc' | 'desc')}
-              className='w-full px-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all appearance-none cursor-pointer'
+              className='w-full px-4 py-3 bg-input border border-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all appearance-none cursor-pointer'
             >
               <option value='desc'>Descendente</option>
               <option value='asc'>Ascendente</option>
@@ -264,12 +273,12 @@ export default function TramitesAdvancedFilters({
       )}
 
       {/* Botón Aplicar */}
-      <div className='flex justify-end mt-6 pt-6 border-t border-slate-700/50'>
+      <div className='flex justify-end mt-6 pt-6 border-t border-border'>
         <Button
           type='button'
           onClick={handleApply}
           disabled={loadingOptions}
-          className='bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-3 rounded-xl shadow-lg disabled:opacity-50'
+          className='bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-primary-foreground px-8 py-3 rounded-xl shadow-lg disabled:opacity-50'
         >
           Aplicar filtros avanzados
         </Button>

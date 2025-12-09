@@ -10,15 +10,8 @@ import Button from '@/components/ui/Button';
 import DocumentViewer from '@/components/documents/DocumentViewer';
 import FirmaElectronicaModal from '@/components/firma/FirmaElectronicaModal';
 
-import {
-  getProcedureById,
-  markProcedureAsOpened,
-  markProcedureAsRead,
-} from '@/lib/api/tramites';
-import {
-  solicitarCodigoVerificacion,
-  verificarYFirmar,
-} from '@/lib/api/firma-electronica';
+import { getProcedureById, markProcedureAsOpened, markProcedureAsRead } from '@/lib/api/tramites';
+import { solicitarCodigoVerificacion, verificarYFirmar } from '@/lib/api/firma-electronica';
 
 import TramiteHeader from '@/components/trabajador/detalle-tramite/TramiteHeader';
 import EstadoActualCard from '@/components/trabajador/detalle-tramite/EstadoActualCard';
@@ -29,6 +22,7 @@ import AccionesRapidas from '@/components/trabajador/detalle-tramite/AccionesRap
 import SeccionRespuesta from '@/components/trabajador/detalle-tramite/SeccionRespuesta';
 
 import { Procedure } from '@/types';
+import { PROCEDURE_STATES } from '@/lib/constants';
 import apiClient from '@/lib/api-client';
 
 export default function WorkerProcedureDetailPage() {
@@ -66,7 +60,7 @@ export default function WorkerProcedureDetailPage() {
       setProcedure(data);
       await fetchDocumentUrl(data.id_documento);
 
-      if (data.estado === 'ENVIADO' && !hasMarkedAsOpenedRef.current) {
+      if (data.estado === PROCEDURE_STATES.ENVIADO && !hasMarkedAsOpenedRef.current) {
         hasMarkedAsOpenedRef.current = true;
         await handleMarkAsOpened(data);
       }
@@ -100,7 +94,7 @@ export default function WorkerProcedureDetailPage() {
   };
 
   const handleMarkAsRead = async () => {
-    if (!procedure || procedure.estado !== 'ABIERTO') return;
+    if (!procedure || procedure.estado !== PROCEDURE_STATES.ABIERTO) return;
 
     try {
       setIsMarking(true);
@@ -116,7 +110,7 @@ export default function WorkerProcedureDetailPage() {
   };
 
   const handleReadThresholdReached = async () => {
-    if (procedure && procedure.estado === 'ABIERTO') {
+    if (procedure && procedure.estado === PROCEDURE_STATES.ABIERTO) {
       await handleMarkAsRead();
     }
   };
@@ -133,7 +127,7 @@ export default function WorkerProcedureDetailPage() {
         toast.success('Descargando documento...');
 
         const extension = procedure.documento.extension.toLowerCase();
-        if (!['.pdf'].includes(extension) && procedure.estado === 'ABIERTO') {
+        if (!['.pdf'].includes(extension) && procedure.estado === PROCEDURE_STATES.ABIERTO) {
           setTimeout(() => handleMarkAsRead(), 1000);
         }
       }
@@ -263,7 +257,7 @@ export default function WorkerProcedureDetailPage() {
                   onReadThresholdReached={handleReadThresholdReached}
                   onDownload={handleDownload}
                   readThreshold={50}
-                  autoMarkAsRead={procedure.estado === 'ABIERTO'}
+                  autoMarkAsRead={procedure.estado === PROCEDURE_STATES.ABIERTO}
                 />
               ) : (
                 <div className='bg-slate-900/50 border border-slate-700 rounded-xl p-12 text-center'>
