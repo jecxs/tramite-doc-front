@@ -95,8 +95,8 @@ export default function ResponsableTramitesPage() {
       {/* Header */}
       <div className='flex items-center justify-between mb-8'>
         <div>
-          <h1 className='text-3xl font-bold text-white mb-2'>Mis Trámites</h1>
-          <p className='text-gray-400'>Documentos enviados a trabajadores</p>
+          <h1 className='text-3xl font-bold text-foreground mb-2'>Mis Trámites</h1>
+          <p className='text-muted-400'>Documentos enviados a trabajadores</p>
         </div>
         <Link href='/responsable/tramites/nuevo'>
           <Button className='bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200'>
@@ -164,11 +164,11 @@ export default function ResponsableTramitesPage() {
 
       {/* Stats Cards */}
       <div className='grid grid-cols-1 md:grid-cols-4 gap-6'>
-        <div className='bg-[#272d34] backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:border-purple-500/50 transition-all duration-300 shadow-lg'>
+        <div className='bg-card backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:border-purple-500/50 transition-all duration-300 shadow-lg'>
           <div className='flex items-center justify-between'>
             <div>
-              <p className='text-sm text-gray-400 mb-2'>Total</p>
-              <p className='text-3xl font-bold text-white'>
+              <p className='text-sm text-foreground-400 mb-2'>Total</p>
+              <p className='text-3xl font-bold text-foreground'>
                 {paginacion?.total_registros || 0}
               </p>
             </div>
@@ -178,11 +178,11 @@ export default function ResponsableTramitesPage() {
           </div>
         </div>
 
-        <div className='bg-[#272d34]  backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:border-yellow-500/50 transition-all duration-300 shadow-lg'>
+        <div className='bg-card  backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:border-yellow-500/50 transition-all duration-300 shadow-lg'>
           <div className='flex items-center justify-between'>
             <div>
-              <p className='text-sm text-gray-400 mb-2'>Pendientes</p>
-              <p className='text-3xl font-bold text-white'>
+              <p className='text-sm text-foreground-400 mb-2'>Pendientes</p>
+              <p className='text-3xl font-bold text-foreground'>
                 {
                   tramites.filter((t) => ['ENVIADO', 'ABIERTO', 'LEIDO'].includes(t.estado))
                     .length
@@ -195,11 +195,11 @@ export default function ResponsableTramitesPage() {
           </div>
         </div>
 
-        <div className='bg-[#272d34] backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:border-green-500/50 transition-all duration-300 shadow-lg'>
+        <div className='bg-card backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:border-green-500/50 transition-all duration-300 shadow-lg'>
           <div className='flex items-center justify-between'>
             <div>
-              <p className='text-sm text-gray-400 mb-2'>Firmados</p>
-              <p className='text-3xl font-bold text-white'>
+              <p className='text-sm text-foreground-400 mb-2'>Firmados</p>
+              <p className='text-3xl font-bold text-foreground'>
                 {tramites.filter((t) => t.estado === 'FIRMADO').length}
               </p>
             </div>
@@ -209,11 +209,11 @@ export default function ResponsableTramitesPage() {
           </div>
         </div>
 
-        <div className='bg-[#272d34] backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:border-orange-500/50 transition-all duration-300 shadow-lg'>
+        <div className='bg-card backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:border-orange-500/50 transition-all duration-300 shadow-lg'>
           <div className='flex items-center justify-between'>
             <div>
-              <p className='text-sm text-gray-400 mb-2'>Con Observaciones</p>
-              <p className='text-3xl font-bold text-white'>
+              <p className='text-sm text-foreground-400 mb-2'>Con Observaciones</p>
+              <p className='text-3xl font-bold text-foreground'>
                 {tramites.filter((t) => (t.observaciones_count || 0) > 0).length}
               </p>
             </div>
@@ -225,13 +225,13 @@ export default function ResponsableTramitesPage() {
       </div>
 
       {/* Tramites List */}
-      <div className='bg-[#272d34]  backdrop-blur-sm border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden'>
+      <div className='bg-card  backdrop-blur-sm border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden'>
         <div className='p-6 border-b border-slate-700/50'>
           <div className='flex items-center justify-between'>
-            <h2 className='text-xl font-bold text-white'>Lista de Trámites</h2>
+            <h2 className='text-xl font-bold text-foreground'>Lista de Trámites</h2>
             <div className='flex items-center gap-4'>
               <div className='flex items-center gap-2'>
-                <span className='text-sm text-gray-400'>Mostrar:</span>
+                <span className='text-sm text-muted-foreground'>Mostrar:</span>
                 <select
                   value={currentFilters.limit || 20}
                   onChange={(e) => changeLimit(Number(e.target.value))}
@@ -292,22 +292,22 @@ export default function ResponsableTramitesPage() {
                 <table className='w-full'>
                   <thead>
                   <tr className='border-b border-slate-700/50'>
-                    <th className='text-left py-4 px-4 text-sm font-semibold text-gray-300'>
+                    <th className='text-left py-4 px-4 text-sm font-semibold text-foreground-300'>
                       Código
                     </th>
-                    <th className='text-left py-4 px-4 text-sm font-semibold text-gray-300'>
+                    <th className='text-left py-4 px-4 text-sm font-semibold text-foreground-300'>
                       Asunto
                     </th>
-                    <th className='text-left py-4 px-4 text-sm font-semibold text-gray-300'>
+                    <th className='text-left py-4 px-4 text-sm font-semibold text-foreground-300'>
                       Destinatario
                     </th>
-                    <th className='text-left py-4 px-4 text-sm font-semibold text-gray-300'>
+                    <th className='text-left py-4 px-4 text-sm font-semibold text-foreground-300'>
                       Estado
                     </th>
-                    <th className='text-left py-4 px-4 text-sm font-semibold text-gray-300'>
+                    <th className='text-left py-4 px-4 text-sm font-semibold text-foreground-300'>
                       Fecha Envío
                     </th>
-                    <th className='text-left py-4 px-4 text-sm font-semibold text-gray-300'>
+                    <th className='text-left py-4 px-4 text-sm font-semibold text-foreground-300'>
                       Acciones
                     </th>
                   </tr>
@@ -321,7 +321,7 @@ export default function ResponsableTramitesPage() {
                       <td className='py-4 px-4'>
                         <div className='flex items-center gap-2'>
                           <div className='text-purple-400'>{getEstadoIcon(tramite.estado)}</div>
-                          <span className='font-mono text-sm font-medium text-white'>
+                          <span className='font-mono text-sm font-medium text-foreground'>
                               {tramite.codigo}
                             </span>
                           {tramite.es_reenvio && (
@@ -333,7 +333,7 @@ export default function ResponsableTramitesPage() {
                       </td>
                       <td className='py-4 px-4'>
                         <div className='max-w-xs'>
-                          <p className='text-sm font-medium text-white truncate'>
+                          <p className='text-sm font-medium text-foreground truncate'>
                             {tramite.asunto}
                           </p>
                           <div className='flex items-center gap-2 mt-1'>
@@ -355,7 +355,7 @@ export default function ResponsableTramitesPage() {
                             <User className='w-5 h-5 text-purple-300' />
                           </div>
                           <div>
-                            <p className='text-sm font-medium text-white'>
+                            <p className='text-sm font-medium text-foreground'>
                               {tramite.receptor.apellidos}, {tramite.receptor.nombres}
                             </p>
                             <p className='text-xs text-gray-400'>{tramite.receptor.correo}</p>
@@ -366,7 +366,7 @@ export default function ResponsableTramitesPage() {
                         <ProcedureStateBadge estado={tramite.estado} />
                       </td>
                       <td className='py-4 px-4'>
-                        <div className='flex items-center gap-2 text-sm text-gray-300'>
+                        <div className='flex items-center gap-2 text-sm text-foreground-300'>
                           <Calendar className='w-4 h-4 text-gray-400' />
                           {formatDate(tramite.fecha_envio)}
                         </div>

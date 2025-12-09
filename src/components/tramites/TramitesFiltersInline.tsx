@@ -54,11 +54,11 @@ export default function TramitesFiltersInline({
   return (
     <div className='space-y-4'>
       {/* Filtros Básicos */}
-      <div className='bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 shadow-lg' style={{backgroundColor: '#272d34'}}>
+      <div className='bg-white border border-gray-200 dark:border-slate-700/50 shadow-sm dark:bg-gradient-to-br dark:bg-[#152436] backdrop-blur-sm rounded-2xl p-6 transition-all'>
         <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
           {/* Búsqueda */}
           <div className='md:col-span-2'>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>Buscar</label>
+            <label className='block text-sm font-medium text-foreground-300 mb-2'>Buscar</label>
             <div className='relative'>
               <Search className='absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400' />
               <input
@@ -67,18 +67,18 @@ export default function TramitesFiltersInline({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleApply()}
-                className='w-full pl-12 pr-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all'
+                className='w-full pl-12 pr-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white placeholder-gray-400  focus:border-transparent transition-all'
               />
             </div>
           </div>
 
           {/* Estado */}
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>Estado</label>
+            <label className='block text-sm font-medium text-foreground-300 mb-2'>Estado</label>
             <select
               value={selectedEstado}
               onChange={(e) => setSelectedEstado(e.target.value)}
-              className='w-full px-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all appearance-none cursor-pointer'
+              className='w-full px-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white focus:ring-2 transition-all appearance-none cursor-pointer'
             >
               <option value=''>Todos</option>
               {Object.entries(PROCEDURE_STATE_LABELS).map(([key, label]) => (
@@ -91,7 +91,7 @@ export default function TramitesFiltersInline({
 
           {/* Requiere Firma */}
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>Firma</label>
+            <label className='block text-sm font-medium text-foreground-300 mb-2'>Firma</label>
             <select
               value={requiereFirma === undefined ? '' : String(requiereFirma)}
               onChange={(e) =>

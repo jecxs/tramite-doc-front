@@ -129,7 +129,7 @@ export default function EstadisticasPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">Estadísticas</h1>
+            <h1 className="text-4xl font-bold text-foreground mb-2">Estadísticas</h1>
             <p className="text-gray-400">Panel de control y análisis de trámites</p>
           </div>
           <div className="flex gap-2">
@@ -198,8 +198,8 @@ export default function EstadisticasPage() {
 
         {/* Gráficos principales */}
         <div className="col-span-12 lg:col-span-8 ">
-          <FloatingCard className='!bg-[#272d34]'>
-            <h3 className="text-white text-xl font-bold mb-6">Tendencia de Trámites</h3>
+          <FloatingCard className='bg-card'>
+            <h3 className="text-foreground text-xl font-bold mb-6">Tendencia de Trámites</h3>
             <GraficoLineas data={porPeriodo?.datos_grafico || []} altura={300} />
           </FloatingCard>
         </div>
@@ -265,8 +265,8 @@ export default function EstadisticasPage() {
 
         {/* Tipos de documentos */}
         <div className="col-span-12">
-          <FloatingCard className='!bg-[#272d34]'>
-            <h3 className="text-white text-xl font-bold mb-6">Tipos de Documentos Enviados</h3>
+          <FloatingCard className='bg-card'>
+            <h3 className="text-foreground text-xl font-bold mb-6">Tipos de Documentos Enviados</h3>
             <GraficoBarras data={datosTipos} altura={300} color='#3b82f6' />
           </FloatingCard>
         </div>

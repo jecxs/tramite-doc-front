@@ -213,11 +213,11 @@ export default function ResponderObservacionPage() {
           {/* Columna Izquierda - Información de la Observación */}
           <div className='lg:col-span-1 space-y-6'>
             {/* Card de Observación */}
-            <div className='relative overflow-hidden rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 shadow-xl'>
-              <div className='absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500'></div>
+            <div className='relative overflow-hidden rounded-2xl bg-card backdrop-blur-sm border border-slate-700/50 shadow-xl'>
+              <div className='absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-400 via-red-500 to-red-800'></div>
               <div className='p-6'>
                 <div className='flex items-center gap-3 mb-4'>
-                  <div className='p-3 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl shadow-lg'>
+                  <div className='p-3 bg-gradient-to-br from-red-500 to-red-500 rounded-xl shadow-lg'>
                     <AlertCircle className='w-6 h-6 text-white' />
                   </div>
                   <div>
