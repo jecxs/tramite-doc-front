@@ -77,7 +77,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
         }}
         className='relative backdrop-blur-2xl rounded-[1.75rem] border shadow-2xl
             border-gray-200/50 dark:border-white/10
-            shadow-gray-200/50 dark:shadow-black/50'
+            shadow-gray-350/100 dark:shadow-black/50'
         style={{
           background: isScrolled
             ? 'var(--navbar-bg-scrolled, rgba(255, 255, 255, 0.95))'
