@@ -1,6 +1,6 @@
 // src/types/index.ts
 
-import { ProcedureState, ROLES } from '@/lib/constants';
+import { PROCEDURE_STATES, ROLES } from '@/lib/constants';
 
 // ==================== AUTH ====================
 export interface LoginDto {
@@ -161,7 +161,7 @@ export interface Procedure {
   id_receptor: string;
   asunto: string;
   mensaje?: string;
-  estado: ProcedureState;
+  estado: PROCEDURE_STATES;
   requiere_firma: boolean;
   requiere_respuesta: boolean;
   fecha_envio: string;
@@ -267,7 +267,7 @@ export interface DeteccionResultado {
 }
 
 export interface UpdateProcedureStateDto {
-  estado: ProcedureState;
+  estado: PROCEDURE_STATES;
 }
 
 export interface ReenviarTramiteDto {
@@ -392,7 +392,7 @@ export interface ProcedureFilters extends PaginationParams {
   id_area_remitente?: string;
 
   // Filtros de estado y tipo
-  estado?: ProcedureState;
+  estado?: PROCEDURE_STATES;
   requiere_firma?: boolean;
   requiere_respuesta?: boolean;
   es_reenvio?: boolean;

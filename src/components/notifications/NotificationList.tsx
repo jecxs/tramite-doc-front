@@ -23,6 +23,7 @@ import { getNotifications, markNotificationAsRead } from '@/lib/api/notificacion
 import { NOTIFICATION_LABELS, ROLES, ROUTE_BUILDERS } from '@/lib/constants';
 import { toast } from 'sonner';
 import { useRole } from '@/contexts/AuthContext';
+import clsx from 'clsx';
 
 interface NotificationListProps {
   initialNotifications?: Notification[];
@@ -30,9 +31,9 @@ interface NotificationListProps {
 }
 
 export default function NotificationList({
-                                           initialNotifications = [],
-                                           onNotificationClick,
-                                         }: NotificationListProps) {
+  initialNotifications = [],
+  onNotificationClick,
+}: NotificationListProps) {
   const router = useRouter();
   const { currentRole } = useRole();
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
@@ -169,7 +170,10 @@ export default function NotificationList({
             className='group flex items-center gap-2.5 px-5 py-2.5 bg-gray-700/50 hover:bg-gray-600/50 text-white rounded-xl transition-all duration-300 disabled:opacity-50 hover:shadow-lg hover:shadow-gray-900/50'
           >
             <RefreshCw
-              className={`w-4 h-4 transition-transform duration-500 ${isRefreshing ? 'animate-spin' : 'group-hover:rotate-180'}`}
+              className={clsx(
+                'w-4 h-4 transition-transform duration-500',
+                isRefreshing ? 'animate-spin' : 'group-hover:rotate-180',
+              )}
             />
             <span className='font-medium'>Actualizar</span>
           </button>
@@ -179,11 +183,12 @@ export default function NotificationList({
         <div className='flex gap-3'>
           <button
             onClick={() => setFilter('all')}
-            className={`relative px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
+            className={clsx(
+              'relative px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300',
               filter === 'all'
                 ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
-                : 'bg-gray-700/30 text-gray-300 hover:bg-gray-700/50 hover:text-white'
-            }`}
+                : 'bg-gray-700/30 text-gray-300 hover:bg-gray-700/50 hover:text-white',
+            )}
           >
             {filter === 'all' && (
               <div className='absolute inset-0 bg-gradient-to-r from-blue-400/20 to-blue-600/20 rounded-xl animate-pulse' />
@@ -192,11 +197,12 @@ export default function NotificationList({
           </button>
           <button
             onClick={() => setFilter('unread')}
-            className={`relative px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
+            className={clsx(
+              'relative px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300',
               filter === 'unread'
                 ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
-                : 'bg-gray-700/30 text-gray-300 hover:bg-gray-700/50 hover:text-white'
-            }`}
+                : 'bg-gray-700/30 text-gray-300 hover:bg-gray-700/50 hover:text-white',
+            )}
           >
             {filter === 'unread' && (
               <div className='absolute inset-0 bg-gradient-to-r from-blue-400/20 to-blue-600/20 rounded-xl animate-pulse' />
@@ -205,11 +211,12 @@ export default function NotificationList({
           </button>
           <button
             onClick={() => setFilter('read')}
-            className={`relative px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
+            className={clsx(
+              'relative px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300',
               filter === 'read'
                 ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
-                : 'bg-gray-700/30 text-gray-300 hover:bg-gray-700/50 hover:text-white'
-            }`}
+                : 'bg-gray-700/30 text-gray-300 hover:bg-gray-700/50 hover:text-white',
+            )}
           >
             {filter === 'read' && (
               <div className='absolute inset-0 bg-gradient-to-r from-blue-400/20 to-blue-600/20 rounded-xl animate-pulse' />
@@ -235,11 +242,18 @@ export default function NotificationList({
               <button
                 key={notification.id_notificacion}
                 onClick={() => handleNotificationClick(notification)}
-                className={`group w-full text-left p-5 rounded-2xl transition-all duration-300 hover:scale-[1.01] hover:shadow-xl relative overflow-hidden ${
+                className={clsx(
+                  'group w-full text-left p-5 rounded-2xl transition-all duration-300 hover:scale-[1.01] hover:shadow-xl relative overflow-hidden',
                   !notification.visto
-                    ? `bg-gray-800/80 border-l-4 ${getNotificationAccent(notification.tipo)}`
-                    : 'bg-gray-800/40 border border-gray-700/30 hover:bg-gray-800/60 hover:border-gray-600/50'
-                }`}
+                    ? ['bg-gray-800/80', 'border-l-4', getNotificationAccent(notification.tipo)]
+                    : [
+                        'bg-gray-800/40',
+                        'border',
+                        'border-gray-700/30',
+                        'hover:bg-gray-800/60',
+                        'hover:border-gray-600/50',
+                      ],
+                )}
               >
                 {/* Hover effect overlay */}
                 <div className='absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700' />
@@ -280,7 +294,7 @@ export default function NotificationList({
                       <span className='text-gray-500 bg-gray-700/30 px-3 py-1 rounded-lg'>
                         {NOTIFICATION_LABELS[
                           notification.tipo as keyof typeof NOTIFICATION_LABELS
-                          ] || notification.tipo}
+                        ] || notification.tipo}
                       </span>
                     </div>
                   </div>

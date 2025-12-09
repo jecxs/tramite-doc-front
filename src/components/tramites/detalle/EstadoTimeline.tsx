@@ -1,14 +1,7 @@
 // src/components/tramites/detalle/EstadoTimeline.tsx
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import {
-  Send,
-  Eye,
-  FileCheck,
-  PenTool,
-  XCircle,
-  Clock,
-} from 'lucide-react';
+import { Send, Eye, FileCheck, PenTool, XCircle, Clock } from 'lucide-react';
 import { ProcedureStateBadge } from '@/components/ui/Badge';
 import { PROCEDURE_STATE_LABELS } from '@/lib/constants';
 import { Procedure } from '@/types';
@@ -28,7 +21,7 @@ export default function EstadoTimeline({ procedure }: EstadoTimelineProps) {
         border: 'border-blue-500/30',
         text: 'text-blue-300',
         shadow: 'shadow-blue-500/20',
-        line: 'from-blue-500 to-purple-500'
+        line: 'from-blue-500 to-purple-500',
       },
       ABIERTO: {
         icon: <Eye className='w-5 h-5' />,
@@ -37,7 +30,7 @@ export default function EstadoTimeline({ procedure }: EstadoTimelineProps) {
         border: 'border-purple-500/30',
         text: 'text-purple-300',
         shadow: 'shadow-purple-500/20',
-        line: 'from-purple-500 to-indigo-500'
+        line: 'from-purple-500 to-indigo-500',
       },
       LEIDO: {
         icon: <FileCheck className='w-5 h-5' />,
@@ -46,7 +39,7 @@ export default function EstadoTimeline({ procedure }: EstadoTimelineProps) {
         border: 'border-indigo-500/30',
         text: 'text-indigo-300',
         shadow: 'shadow-indigo-500/20',
-        line: 'from-indigo-500 to-green-500'
+        line: 'from-indigo-500 to-green-500',
       },
       FIRMADO: {
         icon: <PenTool className='w-5 h-5' />,
@@ -55,7 +48,7 @@ export default function EstadoTimeline({ procedure }: EstadoTimelineProps) {
         border: 'border-green-500/30',
         text: 'text-green-300',
         shadow: 'shadow-green-500/20',
-        line: 'from-green-500 to-emerald-500'
+        line: 'from-green-500 to-emerald-500',
       },
       ANULADO: {
         icon: <XCircle className='w-5 h-5' />,
@@ -64,18 +57,18 @@ export default function EstadoTimeline({ procedure }: EstadoTimelineProps) {
         border: 'border-red-500/30',
         text: 'text-red-300',
         shadow: 'shadow-red-500/20',
-        line: 'from-red-500 to-red-600'
+        line: 'from-red-500 to-red-600',
       },
     };
     return configs[estado as keyof typeof configs] || configs.ENVIADO;
   };
 
   const TimelineStep = ({
-                          estado,
-                          label,
-                          fecha,
-                          isActive,
-                        }: {
+    estado,
+    label,
+    fecha,
+    isActive,
+  }: {
     estado: string;
     label: string;
     fecha?: string;
@@ -97,17 +90,21 @@ export default function EstadoTimeline({ procedure }: EstadoTimelineProps) {
         </div>
 
         {/* Label */}
-        <p className={`text-xs font-semibold mt-3 transition-colors ${
-          isActive ? 'text-white' : 'text-gray-500'
-        }`}>
+        <p
+          className={`text-xs font-semibold mt-3 transition-colors ${
+            isActive ? 'text-white' : 'text-gray-500'
+          }`}
+        >
           {label}
         </p>
 
         {/* Fecha */}
         {fecha && (
-          <p className={`text-xs mt-1 font-medium transition-colors ${
-            isActive ? config.text : 'text-gray-600'
-          }`}>
+          <p
+            className={`text-xs mt-1 font-medium transition-colors ${
+              isActive ? config.text : 'text-gray-600'
+            }`}
+          >
             {format(new Date(fecha), 'dd/MM/yy HH:mm', { locale: es })}
           </p>
         )}
@@ -124,7 +121,9 @@ export default function EstadoTimeline({ procedure }: EstadoTimelineProps) {
         <div className='absolute inset-0 bg-gradient-to-r from-slate-800/40 via-slate-700/20 to-slate-800/40 rounded-2xl blur-xl' />
         <div className='relative flex items-center justify-between p-6 bg-slate-800/50 backdrop-blur-xl rounded-2xl border border-slate-700/50'>
           <div className='flex items-center gap-5'>
-            <div className={`w-14 h-14 rounded-xl ${estadoConfig.bgActive} border ${estadoConfig.border} flex items-center justify-center shadow-lg ${estadoConfig.shadow}`}>
+            <div
+              className={`w-14 h-14 rounded-xl ${estadoConfig.bgActive} border ${estadoConfig.border} flex items-center justify-center shadow-lg ${estadoConfig.shadow}`}
+            >
               {estadoConfig.icon}
             </div>
             <div>
@@ -229,7 +228,9 @@ export default function EstadoTimeline({ procedure }: EstadoTimelineProps) {
             <div className='flex-1 pt-1'>
               <p className='text-sm font-bold text-red-300 mb-1'>Trámite Anulado</p>
               {procedure.motivo_anulacion && (
-                <p className='text-sm text-gray-300 leading-relaxed'>{procedure.motivo_anulacion}</p>
+                <p className='text-sm text-gray-300 leading-relaxed'>
+                  {procedure.motivo_anulacion}
+                </p>
               )}
               {procedure.fecha_anulado && (
                 <p className='text-xs text-red-400/70 mt-3 font-medium'>

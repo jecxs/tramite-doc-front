@@ -4,6 +4,14 @@ import { config } from '@/config';
 export const API_URL = config.API_URL;
 export const WS_URL = config.SOCKET_URL;
 
+// Theme
+export const THEME = {
+  LIGHT: 'light',
+  DARK: 'dark',
+} as const;
+
+export type THEME = (typeof THEME)[keyof typeof THEME];
+
 // User Roles
 export const ROLES = {
   ADMIN: 'ADMIN',
@@ -27,10 +35,10 @@ export const PROCEDURE_STATES = {
   ANULADO: 'ANULADO',
 } as const;
 
-export type ProcedureState = (typeof PROCEDURE_STATES)[keyof typeof PROCEDURE_STATES];
+export type PROCEDURE_STATES = (typeof PROCEDURE_STATES)[keyof typeof PROCEDURE_STATES];
 
 // Estado labels en español
-export const PROCEDURE_STATE_LABELS: Record<ProcedureState, string> = {
+export const PROCEDURE_STATE_LABELS: Record<PROCEDURE_STATES, string> = {
   ENVIADO: 'Enviado',
   ABIERTO: 'Abierto',
   LEIDO: 'Leído',
@@ -40,7 +48,7 @@ export const PROCEDURE_STATE_LABELS: Record<ProcedureState, string> = {
 };
 
 // Estado colors para badges
-export const PROCEDURE_STATE_COLORS: Record<ProcedureState, string> = {
+export const PROCEDURE_STATE_COLORS: Record<PROCEDURE_STATES, string> = {
   ENVIADO: 'bg-blue-100 text-blue-800',
   ABIERTO: 'bg-purple-100 text-purple-800',
   LEIDO: 'bg-indigo-100 text-indigo-800',

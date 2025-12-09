@@ -2,6 +2,7 @@
 
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
+import { THEME } from '@/lib/constants';
 import { motion } from 'framer-motion';
 
 export function ThemeToggle() {
@@ -19,9 +20,9 @@ export function ThemeToggle() {
         <motion.div
           initial={false}
           animate={{
-            scale: theme === 'dark' ? 1 : 0,
-            rotate: theme === 'dark' ? 0 : 180,
-            opacity: theme === 'dark' ? 1 : 0,
+            scale: theme === THEME.DARK ? 1 : 0,
+            rotate: theme === THEME.DARK ? 0 : 180,
+            opacity: theme === THEME.DARK ? 1 : 0,
           }}
           transition={{ duration: 0.2 }}
           className='absolute inset-0'
@@ -31,9 +32,9 @@ export function ThemeToggle() {
         <motion.div
           initial={false}
           animate={{
-            scale: theme === 'light' ? 1 : 0,
-            rotate: theme === 'light' ? 0 : -180,
-            opacity: theme === 'light' ? 1 : 0,
+            scale: theme === THEME.LIGHT ? 1 : 0,
+            rotate: theme === THEME.LIGHT ? 0 : -180,
+            opacity: theme === THEME.LIGHT ? 1 : 0,
           }}
           transition={{ duration: 0.2 }}
           className='absolute inset-0'

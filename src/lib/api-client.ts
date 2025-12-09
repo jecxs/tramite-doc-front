@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import { toast } from 'sonner';
 import { STORAGE_KEYS } from '@/lib/constants';
 import { config } from '@/config';
 
@@ -41,8 +42,13 @@ apiClient.interceptors.response.use(
 
       // Eliminar cookie también
       document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-
+      toast.error('Sesión expirada. Inicie sesión nuevamente.');
       window.location.href = '/login';
+    }
+
+    const message = handleApiError(error);
+    if (message) {
+      toast.error(message);
     }
 
     return Promise.reject(error);

@@ -1,58 +1,46 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-
-type Theme = 'light' | 'dark';
+import { THEME } from '@/lib/constants';
 
 interface ThemeContextType {
-  theme: Theme;
+  theme: THEME;
   toggleTheme: () => void;
-  setTheme: (theme: Theme) => void;
+  setTheme: (theme: THEME) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('dark');
-  const [mounted, setMounted] = useState(false);
-
-  // Cargar tema desde localStorage al montar
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
-    if (savedTheme) {
-      setThemeState(savedTheme);
+  const [theme, setThemeState] = useState<THEME>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('theme') as THEME | null;
+      return saved || THEME.DARK;
     }
-    setMounted(true);
-  }, []);
+    return THEME.DARK;
+  });
 
   // Aplicar tema al documento
   useEffect(() => {
-    if (!mounted) return;
-
     const root = document.documentElement;
 
     // Remover la clase anterior
-    root.classList.remove('light', 'dark');
+    root.classList.remove(THEME.LIGHT, THEME.DARK);
 
     // Agregar la clase del tema actual
     root.classList.add(theme);
 
     // Guardar en localStorage
     localStorage.setItem('theme', theme);
-  }, [theme, mounted]);
+  }, [theme]);
 
   const toggleTheme = () => {
-    setThemeState((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    setThemeState((prev) => (prev === THEME.DARK ? THEME.LIGHT : THEME.DARK));
   };
 
-  const setTheme = (newTheme: Theme) => {
+  const setTheme = (newTheme: THEME) => {
     setThemeState(newTheme);
   };
-
-  // Evitar flash de contenido sin estilo
-  if (!mounted) {
-    return null;
-  }
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>

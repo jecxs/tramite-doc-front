@@ -1,6 +1,6 @@
 // src/components/ui/Badge.tsx
 import React from 'react';
-import { PROCEDURE_STATE_COLORS, PROCEDURE_STATE_LABELS, ProcedureState } from '@/lib/constants';
+import { PROCEDURE_STATE_COLORS, PROCEDURE_STATE_LABELS, PROCEDURE_STATES } from '@/lib/constants';
 
 interface BadgeProps {
   variant?: 'default' | 'success' | 'warning' | 'danger' | 'info';
@@ -48,8 +48,8 @@ export const ProcedureStateBadge: React.FC<ProcedureStateBadgeProps> = ({
     );
   }
 
-  const colorClass = PROCEDURE_STATE_COLORS[estado as ProcedureState];
-  const label = PROCEDURE_STATE_LABELS[estado as ProcedureState];
+  const colorClass = PROCEDURE_STATE_COLORS[estado as PROCEDURE_STATES];
+  const label = PROCEDURE_STATE_LABELS[estado as PROCEDURE_STATES];
 
   return (
     <span
