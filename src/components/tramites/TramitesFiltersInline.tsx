@@ -171,7 +171,7 @@ export default function TramitesFiltersInline({
               </span>
             )}
             {selectedEstado && (
-              <span className='inline-flex items-center gap-2 px-3 py-1.5 bg-blue-900/30 text-blue-300 rounded-lg border border-blue-700/50'>
+              <span className='inline-flex items-center gap-2 px-3 py-1.5 bg-blue-900/30 text-foreground-300 rounded-lg border border-blue-700/50'>
                 Estado:{' '}
                 {PROCEDURE_STATE_LABELS[selectedEstado as keyof typeof PROCEDURE_STATE_LABELS]}
                 <button

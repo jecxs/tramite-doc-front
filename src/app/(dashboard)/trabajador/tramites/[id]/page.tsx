@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
-import { Loader2, AlertCircle } from 'lucide-react';
+import {Loader2, AlertCircle, Download} from 'lucide-react';
 
 import Button from '@/components/ui/Button';
 import DocumentViewer from '@/components/documents/DocumentViewer';
@@ -289,7 +289,20 @@ export default function WorkerProcedureDetailPage() {
           />
 
           {viewMode === 'viewer' ? (
-            <div className='bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 shadow-2xl'>
+            <div className='bg-card border border-slate-700/50 rounded-2xl p-7 shadow-2xl'>
+              <Button
+                onClick={handleDownload}
+                disabled={isDownloading}
+                variant="outline"
+                size="sm"
+              >
+                {isDownloading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+                Descargar
+              </Button>
               {documentUrl && procedure.documento ? (
                 <DocumentViewer
                   documentUrl={documentUrl}

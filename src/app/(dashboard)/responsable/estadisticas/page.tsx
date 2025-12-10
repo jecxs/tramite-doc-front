@@ -2,13 +2,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
-import StatCard from '@/components/estadisticas/StatCard';
 import GraficoLineas from '@/components/estadisticas/GraficoLineas';
 import GraficoBarras from '@/components/estadisticas/GraficoBarras';
 import GraficoPastel from '@/components/estadisticas/GraficoPastel';
-import { FileText, Send, CheckCircle, Clock, TrendingUp, Users, AlertCircle, Award, Zap } from 'lucide-react';
+import { exportarEstadisticasAPDF } from '@/lib/utils/pdf-export-stats';
+import {FileText, Send, CheckCircle, Clock, TrendingUp, Users, AlertCircle, Award, Zap, FileDown} from 'lucide-react';
 import {
   getEstadisticasGenerales,
   getEstadisticasPorPeriodo,
@@ -110,7 +108,22 @@ export default function EstadisticasPage() {
       </div>
     );
   }
-
+  const handleExportarPDF = async () => {
+    try {
+      await exportarEstadisticasAPDF({
+        generales,
+        porPeriodo,
+        porTrabajador,
+        tiempos,
+        tiposDocumentos,
+        ranking,
+        periodo,
+      });
+    } catch (error) {
+      console.error('Error exportando PDF:', error);
+      // Aquí podrías mostrar un toast de error
+    }
+  };
   const datosEstados =
     porPeriodo?.distribucion_estados.map((item) => ({
       name: item.estado,
@@ -132,23 +145,37 @@ export default function EstadisticasPage() {
             <h1 className="text-4xl font-bold text-foreground mb-2">Estadísticas</h1>
             <p className="text-gray-400">Panel de control y análisis de trámites</p>
           </div>
-          <div className="flex gap-2">
-            {(['semana', 'mes', 'trimestre', 'anio'] as PeriodoType[]).map((p) => (
-              <button
-                key={p}
-                onClick={() => setPeriodo(p)}
-                className={`px-4 py-2 rounded-xl font-medium transition-all ${
-                  periodo === p
-                    ? 'bg-[#752485] text-white shadow-lg'
-                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700'
-                }`}
-              >
-                {p === 'semana' && 'Semana'}
-                {p === 'mes' && 'Mes'}
-                {p === 'trimestre' && 'Trimestre'}
-                {p === 'anio' && 'Año'}
-              </button>
-            ))}
+
+          <div className="flex gap-3">
+            {/* BOTÓN DE EXPORTAR PDF */}
+            <button
+              onClick={handleExportarPDF}
+              disabled={isLoading}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all bg-gradient-to-r from-purple-600 to-purple-600 text-white shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <FileDown className="w-4 h-4" />
+              Exportar PDF
+            </button>
+
+            {/* Botones de período existentes */}
+            <div className="flex gap-2">
+              {(['semana', 'mes', 'trimestre', 'anio'] as PeriodoType[]).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPeriodo(p)}
+                  className={`px-4 py-2 rounded-xl font-medium transition-all ${
+                    periodo === p
+                      ? 'bg-[#752485] text-white shadow-lg'
+                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700'
+                  }`}
+                >
+                  {p === 'semana' && 'Semana'}
+                  {p === 'mes' && 'Mes'}
+                  {p === 'trimestre' && 'Trimestre'}
+                  {p === 'anio' && 'Año'}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
