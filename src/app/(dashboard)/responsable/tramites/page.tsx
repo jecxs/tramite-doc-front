@@ -27,6 +27,9 @@ import { useTramites } from '@/hooks/useTramites';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { PROCEDURE_STATES } from '@/lib/constants';
+import {useTramitesStats} from "@/hooks/useTramitesStats";
+import { motion } from "framer-motion";
+import StatCard from "@/components/tramites/StatCard";
 
 export default function ResponsableTramitesPage() {
   const searchParams = useSearchParams();
@@ -77,7 +80,80 @@ export default function ResponsableTramitesPage() {
         return <FileText className='w-4 h-4' />;
     }
   };
+  const stats = useTramitesStats(tramites, isLoading);
 
+  const getStatDescription = (type: 'total' | 'pendientes' | 'firmados' | 'observaciones') => {
+    if (isLoading) return 'Cargando...';
+    if (tramites.length === 0) return 'No hay datos';
+
+    const hasFilters = currentFilters.search || Object.keys(currentFilters).length > 2;
+
+    switch (type) {
+      case 'total':
+        return hasFilters ? 'Resultados filtrados' : 'Documentos enviados';
+
+      case 'pendientes': {
+        if (stats.pendientes === 0) return '¡Todo completado!';
+        const estadosPendientes: PROCEDURE_STATES[] = [
+          PROCEDURE_STATES.ENVIADO,
+          PROCEDURE_STATES.ABIERTO,
+          PROCEDURE_STATES.LEIDO,
+        ];
+
+        const parts: string[] = [];
+
+        const pendientesConFirma = tramites.filter(
+          (t) => t.requiere_firma && estadosPendientes.includes(t.estado)
+        ).length;
+
+        const pendientesConRespuesta = tramites.filter(
+          (t) =>
+            t.requiere_respuesta &&
+            !t.respuesta &&
+            estadosPendientes.includes(t.estado)
+        ).length;
+
+        if (pendientesConFirma > 0) {
+          parts.push(`${pendientesConFirma} sin firmar`);
+        }
+        if (pendientesConRespuesta > 0) {
+          parts.push(`${pendientesConRespuesta} sin responder`);
+        }
+
+        return parts.length > 0 ? parts.join(', ') : 'Esperando acción';
+      }
+
+      case 'firmados': {
+        if (stats.totalRequiereFirma === 0) {
+          return 'Sin documentos que requieran firma';
+        }
+        if (stats.firmados === 0) {
+          return `0 de ${stats.totalRequiereFirma} firmados`;
+        }
+        return `${stats.firmados} de ${stats.totalRequiereFirma} que requieren firma`;
+      }
+
+      case 'observaciones': {
+        if (stats.conObservaciones === 0) {
+          return 'Sin observaciones registradas';
+        }
+
+        const pendientes = tramites.filter(
+          (t) =>
+            (t.observaciones_count || 0) > 0 &&
+            t.observaciones?.some((obs) => !obs.resuelta),
+        ).length;
+
+        if (pendientes > 0) {
+          return `${pendientes} con observaciones pendientes`;
+        }else{ }
+        return 'Todas resueltas';
+      }
+
+      default:
+        return '';
+    }
+  };
   if (isLoading && tramites.length === 0) {
     return (
       <div className='flex items-center justify-center min-h-[60vh]'>
@@ -156,79 +232,64 @@ export default function ResponsableTramitesPage() {
 
         <TramitesAdvancedFilters
           onApplyFilters={applyFilters}
+          onClearFilters={clearFilters}
           currentFilters={currentFilters}
           isOpen={showAdvancedFilters}
         />
       </div>
 
       {/* Stats Cards */}
-      <div className='grid grid-cols-1 md:grid-cols-4 gap-6'>
-        <div className='bg-card backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:border-purple-500/50 transition-all duration-300 shadow-lg'>
-          <div className='flex items-center justify-between'>
-            <div>
-              <p className='text-sm text-foreground-400 mb-2'>Total</p>
-              <p className='text-3xl font-bold text-foreground'>
-                {paginacion?.total_registros || 0}
-              </p>
-            </div>
-            <div className='p-4 bg-gradient-to-br from-purple-600/20 to-blue-600/20 rounded-xl'>
-              <Send className='w-7 h-7 text-purple-400' />
-            </div>
-          </div>
-        </div>
+      <motion.div
+        key={`stats-${stats.total}-${stats.pendientes}-${stats.firmados}-${stats.conObservaciones}`}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className='grid grid-cols-1 md:grid-cols-4 gap-6'
+      >
+        <StatCard
+          label='Total'
+          value={paginacion?.total_registros || 0}
+          icon={Send}
+          gradient='from-purple-600/20 to-blue-600/20'
+          borderColor='border-slate-700/50'
+          iconColor='text-purple-400'
+          description={getStatDescription('total')}
+          isEmpty={stats.total === 0}
+        />
 
-        <div className='bg-card  backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:border-yellow-500/50 transition-all duration-300 shadow-lg'>
-          <div className='flex items-center justify-between'>
-            <div>
-              <p className='text-sm text-foreground-400 mb-2'>Pendientes</p>
-              <p className='text-3xl font-bold text-foreground'>
-                {
-                  tramites.filter((t) =>
-                    (
-                      [
-                        PROCEDURE_STATES.ENVIADO,
-                        PROCEDURE_STATES.ABIERTO,
-                        PROCEDURE_STATES.LEIDO,
-                      ] as PROCEDURE_STATES[]
-                    ).includes(t.estado),
-                  ).length
-                }
-              </p>
-            </div>
-            <div className='p-4 bg-gradient-to-br from-yellow-600/20 to-orange-600/20 rounded-xl'>
-              <Clock className='w-7 h-7 text-yellow-400' />
-            </div>
-          </div>
-        </div>
+        <StatCard
+          label='Pendientes'
+          value={stats.pendientes}
+          icon={Clock}
+          gradient='from-yellow-600/20 to-orange-600/20'
+          borderColor='border-slate-700/50'
+          iconColor='text-yellow-400'
+          description={getStatDescription('pendientes')}
+          isEmpty={stats.total > 0 && stats.pendientes === 0}
+        />
 
-        <div className='bg-card backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:border-green-500/50 transition-all duration-300 shadow-lg'>
-          <div className='flex items-center justify-between'>
-            <div>
-              <p className='text-sm text-foreground-400 mb-2'>Firmados</p>
-              <p className='text-3xl font-bold text-foreground'>
-                {tramites.filter((t) => t.estado === PROCEDURE_STATES.FIRMADO).length}
-              </p>
-            </div>
-            <div className='p-4 bg-gradient-to-br from-green-600/20 to-emerald-600/20 rounded-xl'>
-              <CheckCircle className='w-7 h-7 text-green-400' />
-            </div>
-          </div>
-        </div>
+        <StatCard
+          label='Firmados'
+          value={stats.firmados}
+          icon={CheckCircle}
+          gradient='from-green-600/20 to-emerald-600/20'
+          borderColor='border-slate-700/50'
+          iconColor='text-green-400'
+          description={getStatDescription('firmados')}
+          isEmpty={stats.totalRequiereFirma > 0 && stats.firmados === 0}
+        />
 
-        <div className='bg-card backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:border-orange-500/50 transition-all duration-300 shadow-lg'>
-          <div className='flex items-center justify-between'>
-            <div>
-              <p className='text-sm text-foreground-400 mb-2'>Con Observaciones</p>
-              <p className='text-3xl font-bold text-foreground'>
-                {tramites.filter((t) => (t.observaciones_count || 0) > 0).length}
-              </p>
-            </div>
-            <div className='p-4 bg-gradient-to-br from-orange-600/20 to-red-600/20 rounded-xl'>
-              <AlertCircle className='w-7 h-7 text-orange-400' />
-            </div>
-          </div>
-        </div>
-      </div>
+        <StatCard
+          label='Con Observaciones'
+          value={stats.conObservaciones}
+          icon={AlertCircle}
+          gradient='from-orange-600/20 to-red-600/20'
+          borderColor='border-slate-700/50'
+          iconColor='text-orange-400'
+          description={getStatDescription('observaciones')}
+          isEmpty={stats.conObservaciones === 0}
+        />
+      </motion.div>
 
       {/* Tramites List */}
       <div className='bg-card  backdrop-blur-sm border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden'>

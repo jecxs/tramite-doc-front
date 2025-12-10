@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, Users, FileText, Filter } from 'lucide-react';
+import {Calendar, Users, FileText, Filter, X} from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { ProcedureFilters, DocumentType, User } from '@/types';
 import { getDocumentTypes } from '@/lib/api/document-type';
@@ -10,12 +10,14 @@ import { useRole } from '@/contexts/AuthContext';
 
 interface TramitesAdvancedFiltersProps {
   onApplyFilters: (filters: ProcedureFilters) => void;
+  onClearFilters?: () => void;
   currentFilters?: ProcedureFilters;
   isOpen: boolean;
 }
 
 export default function TramitesAdvancedFilters({
   onApplyFilters,
+  onClearFilters,
   currentFilters = {},
   isOpen,
 }: TramitesAdvancedFiltersProps) {
@@ -93,6 +95,39 @@ export default function TramitesAdvancedFilters({
     advancedFilters.orden = orden;
 
     onApplyFilters(advancedFilters as ProcedureFilters);
+  };
+
+  const handleClear = () => {
+    // Resetear todos los estados locales
+    setSelectedTipoDocumento('');
+    setSelectedReceptor('');
+    setFechaEnvioDesde('');
+    setFechaEnvioHasta('');
+    setTieneObservaciones(undefined);
+    setObservacionesPendientes(undefined);
+    setConRespuesta(undefined);
+    setEsReenvio(undefined);
+    setOrdenarPor('fecha_envio');
+    setOrden('desc');
+
+    if (onClearFilters) {
+      onClearFilters();
+    } else {
+      const basicFilters: Partial<ProcedureFilters> = {
+        pagina: 1,
+        limite: 20,
+        ordenar_por: 'fecha_envio',
+        orden: 'desc',
+      };
+
+      if (currentFilters.search) basicFilters.search = currentFilters.search;
+      if (currentFilters.estado) basicFilters.estado = currentFilters.estado;
+      if (currentFilters.requiere_firma !== undefined) {
+        basicFilters.requiere_firma = currentFilters.requiere_firma;
+      }
+
+      onApplyFilters(basicFilters as ProcedureFilters);
+    }
   };
 
   if (!isOpen) return null;
@@ -273,12 +308,33 @@ export default function TramitesAdvancedFilters({
       )}
 
       {/* Botón Aplicar */}
-      <div className='flex justify-end mt-6 pt-6 border-t border-border'>
+      <div className='flex justify-between items-center mt-6 pt-6 border-t border-border'>
+        {/* Botón Limpiar - Solo visible si hay filtros activos */}
+        {(selectedTipoDocumento ||
+          selectedReceptor ||
+          fechaEnvioDesde ||
+          fechaEnvioHasta ||
+          tieneObservaciones !== undefined ||
+          observacionesPendientes !== undefined ||
+          conRespuesta !== undefined ||
+          esReenvio !== undefined) && (
+          <Button
+            type='button'
+            variant='ghost'
+            onClick={handleClear}
+            disabled={loadingOptions}
+            className='text-gray-400 hover:text-white hover:bg-slate-700/50'
+          >
+            <X className='w-4 h-4 mr-2' />
+            Limpiar
+          </Button>
+        )}
+
         <Button
           type='button'
           onClick={handleApply}
           disabled={loadingOptions}
-          className='bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-primary-foreground px-8 py-3 rounded-xl shadow-lg disabled:opacity-50'
+          className='bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-primary-foreground px-8 py-3 rounded-xl shadow-lg disabled:opacity-50 ml-auto'
         >
           Aplicar filtros avanzados
         </Button>

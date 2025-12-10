@@ -36,7 +36,6 @@ export function useTramites(initialFilters?: ProcedureFilters): UseTramitesRetur
       setIsLoading(true);
       setError(null);
 
-      // ✅ Ahora getProcedures retorna PaginatedResponse
       const response: PaginatedResponse<Procedure> = await getProcedures(filters);
 
       setTramites(response.data);

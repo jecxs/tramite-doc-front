@@ -1,10 +1,10 @@
+// src/app/(dashboard)/trabajador/tramites/[id]/page.tsx
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { Loader2, AlertCircle } from 'lucide-react';
-
 
 import Button from '@/components/ui/Button';
 import DocumentViewer from '@/components/documents/DocumentViewer';
@@ -20,6 +20,8 @@ import RemitenteInfo from '@/components/trabajador/detalle-tramite/RemitenteInfo
 import FechasInfo from '@/components/trabajador/detalle-tramite/FechasInfo';
 import AccionesRapidas from '@/components/trabajador/detalle-tramite/AccionesRapidas';
 import SeccionRespuesta from '@/components/trabajador/detalle-tramite/SeccionRespuesta';
+import SeccionObservaciones from '@/components/trabajador/detalle-tramite/SeccionObservaciones';
+import TramiteObsoletoAlert from '@/components/trabajador/detalle-tramite/TramiteObsoletoAlert';
 
 import { Procedure } from '@/types';
 import { PROCEDURE_STATES } from '@/lib/constants';
@@ -39,6 +41,12 @@ export default function WorkerProcedureDetailPage() {
   const [isMarking, setIsMarking] = useState(false);
 
   const hasMarkedAsOpenedRef = useRef(false);
+
+  // Verificar si el trámite está obsoleto (tiene versiones más recientes)
+  const isObsoleto = useMemo(() => {
+    if (!procedure) return false;
+    return procedure.reenvios && procedure.reenvios.length > 0;
+  }, [procedure]);
 
   useEffect(() => {
     if (id) fetchProcedure();
@@ -60,7 +68,13 @@ export default function WorkerProcedureDetailPage() {
       setProcedure(data);
       await fetchDocumentUrl(data.id_documento);
 
-      if (data.estado === PROCEDURE_STATES.ENVIADO && !hasMarkedAsOpenedRef.current) {
+      // Solo marcar como abierto si NO es obsoleto
+      const tieneReenvios = data.reenvios && data.reenvios.length > 0;
+      if (
+        data.estado === PROCEDURE_STATES.ENVIADO &&
+        !hasMarkedAsOpenedRef.current &&
+        !tieneReenvios
+      ) {
         hasMarkedAsOpenedRef.current = true;
         await handleMarkAsOpened(data);
       }
@@ -96,6 +110,14 @@ export default function WorkerProcedureDetailPage() {
   const handleMarkAsRead = async () => {
     if (!procedure || procedure.estado !== PROCEDURE_STATES.ABIERTO) return;
 
+    // Bloquear si es obsoleto
+    if (isObsoleto) {
+      toast.error('Este documento ha sido actualizado', {
+        description: 'Por favor, revisa la versión más reciente.',
+      });
+      return;
+    }
+
     try {
       setIsMarking(true);
       const updated = await markProcedureAsRead(procedure.id_tramite);
@@ -110,7 +132,7 @@ export default function WorkerProcedureDetailPage() {
   };
 
   const handleReadThresholdReached = async () => {
-    if (procedure && procedure.estado === PROCEDURE_STATES.ABIERTO) {
+    if (procedure && procedure.estado === PROCEDURE_STATES.ABIERTO && !isObsoleto) {
       await handleMarkAsRead();
     }
   };
@@ -127,7 +149,11 @@ export default function WorkerProcedureDetailPage() {
         toast.success('Descargando documento...');
 
         const extension = procedure.documento.extension.toLowerCase();
-        if (!['.pdf'].includes(extension) && procedure.estado === PROCEDURE_STATES.ABIERTO) {
+        if (
+          !['.pdf'].includes(extension) &&
+          procedure.estado === PROCEDURE_STATES.ABIERTO &&
+          !isObsoleto
+        ) {
           setTimeout(() => handleMarkAsRead(), 1000);
         }
       }
@@ -142,6 +168,15 @@ export default function WorkerProcedureDetailPage() {
   const handleSolicitarCodigo = async () => {
     if (!procedure) {
       throw new Error('No se pudo obtener la información del trámite.');
+    }
+
+    // Bloquear si es obsoleto
+    if (isObsoleto) {
+      toast.error('Este documento ha sido actualizado', {
+        description: 'No puedes firmar una versión obsoleta. Revisa la versión más reciente.',
+        duration: 5000,
+      });
+      throw new Error('Trámite obsoleto');
     }
 
     try {
@@ -162,6 +197,14 @@ export default function WorkerProcedureDetailPage() {
 
   const handleVerificarYFirmar = async (codigo: string) => {
     if (!procedure) return;
+
+    // Bloquear si es obsoleto
+    if (isObsoleto) {
+      toast.error('Este documento ha sido actualizado', {
+        description: 'No puedes firmar una versión obsoleta.',
+      });
+      throw new Error('Trámite obsoleto');
+    }
 
     try {
       const result = await verificarYFirmar(procedure.id_tramite, {
@@ -257,7 +300,7 @@ export default function WorkerProcedureDetailPage() {
                   onReadThresholdReached={handleReadThresholdReached}
                   onDownload={handleDownload}
                   readThreshold={50}
-                  autoMarkAsRead={procedure.estado === PROCEDURE_STATES.ABIERTO}
+                  autoMarkAsRead={procedure.estado === PROCEDURE_STATES.ABIERTO && !isObsoleto}
                 />
               ) : (
                 <div className='bg-slate-900/50 border border-slate-700 rounded-xl p-12 text-center'>
@@ -269,40 +312,69 @@ export default function WorkerProcedureDetailPage() {
           ) : (
             <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
               <div className='lg:col-span-2 space-y-6'>
-                <EstadoActualCard
-                  procedure={procedure}
-                  onFirmarClick={() => setShowFirmaModal(true)}
-                />
+                {/* Alerta de Trámite Obsoleto - PRIORIDAD MÁXIMA */}
+                {isObsoleto && <TramiteObsoletoAlert procedure={procedure} />}
 
-                <DocumentoInfo
-                  procedure={procedure}
-                  onDownload={handleDownload}
-                  isDownloading={isDownloading}
-                />
+                {/* Solo mostrar el resto de contenido si NO es obsoleto */}
+                {!isObsoleto && (
+                  <>
+                    <EstadoActualCard
+                      procedure={procedure}
+                      onFirmarClick={() => setShowFirmaModal(true)}
+                    />
 
-                <SeccionRespuesta procedure={procedure} onUpdate={setProcedure} />
+                    <SeccionObservaciones procedure={procedure} />
+
+                    <DocumentoInfo
+                      procedure={procedure}
+                      onDownload={handleDownload}
+                      isDownloading={isDownloading}
+                    />
+
+                    <SeccionRespuesta procedure={procedure} onUpdate={setProcedure} />
+                  </>
+                )}
+
+                {/* Si es obsoleto, mostrar solo info básica */}
+                {isObsoleto && (
+                  <DocumentoInfo
+                    procedure={procedure}
+                    onDownload={handleDownload}
+                    isDownloading={isDownloading}
+                  />
+                )}
               </div>
 
               <div className='space-y-6'>
-                <RemitenteInfo remitente={procedure.remitente} />
-                <FechasInfo procedure={procedure} />
-                <AccionesRapidas
-                  procedure={procedure}
-                  onFirmarClick={() => setShowFirmaModal(true)}
+                <RemitenteInfo
+                  remitente={procedure.remitente}
+                  area={procedure.areaRemitente}
                 />
+                <FechasInfo procedure={procedure} />
+
+                {/* Solo mostrar acciones rápidas si NO es obsoleto */}
+                {!isObsoleto && (
+                  <AccionesRapidas
+                    procedure={procedure}
+                    onFirmarClick={() => setShowFirmaModal(true)}
+                  />
+                )}
               </div>
             </div>
           )}
         </div>
       </div>
 
-      <FirmaElectronicaModal
-        isOpen={showFirmaModal}
-        onClose={() => setShowFirmaModal(false)}
-        onConfirm={handleVerificarYFirmar}
-        onSolicitarCodigo={handleSolicitarCodigo}
-        procedure={procedure}
-      />
+      {/* Modal de firma - solo si NO es obsoleto */}
+      {!isObsoleto && (
+        <FirmaElectronicaModal
+          isOpen={showFirmaModal}
+          onClose={() => setShowFirmaModal(false)}
+          onConfirm={handleVerificarYFirmar}
+          onSolicitarCodigo={handleSolicitarCodigo}
+          procedure={procedure}
+        />
+      )}
     </>
   );
 }

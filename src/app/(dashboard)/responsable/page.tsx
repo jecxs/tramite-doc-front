@@ -487,7 +487,7 @@ export default function ResponsableDashboard() {
                             {formatearFechaHora(obs.fecha_creacion, "dd MMM yyyy")}
                           </p>
                         </div>
-                        <Link href={`/responsable/observaciones/${obs.id_observacion}`}>
+                        <Link href={`/responsable/observaciones/${obs.id_observacion}/responder`}>
                           <Button variant="ghost" size="sm">
                             Responder
                           </Button>

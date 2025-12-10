@@ -1,6 +1,7 @@
+// src/components/trabajador/detalle-tramite/DocumentoInfo.tsx
 'use client';
 
-import { Download, Loader2, PenTool, MessageSquare, RefreshCw, FileText } from 'lucide-react';
+import { Download, Loader2, PenTool, MessageSquare, RefreshCw, FileText, AlertCircle, CheckCircle } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { Procedure } from '@/types';
 
@@ -19,8 +20,10 @@ export default function DocumentoInfo({ procedure, onDownload, isDownloading }: 
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   };
 
+  // Buscar la observación resuelta más reciente (si existe)
+  const observacionResuelta = procedure.observaciones?.find(obs => obs.resuelta);
+
   return (
-    // Contenedor principal adaptable
     <div className='bg-card rounded-2xl p-6 shadow-sm border border-border dark:shadow-2xl dark:border-slate-700/50'>
       {/* Header */}
       <div className='flex items-center gap-3 mb-6'>
@@ -37,34 +40,117 @@ export default function DocumentoInfo({ procedure, onDownload, isDownloading }: 
           <p className='text-base text-foreground mt-2 leading-relaxed'>{procedure.asunto}</p>
         </div>
 
-        {/* Mensaje */}
-        {procedure.mensaje && (
+        {/* NUEVO: Sección de Reenvío Mejorada */}
+        {procedure.es_reenvio && (
           <div className='pt-5 border-t border-border dark:border-slate-700/50'>
-            <label className='text-xs font-medium text-muted-foreground uppercase tracking-wider'>Mensaje</label>
-            {procedure.es_reenvio ? (
-              // CAJA NARANJA DE REENVÍO: Adaptación dual
-              <div className='mt-3 p-4 bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-xl dark:from-orange-900/30 dark:to-orange-800/20 dark:border-orange-500/30'>
-                <div className='flex items-start gap-3'>
-                  <div className='bg-orange-200/50 p-2 rounded-lg flex-shrink-0 dark:bg-orange-500/20'>
-                    <RefreshCw className='w-4 h-4 text-orange-700 dark:text-orange-300' />
-                  </div>
-                  <div className='flex-1'>
-                    <p className='text-sm font-semibold text-orange-900 mb-2 dark:text-orange-200'>
-                      Documento Corregido - Versión {procedure.numero_version}
-                    </p>
-                    <p className='text-sm text-orange-800 leading-relaxed dark:text-slate-300'>{procedure.mensaje}</p>
-                    {procedure.motivo_reenvio && (
-                      <div className='mt-3 pt-3 border-t border-orange-200 dark:border-orange-500/20'>
-                        <p className='text-xs font-medium text-orange-700 mb-1 dark:text-orange-300'>Motivo de corrección:</p>
-                        <p className='text-xs text-orange-800/80 italic dark:text-slate-400'>{procedure.motivo_reenvio}</p>
-                      </div>
-                    )}
-                  </div>
+            <div className='bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/60 rounded-xl p-4 dark:from-amber-950/20 dark:to-orange-950/20 dark:border-amber-800/30'>
+              {/* Header de Reenvío */}
+              <div className='flex items-start gap-3 mb-3'>
+                <div className='bg-amber-100 p-2 rounded-lg flex-shrink-0 dark:bg-amber-900/30'>
+                  <RefreshCw className='w-4 h-4 text-amber-700 dark:text-amber-400' />
+                </div>
+                <div className='flex-1'>
+                  <h4 className='text-sm font-semibold text-amber-900 dark:text-amber-200'>
+                    Documento Corregido - Versión {procedure.numero_version}
+                  </h4>
+                  <p className='text-xs text-amber-700/80 mt-0.5 dark:text-amber-400/70'>
+                    Este documento reemplaza a una versión anterior
+                  </p>
                 </div>
               </div>
-            ) : (
-              <p className='text-sm text-foreground mt-2 whitespace-pre-wrap leading-relaxed dark:text-slate-300'>{procedure.mensaje}</p>
-            )}
+
+              {/* Mensaje de Reenvío */}
+              {procedure.mensaje && (
+                <div className='mb-3 p-3 bg-white/60 rounded-lg dark:bg-slate-800/40 border border-amber-100 dark:border-amber-900/30'>
+                  <p className='text-sm text-slate-700 leading-relaxed dark:text-slate-200'>
+                    {procedure.mensaje}
+                  </p>
+                </div>
+              )}
+
+              {/* Motivo de Corrección */}
+              {procedure.motivo_reenvio && (
+                <div className='mb-3 p-3 bg-white/60 rounded-lg border-l-3 border-l-amber-400 dark:bg-slate-800/40 dark:border-l-amber-600'>
+                  <p className='text-xs font-medium text-amber-800 mb-1 dark:text-amber-300'>
+                    Motivo de la corrección:
+                  </p>
+                  <p className='text-sm text-slate-700 dark:text-slate-200'>
+                    {procedure.motivo_reenvio}
+                  </p>
+                </div>
+              )}
+
+              {/* NUEVO: Información de Observación Resuelta */}
+              {observacionResuelta && (
+                <div className='space-y-2 mb-3'>
+                  {/* Tu Observación */}
+                  <div className='p-3 bg-white/70 rounded-lg dark:bg-slate-800/50 border border-amber-100 dark:border-amber-900/30'>
+                    <div className='flex items-start gap-2'>
+                      <AlertCircle className='w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5 dark:text-amber-400' />
+                      <div className='flex-1'>
+                        <p className='text-xs font-medium text-amber-800 mb-1 dark:text-amber-300'>
+                          Tu observación ({observacionResuelta.tipo}):
+                        </p>
+                        <p className='text-sm text-slate-700 dark:text-slate-200'>
+                          {observacionResuelta.descripcion}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Respuesta del Responsable */}
+                  {observacionResuelta.respuesta && (
+                    <div className='p-3 bg-white/70 rounded-lg dark:bg-slate-800/50 border border-emerald-100 dark:border-emerald-900/30'>
+                      <div className='flex items-start gap-2'>
+                        <CheckCircle className='w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5 dark:text-emerald-400' />
+                        <div className='flex-1'>
+                          <p className='text-xs font-medium text-emerald-800 mb-1 dark:text-emerald-300'>
+                            Respuesta del responsable:
+                          </p>
+                          <p className='text-sm text-slate-700 dark:text-slate-200'>
+                            {observacionResuelta.respuesta}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* NUEVO: Información del Documento Original - MINIMALISTA */}
+              {procedure.tramiteOriginal && (
+                <div className='pt-3 border-t border-amber-200/50 dark:border-amber-800/30'>
+                  <p className='text-xs font-medium text-amber-700 mb-2 dark:text-amber-400'>
+                    Documento original:
+                  </p>
+                  <div className='flex items-center gap-3 text-xs'>
+                    <div className='flex items-center gap-1.5'>
+                      <span className='text-amber-600 dark:text-amber-400'>Código:</span>
+                      <span className='font-mono text-slate-700 dark:text-slate-300'>
+                {procedure.tramiteOriginal.codigo}
+              </span>
+                    </div>
+                    <span className='text-amber-300 dark:text-amber-700'>•</span>
+                    <div className='flex items-center gap-1.5 flex-1 min-w-0'>
+                      <span className='text-amber-600 dark:text-amber-400'>Asunto:</span>
+                      <span className='text-slate-700 truncate dark:text-slate-300'>
+                {procedure.tramiteOriginal.asunto}
+              </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Mensaje Normal (cuando NO es reenvío) */}
+        {procedure.mensaje && !procedure.es_reenvio && (
+          <div className='pt-5 border-t border-border dark:border-slate-700/50'>
+            <label className='text-xs font-medium text-muted-foreground uppercase tracking-wider'>Mensaje</label>
+            <p className='text-sm text-foreground mt-2 whitespace-pre-wrap leading-relaxed dark:text-slate-300'>
+              {procedure.mensaje}
+            </p>
           </div>
         )}
 
@@ -94,7 +180,6 @@ export default function DocumentoInfo({ procedure, onDownload, isDownloading }: 
             Detalles del Archivo
           </label>
           <div className='grid grid-cols-3 gap-4'>
-            {/* Cajas de detalles usando bg-muted */}
             <div className='bg-muted rounded-lg p-3 dark:bg-slate-800/50'>
               <p className='text-xs text-muted-foreground mb-1'>Archivo</p>
               <p className='text-sm text-foreground font-medium truncate'>
@@ -124,7 +209,6 @@ export default function DocumentoInfo({ procedure, onDownload, isDownloading }: 
             <Button
               onClick={onDownload}
               disabled={isDownloading}
-              // Botón adaptable: Borde y texto oscuro en claro, fondo semi-transparente en oscuro
               className='border border-border bg-background hover:bg-muted text-foreground dark:bg-slate-700/50 dark:hover:bg-slate-600/50 dark:text-white dark:border-slate-600/50 transition-colors'
             >
               {isDownloading ? (
@@ -135,7 +219,6 @@ export default function DocumentoInfo({ procedure, onDownload, isDownloading }: 
               Descargar Documento
             </Button>
 
-            {/* Badges adaptables */}
             {procedure.requiere_firma && (
               <span className='inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/30'>
                 <PenTool className='w-3 h-3 mr-1.5' />
