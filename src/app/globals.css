@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 @variant dark (&:where(.dark, .dark *));
-/* Variables personalizadas usando @theme */
+
 @theme {
-  /* Light Theme - Colores más suaves y elegantes */
-  --color-background: #f2fbff;
+  /* Light Theme - Colores mejorados con más profundidad */
+  --color-background: #f8fafc;
   --color-foreground: #0f172a;
-  --color-card: #fafafa;
+  --color-card: #ffffff;
   --color-card-foreground: #1e293b;
   --color-popover: #ffffff;
   --color-popover-foreground: #0f172a;
@@ -15,13 +15,13 @@
   --color-secondary: #f1f5f9;
   --color-secondary-foreground: #1e293b;
   --color-muted: #f1f5f9;
-  --color-muted-foreground: #617086;
+  --color-muted-foreground: #64748b;
   --color-accent: #e0f2fe;
   --color-accent-foreground: #0c4a6e;
   --color-destructive: #ef4444;
   --color-destructive-foreground: #ffffff;
   --color-border: #e2e8f0;
-  --color-input: #e2e8f0;
+  --color-input: #f8fafc;
   --color-ring: #267992;
   --color-chart-1: #267992;
   --color-chart-2: #122547;
@@ -29,10 +29,18 @@
   --color-chart-4: #f59e0b;
   --color-chart-5: #ef4444;
 
+  /* Nuevas variables para modo claro */
+  --color-card-shadow: rgba(15, 23, 42, 0.08);
+  --color-card-shadow-hover: rgba(15, 23, 42, 0.12);
+  --color-table-header-bg: #f8fafc;
+  --color-table-row-hover: #f1f5f9;
+  --color-stat-card-bg: #ffffff;
+  --color-stat-card-border: #e2e8f0;
+
   /* Radius */
   --radius-sm: 0.5rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
 
   /* Navbar backgrounds */
   --navbar-bg: rgba(255, 255, 255, 0.7);
@@ -56,7 +64,7 @@
   --color-accent-foreground: #fafafa;
   --color-destructive: #7f1d1d;
   --color-destructive-foreground: #fafafa;
-  --color-border: #3a4149;  /* ← Borde más visible */
+  --color-border: #3a4149;
   --color-input: #2a3139;
   --color-ring: #d4d4d8;
   --color-chart-1: #267992;
@@ -64,6 +72,14 @@
   --color-chart-3: #10b981;
   --color-chart-4: #f59e0b;
   --color-chart-5: #ef4444;
+
+  /* Variables específicas dark mode */
+  --color-card-shadow: rgba(0, 0, 0, 0.3);
+  --color-card-shadow-hover: rgba(0, 0, 0, 0.4);
+  --color-table-header-bg: #1e242b;
+  --color-table-row-hover: rgba(255, 255, 255, 0.05);
+  --color-stat-card-bg: #272d34;
+  --color-stat-card-border: #3a4149;
 
   /* Navbar backgrounds para dark */
   --navbar-bg: rgba(39, 45, 52, 0.4);
@@ -77,123 +93,165 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Gradientes para tema claro */
-.bg-gradient-light {
-  background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #f8fafc 100%);
-}
-
-.dark .bg-gradient-light {
-  background: linear-gradient(135deg, rgba(10, 10, 11, 0) 0%, rgba(18, 37, 71, 0) 50%, rgba(10, 10, 11, 0) 100%);
-}
-
-/* Cards con efecto sutil en tema claro */
+/* Cards mejorados para modo claro */
 .card-light-shadow {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px var(--color-card-shadow),
+  0 1px 2px var(--color-card-shadow);
   border: 1px solid var(--color-border);
+  background-color: var(--color-card);
 }
 
-.dark .card-light-shadow {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.26);
-  border: 1px solid var(--color-border);
-}
-
-/* Hover effects que funcionen en ambos temas */
+/* Hover effects mejorados */
 .card-hover-effect {
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card-hover-effect:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(38, 121, 146, 0.1);
+  box-shadow: 0 8px 16px var(--color-card-shadow-hover),
+  0 4px 8px var(--color-card-shadow);
 }
 
-.dark .card-hover-effect:hover {
-  box-shadow: 0 10px 25px rgba(38, 121, 146, 0.2);
+/* Tabla con mejor diseño en modo claro */
+.table-light-theme {
+  background-color: var(--color-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 1px 3px var(--color-card-shadow);
 }
 
-/* Estilos para gráficos que se adapten a ambos temas */
-.recharts-wrapper {
+.table-light-theme thead {
+  background-color: var(--color-table-header-bg);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.table-light-theme tbody tr {
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color 0.2s ease;
+}
+
+.table-light-theme tbody tr:hover {
+  background-color: var(--color-table-row-hover);
+}
+
+/* Stat cards mejoradas */
+.stat-card-light {
+  background: linear-gradient(135deg,
+  var(--color-stat-card-bg) 0%,
+  rgba(248, 250, 252, 0.5) 100%);
+  border: 1px solid var(--color-stat-card-border);
+  box-shadow: 0 2px 8px var(--color-card-shadow);
+}
+
+.dark .stat-card-light {
+  background: linear-gradient(135deg,
+  var(--color-stat-card-bg) 0%,
+  rgba(39, 45, 52, 0.8) 100%);
+}
+
+/* Badges mejorados */
+.badge-light {
+  background-color: var(--color-secondary);
+  color: var(--color-secondary-foreground);
+  border: 1px solid var(--color-border);
+  font-weight: 600;
+}
+
+/* Iconos con más color en modo claro */
+.icon-purple-light {
+  color: #9333ea;
+}
+
+.icon-yellow-light {
+  color: #eab308;
+}
+
+.icon-green-light {
+  color: #16a34a;
+}
+
+.icon-orange-light {
+  color: #ea580c;
+}
+
+.dark .icon-purple-light,
+.dark .icon-yellow-light,
+.dark .icon-green-light,
+.dark .icon-orange-light {
+  opacity: 1;
+}
+
+/* Inputs mejorados */
+input, textarea, select {
+  background-color: var(--color-input);
+  border: 1.5px solid var(--color-border);
   color: var(--color-foreground);
+  transition: all 0.2s ease;
 }
 
-.recharts-cartesian-grid line {
-  stroke: var(--color-border);
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--color-ring);
+  box-shadow: 0 0 0 3px rgba(38, 121, 146, 0.1);
 }
 
-.recharts-text {
-  fill: var(--color-muted-foreground);
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  box-shadow: 0 0 0 3px rgba(38, 121, 146, 0.2);
 }
 
-/* Scrollbar personalizado */
+/* Botones mejorados */
+button:not(.no-theme-button) {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:not(.no-theme-button):hover {
+  transform: translateY(-1px);
+}
+
+/* Scrollbar mejorado */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
   background: var(--color-muted);
+  border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--color-muted-foreground);
-  border-radius: 4px;
+  border-radius: 5px;
+  border: 2px solid var(--color-muted);
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary);
 }
 
-/* Animaciones suaves para transiciones de tema */
-* {
-  transition-property: background-color, border-color, color, fill, stroke;
-  transition-duration: 0.2s;
-  transition-timing-function: ease-in-out;
-}
-
-/* Excluir elementos que no deben tener transición */
-.no-transition,
-.no-transition * {
-  transition: none !important;
-}
-
-/* Estilos personalizados */
-.text-balance {
-  text-wrap: balance;
-}
-
-/* Mejoras para inputs en tema claro */
-input, textarea, select {
-  background-color: var(--color-input);
-  border: 1px solid var(--color-border);
-  color: var(--color-foreground);
-}
-
-input:focus, textarea:focus, select:focus {
-  outline: 2px solid var(--color-ring);
-  outline-offset: 2px;
-  border-color: var(--color-ring);
-}
-
-/* Badges y estados */
-.badge {
-  background-color: var(--color-muted);
-  color: var(--color-muted-foreground);
+/* Código color badge - versión más visible */
+.codigo-badge-light {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  border: 1px solid #cbd5e1;
   padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.875rem;
-  font-weight: 500;
+  border-radius: 0.5rem;
+  font-weight: 600;
 }
 
-/* Botones con mejor contraste en tema claro */
-button:not(.no-theme-button) {
-  transition: all 0.2s ease;
+.dark .codigo-badge-light {
+  background: linear-gradient(135deg, #1e242b 0%, #2a3139 100%);
+  border: 1px solid #3a4149;
 }
 
-button:not(.no-theme-button):hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(38, 121, 146, 0.15);
+/* Avatar mejorado */
+.avatar-light {
+  background: linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 100%);
+  border: 2px solid #c7d2fe;
 }
 
-.dark button:not(.no-theme-button):hover {
-  box-shadow: 0 4px 12px rgba(38, 121, 146, 0.3);
+.dark .avatar-light {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.3) 0%, rgba(79, 70, 229, 0.3) 100%);
+  border: 2px solid rgba(124, 58, 237, 0.3);
 }
