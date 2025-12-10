@@ -20,6 +20,8 @@ import InformacionPersona from '@/components/tramites/detalle/InformacionPersona
 import FechasImportantes from '@/components/tramites/detalle/FechasImportantes';
 import FirmaElectronicaInfo from '@/components/firma/FirmaElectronicaInfo';
 import VisualizarRespuesta from '@/components/respuesta/VisualizarRespuesta';
+import InformacionReenvio from "@/components/tramites/detalle/InformacionReenvio";
+import VersionesDocumento from "@/components/tramites/detalle/VersionesDocumento";
 
 export default function ProcedureDetailPage() {
   const router = useRouter();
@@ -195,6 +197,12 @@ export default function ProcedureDetailPage() {
                 }}
               />
             </div>
+
+            {/* Información de Reenvío */}
+            <InformacionReenvio procedure={procedure} />
+
+            {/* Versiones del Documento */}
+            <VersionesDocumento procedure={procedure} />
           </div>
         </div>
       </div>

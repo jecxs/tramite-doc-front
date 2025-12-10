@@ -1,7 +1,7 @@
 // src/components/trabajador/detalle-tramite/DocumentoInfo.tsx
 'use client';
 
-import { Download, Loader2, PenTool, MessageSquare, RefreshCw, FileText, AlertCircle, CheckCircle } from 'lucide-react';
+import { Download, Loader2, PenTool, MessageSquare, RefreshCw, FileText, AlertCircle, CheckCircle, History } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { Procedure } from '@/types';
 
@@ -40,103 +40,64 @@ export default function DocumentoInfo({ procedure, onDownload, isDownloading }: 
           <p className='text-base text-foreground mt-2 leading-relaxed'>{procedure.asunto}</p>
         </div>
 
-        {/* NUEVO: Sección de Reenvío Mejorada */}
+        {/* SECCIÓN DE REENVÍO - VERSIÓN MINIMALISTA */}
         {procedure.es_reenvio && (
-          <div className='pt-5 border-t border-border dark:border-slate-700/50'>
-            <div className='bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/60 rounded-xl p-4 dark:from-amber-950/20 dark:to-orange-950/20 dark:border-amber-800/30'>
-              {/* Header de Reenvío */}
-              <div className='flex items-start gap-3 mb-3'>
-                <div className='bg-amber-100 p-2 rounded-lg flex-shrink-0 dark:bg-amber-900/30'>
-                  <RefreshCw className='w-4 h-4 text-amber-700 dark:text-amber-400' />
-                </div>
-                <div className='flex-1'>
-                  <h4 className='text-sm font-semibold text-amber-900 dark:text-amber-200'>
-                    Documento Corregido - Versión {procedure.numero_version}
-                  </h4>
-                  <p className='text-xs text-amber-700/80 mt-0.5 dark:text-amber-400/70'>
-                    Este documento reemplaza a una versión anterior
-                  </p>
-                </div>
+          <div className='mt-4 p-4 bg-amber-50/50 dark:bg-amber-950/20 rounded-xl border border-amber-200/40 dark:border-amber-800/30'>
+            {/* Header compacto */}
+            <div className='flex items-center gap-2 mb-3'>
+              <div className='flex items-center gap-2 flex-1'>
+                <RefreshCw className='w-4 h-4 text-amber-600 dark:text-amber-400' />
+                <span className='text-sm font-semibold text-amber-900 dark:text-amber-200'>
+          Documento Actualizado
+        </span>
+                <span className='text-xs px-1.5 py-0.5 rounded bg-amber-500 text-white font-medium'>
+          v{procedure.numero_version}
+        </span>
               </div>
+            </div>
 
-              {/* Mensaje de Reenvío */}
+            {/* Stack compacto de información */}
+            <div className='space-y-2 text-sm'>
+              {/* Mensaje del responsable */}
               {procedure.mensaje && (
-                <div className='mb-3 p-3 bg-white/60 rounded-lg dark:bg-slate-800/40 border border-amber-100 dark:border-amber-900/30'>
-                  <p className='text-sm text-slate-700 leading-relaxed dark:text-slate-200'>
-                    {procedure.mensaje}
-                  </p>
-                </div>
+                <p className='text-slate-700 dark:text-slate-300'>
+                  {procedure.mensaje}
+                </p>
               )}
 
-              {/* Motivo de Corrección */}
+              {/* Motivo (si existe) */}
               {procedure.motivo_reenvio && (
-                <div className='mb-3 p-3 bg-white/60 rounded-lg border-l-3 border-l-amber-400 dark:bg-slate-800/40 dark:border-l-amber-600'>
-                  <p className='text-xs font-medium text-amber-800 mb-1 dark:text-amber-300'>
-                    Motivo de la corrección:
-                  </p>
-                  <p className='text-sm text-slate-700 dark:text-slate-200'>
-                    {procedure.motivo_reenvio}
-                  </p>
+                <div className='flex gap-2 text-xs'>
+                  <span className='text-amber-700 dark:text-amber-400 font-medium'>Motivo:</span>
+                  <span className='text-slate-600 dark:text-slate-400'>{procedure.motivo_reenvio}</span>
                 </div>
               )}
 
-              {/* NUEVO: Información de Observación Resuelta */}
+              {/* Observación resuelta (compacta) */}
               {observacionResuelta && (
-                <div className='space-y-2 mb-3'>
-                  {/* Tu Observación */}
-                  <div className='p-3 bg-white/70 rounded-lg dark:bg-slate-800/50 border border-amber-100 dark:border-amber-900/30'>
-                    <div className='flex items-start gap-2'>
-                      <AlertCircle className='w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5 dark:text-amber-400' />
-                      <div className='flex-1'>
-                        <p className='text-xs font-medium text-amber-800 mb-1 dark:text-amber-300'>
-                          Tu observación ({observacionResuelta.tipo}):
-                        </p>
-                        <p className='text-sm text-slate-700 dark:text-slate-200'>
-                          {observacionResuelta.descripcion}
-                        </p>
-                      </div>
-                    </div>
+                <div className='pt-2 border-t border-amber-200/40 dark:border-amber-800/30 space-y-1.5'>
+                  <div className='flex gap-2 text-xs'>
+                    <span className='text-amber-700 dark:text-amber-400 font-medium'>Tu observación:</span>
+                    <span className='text-slate-600 dark:text-slate-400'>{observacionResuelta.descripcion}</span>
                   </div>
-
-                  {/* Respuesta del Responsable */}
                   {observacionResuelta.respuesta && (
-                    <div className='p-3 bg-white/70 rounded-lg dark:bg-slate-800/50 border border-emerald-100 dark:border-emerald-900/30'>
-                      <div className='flex items-start gap-2'>
-                        <CheckCircle className='w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5 dark:text-emerald-400' />
-                        <div className='flex-1'>
-                          <p className='text-xs font-medium text-emerald-800 mb-1 dark:text-emerald-300'>
-                            Respuesta del responsable:
-                          </p>
-                          <p className='text-sm text-slate-700 dark:text-slate-200'>
-                            {observacionResuelta.respuesta}
-                          </p>
-                        </div>
-                      </div>
+                    <div className='flex gap-2 text-xs'>
+                      <span className='text-emerald-700 dark:text-emerald-400 font-medium'>Respuesta:</span>
+                      <span className='text-slate-600 dark:text-slate-400'>{observacionResuelta.respuesta}</span>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* NUEVO: Información del Documento Original - MINIMALISTA */}
+              {/* Info del original (inline compacto) */}
               {procedure.tramiteOriginal && (
-                <div className='pt-3 border-t border-amber-200/50 dark:border-amber-800/30'>
-                  <p className='text-xs font-medium text-amber-700 mb-2 dark:text-amber-400'>
-                    Documento original:
-                  </p>
-                  <div className='flex items-center gap-3 text-xs'>
-                    <div className='flex items-center gap-1.5'>
-                      <span className='text-amber-600 dark:text-amber-400'>Código:</span>
-                      <span className='font-mono text-slate-700 dark:text-slate-300'>
-                {procedure.tramiteOriginal.codigo}
-              </span>
-                    </div>
-                    <span className='text-amber-300 dark:text-amber-700'>•</span>
-                    <div className='flex items-center gap-1.5 flex-1 min-w-0'>
-                      <span className='text-amber-600 dark:text-amber-400'>Asunto:</span>
-                      <span className='text-slate-700 truncate dark:text-slate-300'>
-                {procedure.tramiteOriginal.asunto}
-              </span>
-                    </div>
+                <div className='pt-2 border-t border-amber-200/40 dark:border-amber-800/30'>
+                  <div className='flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400'>
+                    <span>Reemplaza a:</span>
+                    <span className='font-mono text-amber-700 dark:text-amber-400'>
+              {procedure.tramiteOriginal.codigo}
+                    </span>
+                    <span>{procedure.tramiteOriginal.asunto}</span>
                   </div>
                 </div>
               )}
