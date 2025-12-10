@@ -6,6 +6,9 @@ import { Toaster } from 'sonner';
 export const metadata: Metadata = {
   title: 'Sistema de Gestión Documental',
   description: 'Sistema universitario para gestión y entrega de documentos',
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({
