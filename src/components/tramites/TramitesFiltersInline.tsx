@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Search, ChevronDown, ChevronUp, X } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { ProcedureFilters } from '@/types';
-import { PROCEDURE_STATE_LABELS } from '@/lib/constants';
+import { PROCEDURE_STATE_LABELS, PROCEDURE_STATES } from '@/lib/constants';
 
 interface TramitesFiltersInlineProps {
   onApplyFilters: (filters: ProcedureFilters) => void;
@@ -15,23 +15,37 @@ interface TramitesFiltersInlineProps {
 }
 
 export default function TramitesFiltersInline({
-                                                onApplyFilters,
-                                                onClearFilters,
-                                                currentFilters = {},
-                                                showAdvanced,
-                                                onToggleAdvanced,
-                                              }: TramitesFiltersInlineProps) {
+  onApplyFilters,
+  onClearFilters,
+  currentFilters = {},
+  showAdvanced,
+  onToggleAdvanced,
+}: TramitesFiltersInlineProps) {
   const [search, setSearch] = useState(currentFilters.search || '');
   const [selectedEstado, setSelectedEstado] = useState<string>(currentFilters.estado || '');
   const [requiereFirma, setRequiereFirma] = useState<boolean | undefined>(
     currentFilters.requiere_firma,
   );
 
+  // Debounce para búsqueda externa (no depende de Enter ni del panel)
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const filters: ProcedureFilters = {};
+
+      filters.search = search.trim() ? search.trim() : undefined;
+
+      onApplyFilters(filters);
+    }, 400);
+
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
   const handleApply = () => {
     const filters: ProcedureFilters = {};
 
-    if (search.trim()) filters.search = search.trim();
-    if (selectedEstado) filters.estado = selectedEstado as any;
+    filters.search = search.trim() ? search.trim() : undefined;
+    if (selectedEstado) filters.estado = selectedEstado as PROCEDURE_STATES;
     if (requiereFirma !== undefined) filters.requiere_firma = requiereFirma;
 
     onApplyFilters(filters);
@@ -45,11 +59,11 @@ export default function TramitesFiltersInline({
     if (onClearFilters) {
       onClearFilters();
     } else {
-      onApplyFilters({});
+      onApplyFilters({ search: undefined });
     }
   };
 
-  const hasActiveFilters = search || selectedEstado || requiereFirma !== undefined;
+  const hasActiveFilters = selectedEstado || requiereFirma !== undefined;
 
   return (
     <div className='space-y-4'>
@@ -66,7 +80,6 @@ export default function TramitesFiltersInline({
                 placeholder='Código o asunto del trámite...'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleApply()}
                 className='w-full pl-12 pr-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white placeholder-gray-400  focus:border-transparent transition-all'
               />
             </div>
@@ -156,20 +169,6 @@ export default function TramitesFiltersInline({
         <div className='flex items-center gap-3 text-sm'>
           <span className='font-medium text-gray-300'>Filtros activos:</span>
           <div className='flex flex-wrap gap-2'>
-            {search && (
-              <span className='inline-flex items-center gap-2 px-3 py-1.5 bg-purple-900/30 text-purple-300 rounded-lg border border-purple-700/50'>
-                Búsqueda: &ldquo;{search}&rdquo;
-                <button
-                  onClick={() => {
-                    setSearch('');
-                    handleApply();
-                  }}
-                  className='hover:text-purple-100 transition-colors'
-                >
-                  <X className='w-3 h-3' />
-                </button>
-              </span>
-            )}
             {selectedEstado && (
               <span className='inline-flex items-center gap-2 px-3 py-1.5 bg-blue-900/30 text-foreground-300 rounded-lg border border-blue-700/50'>
                 Estado:{' '}

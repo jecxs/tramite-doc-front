@@ -2,11 +2,10 @@
 
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
-import { THEME } from '@/lib/constants';
 import { motion } from 'framer-motion';
 
 export function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
+  const { toggleTheme } = useTheme();
 
   return (
     <motion.button
@@ -17,30 +16,12 @@ export function ThemeToggle() {
       aria-label='Cambiar tema'
     >
       <div className='relative w-5 h-5'>
-        <motion.div
-          initial={false}
-          animate={{
-            scale: theme === THEME.DARK ? 1 : 0,
-            rotate: theme === THEME.DARK ? 0 : 180,
-            opacity: theme === THEME.DARK ? 1 : 0,
-          }}
-          transition={{ duration: 0.2 }}
-          className='absolute inset-0'
-        >
-          <Moon className='w-5 h-5 text-slate-300' />
-        </motion.div>
-        <motion.div
-          initial={false}
-          animate={{
-            scale: theme === THEME.LIGHT ? 1 : 0,
-            rotate: theme === THEME.LIGHT ? 0 : -180,
-            opacity: theme === THEME.LIGHT ? 1 : 0,
-          }}
-          transition={{ duration: 0.2 }}
-          className='absolute inset-0'
-        >
+        <div className='absolute inset-0 transition-all duration-200 opacity-100 scale-100 rotate-0 dark:opacity-0 dark:scale-0 dark:rotate-180'>
           <Sun className='w-5 h-5 text-amber-500' />
-        </motion.div>
+        </div>
+        <div className='absolute inset-0 transition-all duration-200 opacity-0 scale-0 rotate-180 dark:opacity-100 dark:scale-100 dark:rotate-0'>
+          <Moon className='w-5 h-5 text-slate-300' />
+        </div>
       </div>
     </motion.button>
   );

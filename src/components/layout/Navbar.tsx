@@ -331,7 +331,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                 {/* Center - Search bar */}
                 <div className='hidden md:flex flex-1 max-w-md mx-8'>
                   <div className='relative w-full group'>
-                    {/* <Search className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-white/30 group-hover:text-gray-700 dark:group-hover:text-white/50 transition-colors' />
+                    <Search className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-white/30 group-hover:text-gray-700 dark:group-hover:text-white/50 transition-colors' />
                     <input
                       type='text'
                       placeholder='Buscar trámites, documentos...'
@@ -340,7 +340,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                         focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 focus:bg-white
                         dark:bg-white/5 dark:border-white/10 dark:text-white dark:placeholder-white/30
                         dark:focus:ring-purple-500/50 dark:focus:border-transparent dark:focus:bg-white/[0.07]'
-                    /> */}
+                    />
                   </div>
                 </div>
 

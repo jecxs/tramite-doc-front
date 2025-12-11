@@ -57,7 +57,9 @@ export default function TramitesFilters({
   );
 
   // Ordenamiento
-  const [ordenarPor, setOrdenarPor] = useState<string>(currentFilters.ordenar_por || 'fecha_envio');
+  const [ordenarPor, setOrdenarPor] = useState<ProcedureFilters['ordenar_por']>(
+    currentFilters.ordenar_por || 'fecha_envio',
+  );
   const [orden, setOrden] = useState<'asc' | 'desc'>(currentFilters.orden || 'desc');
 
   // Datos para selects
@@ -90,13 +92,25 @@ export default function TramitesFilters({
     }
   };
 
+  // Debounce para búsqueda externa (no cierra panel ni depende de Enter)
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const filters: ProcedureFilters = {};
+
+      filters.search = search.trim() ? search.trim() : undefined;
+
+      onApplyFilters(filters);
+    }, 400);
+
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
   const handleApply = () => {
     const filters: ProcedureFilters = {};
 
     // Búsqueda
-    if (search.trim()) {
-      filters.search = search.trim();
-    }
+    filters.search = search.trim() ? search.trim() : undefined;
 
     // Filtros básicos
     if (selectedEstado) {
@@ -141,7 +155,7 @@ export default function TramitesFilters({
     }
 
     // Ordenamiento
-    filters.ordenar_por = ordenarPor as any;
+    filters.ordenar_por = ordenarPor;
     filters.orden = orden;
 
     onApplyFilters(filters);
@@ -166,13 +180,12 @@ export default function TramitesFilters({
     if (onClearFilters) {
       onClearFilters();
     } else {
-      onApplyFilters({});
+      onApplyFilters({ search: undefined });
     }
     setIsOpen(false);
   };
 
   const hasActiveFilters =
-    search ||
     selectedEstado ||
     requiereFirma !== undefined ||
     esReenvio !== undefined ||
@@ -185,7 +198,6 @@ export default function TramitesFilters({
     conRespuesta !== undefined;
 
   const activeFiltersCount = [
-    search,
     selectedEstado,
     requiereFirma !== undefined,
     esReenvio !== undefined,
@@ -208,7 +220,6 @@ export default function TramitesFilters({
             placeholder='Buscar por código o asunto...'
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleApply()}
             className='w-full pl-10 pr-4 py-2.5 bg-input border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary'
           />
         </div>
@@ -484,7 +495,9 @@ export default function TramitesFilters({
                     <div className='grid grid-cols-2 gap-2'>
                       <select
                         value={ordenarPor}
-                        onChange={(e) => setOrdenarPor(e.target.value)}
+                        onChange={(e) =>
+                          setOrdenarPor(e.target.value as ProcedureFilters['ordenar_por'])
+                        }
                         className='px-3 py-2 bg-input border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm text-foreground'
                       >
                         <option value='fecha_envio'>Fecha envío</option>
