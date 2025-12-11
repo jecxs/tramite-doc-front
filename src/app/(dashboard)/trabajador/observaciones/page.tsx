@@ -74,8 +74,8 @@ const CompactStatCard = ({
           <Icon className={`w-6 h-6 ${colors.text}`} />
         </div>
         <div>
-          <p className='text-gray-400 text-sm'>{label}</p>
-          <p className='text-white text-2xl font-bold'>{value}</p>
+          <p className='text-muted-foreground text-sm'>{label}</p>
+          <p className='text-foreground text-2xl font-bold'>{value}</p>
         </div>
       </div>
     </FloatingCard>
@@ -282,7 +282,7 @@ export default function TrabajadorObservacionesPage() {
                     </div>
                     <Link
                       href={`/trabajador/tramites/${observacion.id_tramite}`}
-                      className='text-sm font-medium text-blue-600 dark:text-blue-400 hover:opacity-80 hover:underline flex items-center gap-1'
+                      className='text-sm font-medium text-primary hover:opacity-80 hover:underline flex items-center gap-1'
                     >
                       <FileText className='w-4 h-4' />
                       {observacion.tramite?.codigo || 'N/A'} - {observacion.tramite?.asunto}

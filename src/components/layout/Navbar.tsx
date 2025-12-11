@@ -464,7 +464,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                                 </div>
                               </Link>
 
-                              <Link
+                              {/* <Link
                                 href='/configuracion'
                                 onClick={() => setShowUserMenu(false)}
                                 className='flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
@@ -485,7 +485,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                                     Ajustes del sistema
                                   </p>
                                 </div>
-                              </Link>
+                              </Link> */}
 
                               <ThemeToggle />
                               <div className='my-2 h-px bg-gray-200 dark:bg-white/10'></div>
