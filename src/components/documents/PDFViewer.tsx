@@ -1,20 +1,21 @@
 // src/components/documents/PDFViewer.tsx
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Document, Page, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/Page/TextLayer.css';
+import Loading from '@/components/ui/Loading';
+import apiClient from '@/lib/api-client';
 import {
-  Loader2,
+  AlertCircle,
+  CheckCircle,
   ChevronLeft,
   ChevronRight,
   Download,
-  AlertCircle,
-  CheckCircle,
+  Loader2,
 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
 import { toast } from 'sonner';
-import apiClient from '@/lib/api-client';
 
 // Configurar worker de PDF.js
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -181,12 +182,7 @@ export default function PDFViewer({
   };
 
   if (loading) {
-    return (
-      <div className='flex flex-col items-center justify-center h-96'>
-        <Loader2 className='w-8 h-8 animate-spin text-blue-600 mx-auto mb-4' />
-        <p className='text-gray-600'>Cargando documento PDF...</p>
-      </div>
-    );
+    return <Loading label='Cargando documento PDF...' height='h-96' />;
   }
 
   if (error) {
@@ -312,10 +308,7 @@ export default function PDFViewer({
               onLoadSuccess={onDocumentLoadSuccess}
               onLoadError={onDocumentLoadError}
               loading={
-                <div className='flex items-center justify-center p-8'>
-                  <Loader2 className='w-6 h-6 animate-spin text-blue-600' />
-                  <span className='ml-2 text-gray-600'>Cargando PDF...</span>
-                </div>
+                <Loading label='Cargando PDF...' className='p-8' height='h-auto' noBackground />
               }
               error={
                 <div className='text-center p-8'>
@@ -330,11 +323,7 @@ export default function PDFViewer({
                 renderTextLayer={true}
                 renderAnnotationLayer={true}
                 className='shadow-lg'
-                loading={
-                  <div className='flex items-center justify-center p-8 bg-white'>
-                    <Loader2 className='w-6 h-6 animate-spin text-blue-600' />
-                  </div>
-                }
+                loading={<Loading label='' className='p-8 bg-card' height='h-auto' />}
               />
             </Document>
           )}

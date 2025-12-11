@@ -1,16 +1,16 @@
 // src/lib/utils/pdf-export-stats.ts
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-import autoTable from 'jspdf-autotable';
+import { formatearFechaSinZonaHoraria } from '@/lib/date-utils';
 import {
   EstadisticasGenerales,
   EstadisticasPorPeriodo,
   EstadisticasPorTrabajador,
-  TiemposRespuesta,
   EstadisticasTiposDocumentos,
   RankingEficiencia,
+  TiemposRespuesta,
 } from '@/types';
-import { formatearFechaSinZonaHoraria } from '@/lib/date-utils';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface DatosParaPDF {
   generales: EstadisticasGenerales | null;
@@ -307,12 +307,14 @@ export const exportarEstadisticasAPDF = async (datos: DatosParaPDF): Promise<voi
     pdf.text('Trabajadores con mayor tasa de trámites completados', margin, yPosition);
     yPosition += 10;
 
-    const tableData = datos.ranking.top_completado.slice(0, 5).map((t, index) => [
-      `${index + 1}°`,
-      t.nombre_completo,
-      `${t.completados}/${t.total_recibidos}`,
-      `${t.porcentaje_completado.toFixed(1)}%`,
-    ]);
+    const tableData = datos.ranking.top_completado
+      .slice(0, 5)
+      .map((t, index) => [
+        `${index + 1}°`,
+        t.nombre_completo,
+        `${t.completados}/${t.total_recibidos}`,
+        `${t.porcentaje_completado.toFixed(1)}%`,
+      ]);
 
     autoTable(pdf, {
       startY: yPosition,
@@ -349,11 +351,13 @@ export const exportarEstadisticasAPDF = async (datos: DatosParaPDF): Promise<voi
     pdf.text('Trabajadores con menor tiempo promedio de respuesta', margin, yPosition);
     yPosition += 10;
 
-    const tableData2 = datos.ranking.top_velocidad.slice(0, 5).map((t, index) => [
-      `${index + 1}°`,
-      t.nombre_completo,
-      `${t.promedio_tiempo_respuesta_horas.toFixed(1)}h`,
-    ]);
+    const tableData2 = datos.ranking.top_velocidad
+      .slice(0, 5)
+      .map((t, index) => [
+        `${index + 1}°`,
+        t.nombre_completo,
+        `${t.promedio_tiempo_respuesta_horas.toFixed(1)}h`,
+      ]);
 
     autoTable(pdf, {
       startY: yPosition,

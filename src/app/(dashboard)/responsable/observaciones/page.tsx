@@ -1,26 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import Loading from '@/components/ui/Loading';
+import { getPendingObservations } from '@/lib/api/observaciones';
+import { Observation } from '@/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
-  MessageSquare,
+  AlertCircle,
   CheckCircle,
   Clock,
   FileText,
-  User,
-  Send,
-  Loader2,
+  MessageSquare,
   RefreshCw,
   Search,
-  AlertCircle,
+  Send,
+  User,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
-import { getPendingObservations } from '@/lib/api/observaciones';
-import { Observation } from '@/types';
-import { toast } from 'sonner';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface ObservationWithTramite extends Observation {
   tramite?: {
@@ -75,9 +73,9 @@ export default function ResponsableObservacionesPage() {
   };
 
   const getTipoIcon = (tipo: string) => {
-    if (tipo === 'CORRECCION_REQUERIDA') return <AlertCircle className="w-4 h-4" />;
-    if (tipo === 'INFORMACION_ADICIONAL') return <FileText className="w-4 h-4" />;
-    return <MessageSquare className="w-4 h-4" />;
+    if (tipo === 'CORRECCION_REQUERIDA') return <AlertCircle className='w-4 h-4' />;
+    if (tipo === 'INFORMACION_ADICIONAL') return <FileText className='w-4 h-4' />;
+    return <MessageSquare className='w-4 h-4' />;
   };
 
   const filteredObservaciones = observaciones.filter((obs) => {
@@ -94,14 +92,7 @@ export default function ResponsableObservacionesPage() {
   const resueltasCount = observaciones.filter((o) => o.resuelta).length;
 
   if (isLoading) {
-    return (
-      <div className='flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'>
-        <div className='text-center'>
-          <Loader2 className='w-8 h-8 animate-spin text-violet-400 mx-auto mb-4' />
-          <p className='text-slate-400'>Cargando observaciones...</p>
-        </div>
-      </div>
-    );
+    return <Loading label='Cargando observaciones...' fullScreen />;
   }
 
   return (
@@ -202,7 +193,9 @@ export default function ResponsableObservacionesPage() {
                 <h3 className='text-lg font-medium text-slate-900 dark:text-white mb-2'>
                   No hay observaciones pendientes
                 </h3>
-                <p className='text-slate-500 dark:text-slate-400'>Todas las observaciones han sido resueltas</p>
+                <p className='text-slate-500 dark:text-slate-400'>
+                  Todas las observaciones han sido resueltas
+                </p>
               </div>
             ) : (
               <div className='space-y-4'>
@@ -215,15 +208,17 @@ export default function ResponsableObservacionesPage() {
                     <div className='flex items-start justify-between mb-4'>
                       <div className='flex-1'>
                         <div className='flex items-center gap-3 mb-3'>
-                  <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium ${getTipoColor(observacion.tipo)}`}>
-                    {getTipoIcon(observacion.tipo)}
-                    {getTipoLabel(observacion.tipo)}
-                  </span>
+                          <span
+                            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium ${getTipoColor(observacion.tipo)}`}
+                          >
+                            {getTipoIcon(observacion.tipo)}
+                            {getTipoLabel(observacion.tipo)}
+                          </span>
                           {observacion.resuelta && (
                             <span className='inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-green-100 text-green-700 border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20 border'>
-                      <CheckCircle className='w-3.5 h-3.5' />
-                      Resuelta
-                    </span>
+                              <CheckCircle className='w-3.5 h-3.5' />
+                              Resuelta
+                            </span>
                           )}
                         </div>
                         <Link
@@ -243,7 +238,9 @@ export default function ResponsableObservacionesPage() {
 
                     {/* Description */}
                     <div className='mb-4'>
-                      <p className='text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'>Descripción:</p>
+                      <p className='text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'>
+                        Descripción:
+                      </p>
                       <p className='text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700/30'>
                         {observacion.descripcion}
                       </p>
@@ -254,8 +251,8 @@ export default function ResponsableObservacionesPage() {
                       <div className='flex items-center gap-2 mb-4 text-sm text-slate-500 dark:text-slate-400'>
                         <User className='w-4 h-4' />
                         <span>
-                  Creado por: {observacion.creador.nombres} {observacion.creador.apellidos}
-                </span>
+                          Creado por: {observacion.creador.nombres} {observacion.creador.apellidos}
+                        </span>
                       </div>
                     )}
 
@@ -265,8 +262,12 @@ export default function ResponsableObservacionesPage() {
                         <div className='flex items-start gap-3 p-4 bg-green-50 dark:bg-green-500/10 rounded-lg border border-green-200 dark:border-green-500/20'>
                           <CheckCircle className='w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0' />
                           <div className='flex-1'>
-                            <p className='text-sm font-medium text-green-800 dark:text-green-300 mb-1'>Respuesta:</p>
-                            <p className='text-sm text-green-700 dark:text-green-400/90'>{observacion.respuesta}</p>
+                            <p className='text-sm font-medium text-green-800 dark:text-green-300 mb-1'>
+                              Respuesta:
+                            </p>
+                            <p className='text-sm text-green-700 dark:text-green-400/90'>
+                              {observacion.respuesta}
+                            </p>
                             {observacion.fecha_resolucion && (
                               <p className='text-xs text-green-600/70 dark:text-green-400/70 mt-2'>
                                 Resuelta el{' '}

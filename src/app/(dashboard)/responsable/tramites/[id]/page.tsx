@@ -1,27 +1,27 @@
 // src/app/(dashboard)/responsable/tramites/[id]/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { Loader2, AlertCircle } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import Loading from '@/components/ui/Loading';
+import apiClient from '@/lib/api-client';
 import { getProcedureById } from '@/lib/api/tramites';
 import { Procedure } from '@/types';
+import { AlertCircle } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import apiClient from '@/lib/api-client';
 
-import TramiteHeader from '@/components/tramites/detalle/TramiteHeader';
-import EstadoTimeline from '@/components/tramites/detalle/EstadoTimeline';
-import InformacionDocumento from '@/components/tramites/detalle/InformacionDocumento';
-import HistorialTramite from '@/components/tramites/detalle/HistorialTramite';
-import ObservacionesList from '@/components/tramites/detalle/ObservacionesList';
-import InformacionPersona from '@/components/tramites/detalle/InformacionPersona';
-import FechasImportantes from '@/components/tramites/detalle/FechasImportantes';
 import FirmaElectronicaInfo from '@/components/firma/FirmaElectronicaInfo';
 import VisualizarRespuesta from '@/components/respuesta/VisualizarRespuesta';
-import InformacionReenvio from "@/components/tramites/detalle/InformacionReenvio";
-import VersionesDocumento from "@/components/tramites/detalle/VersionesDocumento";
+import EstadoTimeline from '@/components/tramites/detalle/EstadoTimeline';
+import FechasImportantes from '@/components/tramites/detalle/FechasImportantes';
+import HistorialTramite from '@/components/tramites/detalle/HistorialTramite';
+import InformacionDocumento from '@/components/tramites/detalle/InformacionDocumento';
+import InformacionPersona from '@/components/tramites/detalle/InformacionPersona';
+import InformacionReenvio from '@/components/tramites/detalle/InformacionReenvio';
+import ObservacionesList from '@/components/tramites/detalle/ObservacionesList';
+import TramiteHeader from '@/components/tramites/detalle/TramiteHeader';
+import VersionesDocumento from '@/components/tramites/detalle/VersionesDocumento';
 
 export default function ProcedureDetailPage() {
   const router = useRouter();
@@ -79,14 +79,7 @@ export default function ProcedureDetailPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className='flex items-center justify-center min-h-screen bg-background'>
-        <div className='text-center'>
-          <Loader2 className='w-8 h-8 animate-spin text-primary mx-auto mb-4' />
-          <p className='text-muted-foreground'>Cargando trámite...</p>
-        </div>
-      </div>
-    );
+    return <Loading label='Cargando trámite...' fullScreen />;
   }
 
   if (error || !procedure) {
@@ -145,14 +138,16 @@ export default function ProcedureDetailPage() {
 
             {/* Respuesta del trabajador */}
             {procedure.requiere_respuesta && (
-              <div className={cardClasses} style={{padding: '15px'}}>
+              <div className={cardClasses} style={{ padding: '15px' }}>
                 <h3 className='text-lg font-semibold text-foreground mb-4'>
                   Respuesta del Trabajador
                 </h3>
                 {procedure.respuesta ? (
                   <VisualizarRespuesta respuesta={procedure.respuesta} mostrarDetallesTecnicos />
                 ) : (
-                  <p className='text-sm text-muted-foreground'>El trabajador aún no ha respondido</p>
+                  <p className='text-sm text-muted-foreground'>
+                    El trabajador aún no ha respondido
+                  </p>
                 )}
               </div>
             )}

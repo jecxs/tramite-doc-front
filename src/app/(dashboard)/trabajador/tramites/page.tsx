@@ -1,11 +1,11 @@
 // src/app/(dashboard)/trabajador/tramites/page.tsx
 'use client';
 
-import { useState, useMemo } from 'react';
+import FirmarDocumentosModal from '@/components/trabajador/FirmarDocumentosModal';
 import TramitesFilters from '@/components/tramites/TramitesFilters';
 import { ProcedureStateBadge } from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
-import FirmarDocumentosModal from '@/components/trabajador/FirmarDocumentosModal';
+import Loading from '@/components/ui/Loading';
 import { useTramites } from '@/hooks/useTramites';
 import { PROCEDURE_STATES } from '@/lib/constants';
 import { Procedure } from '@/types';
@@ -24,13 +24,13 @@ import {
   RefreshCcw,
 } from 'lucide-react';
 import Link from 'next/link';
-import { ForwardRefExoticComponent, RefAttributes } from 'react';
+import { ForwardRefExoticComponent, RefAttributes, useMemo, useState } from 'react';
 
 // Componente de Card Flotante
 const FloatingCard = ({
-                        children,
-                        className = '',
-                      }: {
+  children,
+  className = '',
+}: {
   children: React.ReactNode;
   className?: string;
 }) => (
@@ -41,10 +41,10 @@ const FloatingCard = ({
 
 // Componente de Alerta moderna
 const ModernAlert = ({
-                       children,
-                       icon: Icon,
-                       variant = 'blue',
-                     }: {
+  children,
+  icon: Icon,
+  variant = 'blue',
+}: {
   children: React.ReactNode;
   icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>;
   variant?: string;
@@ -71,11 +71,11 @@ const ModernAlert = ({
 
 // Componente de StatCard compacto
 const CompactStatCard = ({
-                           label,
-                           value,
-                           icon: Icon,
-                           color,
-                         }: {
+  label,
+  value,
+  icon: Icon,
+  color,
+}: {
   label: string;
   value: number;
   icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>;
@@ -161,14 +161,7 @@ export default function TrabajadorTramitesPage() {
   };
 
   if (isLoading && tramites.length === 0) {
-    return (
-      <div className='flex items-center justify-center min-h-[60vh]'>
-        <div className='text-center'>
-          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4'></div>
-          <p className='text-gray-400'>Cargando documentos...</p>
-        </div>
-      </div>
-    );
+    return <Loading label='Cargando documentos...' height='min-h-[60vh]' />;
   }
 
   const tramitesNoLeidos = tramitesFiltrados.filter(

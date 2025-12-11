@@ -1,31 +1,32 @@
 // src/app/(dashboard)/trabajador/tramites/[id]/page.tsx
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import Loading from '@/components/ui/Loading';
+import { AlertCircle, Download, Loader2 } from 'lucide-react';
 import { useParams } from 'next/navigation';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import {Loader2, AlertCircle, Download} from 'lucide-react';
 
-import Button from '@/components/ui/Button';
 import DocumentViewer from '@/components/documents/DocumentViewer';
 import FirmaElectronicaModal from '@/components/firma/FirmaElectronicaModal';
+import Button from '@/components/ui/Button';
 
-import { getProcedureById, markProcedureAsOpened, markProcedureAsRead } from '@/lib/api/tramites';
 import { solicitarCodigoVerificacion, verificarYFirmar } from '@/lib/api/firma-electronica';
+import { getProcedureById, markProcedureAsOpened, markProcedureAsRead } from '@/lib/api/tramites';
 
-import TramiteHeader from '@/components/trabajador/detalle-tramite/TramiteHeader';
-import EstadoActualCard from '@/components/trabajador/detalle-tramite/EstadoActualCard';
-import DocumentoInfo from '@/components/trabajador/detalle-tramite/DocumentoInfo';
-import RemitenteInfo from '@/components/trabajador/detalle-tramite/RemitenteInfo';
-import FechasInfo from '@/components/trabajador/detalle-tramite/FechasInfo';
 import AccionesRapidas from '@/components/trabajador/detalle-tramite/AccionesRapidas';
-import SeccionRespuesta from '@/components/trabajador/detalle-tramite/SeccionRespuesta';
+import DocumentoInfo from '@/components/trabajador/detalle-tramite/DocumentoInfo';
+import EstadoActualCard from '@/components/trabajador/detalle-tramite/EstadoActualCard';
+import FechasInfo from '@/components/trabajador/detalle-tramite/FechasInfo';
+import RemitenteInfo from '@/components/trabajador/detalle-tramite/RemitenteInfo';
 import SeccionObservaciones from '@/components/trabajador/detalle-tramite/SeccionObservaciones';
+import SeccionRespuesta from '@/components/trabajador/detalle-tramite/SeccionRespuesta';
+import TramiteHeader from '@/components/trabajador/detalle-tramite/TramiteHeader';
 import TramiteObsoletoAlert from '@/components/trabajador/detalle-tramite/TramiteObsoletoAlert';
 
-import { Procedure } from '@/types';
-import { PROCEDURE_STATES } from '@/lib/constants';
 import apiClient from '@/lib/api-client';
+import { PROCEDURE_STATES } from '@/lib/constants';
+import { Procedure } from '@/types';
 
 export default function WorkerProcedureDetailPage() {
   const params = useParams();
@@ -242,14 +243,7 @@ export default function WorkerProcedureDetailPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className='flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'>
-        <div className='text-center'>
-          <Loader2 className='w-10 h-10 animate-spin text-purple-400 mx-auto mb-4' />
-          <p className='text-slate-300 font-medium'>Cargando documento...</p>
-        </div>
-      </div>
-    );
+    return <Loading label='Cargando documento...' fullScreen size='lg' />;
   }
 
   if (error || !procedure) {
@@ -290,16 +284,11 @@ export default function WorkerProcedureDetailPage() {
 
           {viewMode === 'viewer' ? (
             <div className='bg-card border border-slate-700/50 rounded-2xl p-7 shadow-2xl'>
-              <Button
-                onClick={handleDownload}
-                disabled={isDownloading}
-                variant="outline"
-                size="sm"
-              >
+              <Button onClick={handleDownload} disabled={isDownloading} variant='outline' size='sm'>
                 {isDownloading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className='w-4 h-4 animate-spin' />
                 ) : (
-                  <Download className="w-4 h-4" />
+                  <Download className='w-4 h-4' />
                 )}
                 Descargar
               </Button>
@@ -359,10 +348,7 @@ export default function WorkerProcedureDetailPage() {
               </div>
 
               <div className='space-y-6'>
-                <RemitenteInfo
-                  remitente={procedure.remitente}
-                  area={procedure.areaRemitente}
-                />
+                <RemitenteInfo remitente={procedure.remitente} area={procedure.areaRemitente} />
                 <FechasInfo procedure={procedure} />
 
                 {/* Solo mostrar acciones rápidas si NO es obsoleto */}

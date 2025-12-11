@@ -1,39 +1,40 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useState, useEffect } from 'react';
-import GraficoLineas from '@/components/estadisticas/GraficoLineas';
 import GraficoBarras from '@/components/estadisticas/GraficoBarras';
+import GraficoLineas from '@/components/estadisticas/GraficoLineas';
 import GraficoPastel from '@/components/estadisticas/GraficoPastel';
-import { exportarEstadisticasAPDF } from '@/lib/utils/pdf-export-stats';
-import {
-  FileText,
-  Send,
-  CheckCircle,
-  Clock,
-  TrendingUp,
-  Users,
-  AlertCircle,
-  Award,
-  Zap,
-  FileDown,
-} from 'lucide-react';
+import Loading from '@/components/ui/Loading';
 import {
   getEstadisticasGenerales,
   getEstadisticasPorPeriodo,
   getEstadisticasPorTrabajador,
-  getTiemposRespuesta,
   getEstadisticasTiposDocumentos,
   getRankingEficiencia,
+  getTiemposRespuesta,
 } from '@/lib/api/estadisticas-responsable';
+import { exportarEstadisticasAPDF } from '@/lib/utils/pdf-export-stats';
 import {
   EstadisticasGenerales,
   EstadisticasPorPeriodo,
   EstadisticasPorTrabajador,
-  TiemposRespuesta,
   EstadisticasTiposDocumentos,
   RankingEficiencia,
+  TiemposRespuesta,
 } from '@/types';
+import {
+  AlertCircle,
+  Award,
+  CheckCircle,
+  Clock,
+  FileDown,
+  FileText,
+  Send,
+  TrendingUp,
+  Users,
+  Zap,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 type PeriodoType = 'semana' | 'mes' | 'trimestre' | 'anio';
 
@@ -116,14 +117,7 @@ export default function EstadisticasPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className='flex items-center justify-center h-96'>
-        <div className='text-center'>
-          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto'></div>
-          <p className='text-gray-400 mt-4'>Cargando estadísticas...</p>
-        </div>
-      </div>
-    );
+    return <Loading label='Cargando estadísticas...' height='h-96' />;
   }
   const handleExportarPDF = async () => {
     try {
@@ -320,7 +314,7 @@ export default function EstadisticasPage() {
           <FloatingCard>
             <div className='flex items-center gap-3 mb-6'>
               <Award className='w-6 h-6 text-yellow-400' />
-              <h3 className='text-white text-xl font-bold'>Top Trabajadores - % Completado</h3>
+              <h3 className='text-xl font-bold'>Top Trabajadores - % Completado</h3>
             </div>
             <div className='space-y-3'>
               {ranking?.top_completado.slice(0, 5).map((trabajador, index) => (
@@ -364,7 +358,7 @@ export default function EstadisticasPage() {
           <FloatingCard>
             <div className='flex items-center gap-3 mb-6'>
               <Zap className='w-6 h-6 text-purple-400' />
-              <h3 className='text-white text-xl font-bold'>Top Trabajadores - Velocidad</h3>
+              <h3 className='text-xl font-bold'>Top Trabajadores - Velocidad</h3>
             </div>
             <div className='space-y-3'>
               {ranking?.top_velocidad.slice(0, 5).map((trabajador, index) => (
@@ -376,7 +370,7 @@ export default function EstadisticasPage() {
                     <div
                       className={`flex items-center justify-center w-10 h-10 rounded-xl font-bold text-sm ${
                         index === 0
-                          ? 'bg-gradient-to-br from-purple-400 to-purple-600 text-white'
+                          ? 'bg-gradient-to-br from-purple-400 to-purple-600'
                           : index === 1
                             ? 'bg-gradient-to-br from-purple-300 to-purple-500 text-white'
                             : index === 2
