@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { LogOut, User, Menu, Bell, Search, Settings, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import NotificationBadge from '@/components/notifications/NotificationBadge';
-import {ThemeToggle} from "@/components/ui/ThemeToggle";
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 interface NavbarProps {
   onMenuClick: () => void;
@@ -34,14 +34,10 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
   const navbarWidth = useTransform(
     scrollY,
     [0, 100],
-    ['calc(100% - 2rem)', 'min(600px, calc(100% - 4rem))']
+    ['calc(100% - 2rem)', 'min(600px, calc(100% - 4rem))'],
   );
 
-  const navbarPadding = useTransform(
-    scrollY,
-    [0, 100],
-    ['1.5rem 2rem', '0.75rem 1.5rem']
-  );
+  const navbarPadding = useTransform(scrollY, [0, 100], ['1.5rem 2rem', '0.75rem 1.5rem']);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -86,9 +82,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
             dark:ring-white/10
             dark:shadow-black/50'
         style={{
-          background: isScrolled
-            ? 'var(--navbar-bg-scrolled)'
-            : 'var(--navbar-bg)',
+          background: isScrolled ? 'var(--navbar-bg-scrolled)' : 'var(--navbar-bg)',
           width: navbarWidth,
         }}
       >
@@ -188,9 +182,11 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                               dark:bg-slate-900/95 dark:border-white/10'
                           >
                             {/* Header */}
-                            <div className='relative p-5 border-b
+                            <div
+                              className='relative p-5 border-b
                               bg-gray-50/80 border-gray-200
-                              dark:bg-white/5 dark:border-white/10'>
+                              dark:bg-white/5 dark:border-white/10'
+                            >
                               <div className='flex items-start gap-3'>
                                 <div className='w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0'>
                                   <span className='text-white font-bold text-base'>
@@ -202,10 +198,14 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                                   <p className='text-sm font-bold truncate mb-1 text-gray-900 dark:text-white'>
                                     {user.nombres} {user.apellidos}
                                   </p>
-                                  <p className='text-xs truncate mb-2 text-gray-600 dark:text-white/50'>{user.correo}</p>
-                                  <span className='inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium border
+                                  <p className='text-xs truncate mb-2 text-gray-600 dark:text-white/50'>
+                                    {user.correo}
+                                  </p>
+                                  <span
+                                    className='inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium border
                                     bg-blue-50 text-blue-700 border-blue-200
-                                    dark:bg-white/10 dark:text-white/80 dark:border-white/10'>
+                                    dark:bg-white/10 dark:text-white/80 dark:border-white/10'
+                                  >
                                     {getRoleName(currentRole)}
                                   </span>
                                 </div>
@@ -220,14 +220,20 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                                 className='flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
                                   hover:bg-gray-100 dark:hover:bg-white/5'
                               >
-                                <div className='w-9 h-9 rounded-xl flex items-center justify-center transition-colors
+                                <div
+                                  className='w-9 h-9 rounded-xl flex items-center justify-center transition-colors
                                   bg-gray-100 group-hover:bg-gray-200
-                                  dark:bg-white/5 dark:group-hover:bg-white/10'>
+                                  dark:bg-white/5 dark:group-hover:bg-white/10'
+                                >
                                   <User className='w-4 h-4 text-gray-700 dark:text-white/60' />
                                 </div>
                                 <div className='flex-1'>
-                                  <p className='text-sm font-medium text-gray-900 dark:text-white'>Mi Perfil</p>
-                                  <p className='text-xs text-gray-600 dark:text-white/40'>Ver información personal</p>
+                                  <p className='text-sm font-medium text-gray-900 dark:text-white'>
+                                    Mi Perfil
+                                  </p>
+                                  <p className='text-xs text-gray-600 dark:text-white/40'>
+                                    Ver información personal
+                                  </p>
                                 </div>
                               </Link>
                               <Link
@@ -236,14 +242,20 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                                 className='flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
                                   hover:bg-gray-100 dark:hover:bg-white/5'
                               >
-                                <div className='w-9 h-9 rounded-xl flex items-center justify-center transition-colors
+                                <div
+                                  className='w-9 h-9 rounded-xl flex items-center justify-center transition-colors
                                   bg-gray-100 group-hover:bg-gray-200
-                                  dark:bg-white/5 dark:group-hover:bg-white/10'>
+                                  dark:bg-white/5 dark:group-hover:bg-white/10'
+                                >
                                   <Settings className='w-4 h-4 text-gray-700 dark:text-white/60' />
                                 </div>
                                 <div className='flex-1'>
-                                  <p className='text-sm font-medium text-gray-900 dark:text-white'>Configuración</p>
-                                  <p className='text-xs text-gray-600 dark:text-white/40'>Ajustes del sistema</p>
+                                  <p className='text-sm font-medium text-gray-900 dark:text-white'>
+                                    Configuración
+                                  </p>
+                                  <p className='text-xs text-gray-600 dark:text-white/40'>
+                                    Ajustes del sistema
+                                  </p>
                                 </div>
                               </Link>
                               <ThemeToggle />
@@ -257,14 +269,20 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                                   hover:bg-red-50 border-transparent hover:border-red-200
                                   dark:hover:bg-red-500/10 dark:hover:border-red-500/20'
                               >
-                                <div className='w-9 h-9 rounded-xl flex items-center justify-center transition-colors
+                                <div
+                                  className='w-9 h-9 rounded-xl flex items-center justify-center transition-colors
                                   bg-red-50 group-hover:bg-red-100
-                                  dark:bg-red-500/10 dark:group-hover:bg-red-500/20'>
+                                  dark:bg-red-500/10 dark:group-hover:bg-red-500/20'
+                                >
                                   <LogOut className='w-4 h-4 text-red-600 dark:text-red-400' />
                                 </div>
                                 <div className='flex-1 text-left'>
-                                  <p className='text-sm font-medium text-red-600 dark:text-red-400'>Cerrar Sesión</p>
-                                  <p className='text-xs text-red-500 dark:text-red-400/50'>Salir del sistema</p>
+                                  <p className='text-sm font-medium text-red-600 dark:text-red-400'>
+                                    Cerrar Sesión
+                                  </p>
+                                  <p className='text-xs text-red-500 dark:text-red-400/50'>
+                                    Salir del sistema
+                                  </p>
                                 </div>
                               </motion.button>
                             </div>
@@ -313,7 +331,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                 {/* Center - Search bar */}
                 <div className='hidden md:flex flex-1 max-w-md mx-8'>
                   <div className='relative w-full group'>
-                    <Search className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-white/30 group-hover:text-gray-700 dark:group-hover:text-white/50 transition-colors' />
+                    {/* <Search className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-white/30 group-hover:text-gray-700 dark:group-hover:text-white/50 transition-colors' />
                     <input
                       type='text'
                       placeholder='Buscar trámites, documentos...'
@@ -322,7 +340,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                         focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 focus:bg-white
                         dark:bg-white/5 dark:border-white/10 dark:text-white dark:placeholder-white/30
                         dark:focus:ring-purple-500/50 dark:focus:border-transparent dark:focus:bg-white/[0.07]'
-                    />
+                    /> */}
                   </div>
                 </div>
 
@@ -356,7 +374,9 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                         <p className='text-sm font-semibold leading-tight text-gray-900 dark:text-white'>
                           {user.nombres} {user.apellidos}
                         </p>
-                        <p className='text-xs mt-0.5 text-gray-600 dark:text-white/40'>{getRoleName(currentRole)}</p>
+                        <p className='text-xs mt-0.5 text-gray-600 dark:text-white/40'>
+                          {getRoleName(currentRole)}
+                        </p>
                       </div>
 
                       <div className='relative'>
@@ -390,9 +410,11 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                               bg-white/98 border-gray-200
                               dark:bg-slate-900/95 dark:border-white/10'
                           >
-                            <div className='relative p-5 border-b
+                            <div
+                              className='relative p-5 border-b
                               bg-gray-50/80 border-gray-200
-                              dark:bg-white/5 dark:border-white/10'>
+                              dark:bg-white/5 dark:border-white/10'
+                            >
                               <div className='flex items-start gap-3'>
                                 <div className='w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0'>
                                   <span className='text-white font-bold text-base'>
@@ -404,10 +426,14 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                                   <p className='text-sm font-bold truncate mb-1 text-gray-900 dark:text-white'>
                                     {user.nombres} {user.apellidos}
                                   </p>
-                                  <p className='text-xs truncate mb-2 text-gray-600 dark:text-white/50'>{user.correo}</p>
-                                  <span className='inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium border
+                                  <p className='text-xs truncate mb-2 text-gray-600 dark:text-white/50'>
+                                    {user.correo}
+                                  </p>
+                                  <span
+                                    className='inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium border
                                     bg-blue-50 text-blue-700 border-blue-200
-                                    dark:bg-white/10 dark:text-white/80 dark:border-white/10'>
+                                    dark:bg-white/10 dark:text-white/80 dark:border-white/10'
+                                  >
                                     {getRoleName(currentRole)}
                                   </span>
                                 </div>
@@ -421,14 +447,20 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                                 className='flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
                                   hover:bg-gray-100 dark:hover:bg-white/5'
                               >
-                                <div className='w-9 h-9 rounded-xl flex items-center justify-center transition-colors
+                                <div
+                                  className='w-9 h-9 rounded-xl flex items-center justify-center transition-colors
                                   bg-gray-100 group-hover:bg-gray-200
-                                  dark:bg-white/5 dark:group-hover:bg-white/10'>
+                                  dark:bg-white/5 dark:group-hover:bg-white/10'
+                                >
                                   <User className='w-4 h-4 text-gray-700 dark:text-white/60' />
                                 </div>
                                 <div className='flex-1'>
-                                  <p className='text-sm font-medium text-gray-900 dark:text-white'>Mi Perfil</p>
-                                  <p className='text-xs text-gray-600 dark:text-white/40'>Ver información personal</p>
+                                  <p className='text-sm font-medium text-gray-900 dark:text-white'>
+                                    Mi Perfil
+                                  </p>
+                                  <p className='text-xs text-gray-600 dark:text-white/40'>
+                                    Ver información personal
+                                  </p>
                                 </div>
                               </Link>
 
@@ -438,14 +470,20 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                                 className='flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
                                   hover:bg-gray-100 dark:hover:bg-white/5'
                               >
-                                <div className='w-9 h-9 rounded-xl flex items-center justify-center transition-colors
+                                <div
+                                  className='w-9 h-9 rounded-xl flex items-center justify-center transition-colors
                                   bg-gray-100 group-hover:bg-gray-200
-                                  dark:bg-white/5 dark:group-hover:bg-white/10'>
+                                  dark:bg-white/5 dark:group-hover:bg-white/10'
+                                >
                                   <Settings className='w-4 h-4 text-gray-700 dark:text-white/60' />
                                 </div>
                                 <div className='flex-1'>
-                                  <p className='text-sm font-medium text-gray-900 dark:text-white'>Configuración</p>
-                                  <p className='text-xs text-gray-600 dark:text-white/40'>Ajustes del sistema</p>
+                                  <p className='text-sm font-medium text-gray-900 dark:text-white'>
+                                    Configuración
+                                  </p>
+                                  <p className='text-xs text-gray-600 dark:text-white/40'>
+                                    Ajustes del sistema
+                                  </p>
                                 </div>
                               </Link>
 
@@ -460,14 +498,20 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                                   hover:bg-red-50 border-transparent hover:border-red-200
                                   dark:hover:bg-red-500/10 dark:hover:border-red-500/20'
                               >
-                                <div className='w-9 h-9 rounded-xl flex items-center justify-center transition-colors
+                                <div
+                                  className='w-9 h-9 rounded-xl flex items-center justify-center transition-colors
                                   bg-red-50 group-hover:bg-red-100
-                                  dark:bg-red-500/10 dark:group-hover:bg-red-500/20'>
+                                  dark:bg-red-500/10 dark:group-hover:bg-red-500/20'
+                                >
                                   <LogOut className='w-4 h-4 text-red-600 dark:text-red-400' />
                                 </div>
                                 <div className='flex-1 text-left'>
-                                  <p className='text-sm font-medium text-red-600 dark:text-red-400'>Cerrar Sesión</p>
-                                  <p className='text-xs text-red-500 dark:text-red-400/50'>Salir del sistema</p>
+                                  <p className='text-sm font-medium text-red-600 dark:text-red-400'>
+                                    Cerrar Sesión
+                                  </p>
+                                  <p className='text-xs text-red-500 dark:text-red-400/50'>
+                                    Salir del sistema
+                                  </p>
                                 </div>
                               </motion.button>
                             </div>

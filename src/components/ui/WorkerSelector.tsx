@@ -4,7 +4,8 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Search, Users, Building2, X, Check } from 'lucide-react';
 
 interface User {
@@ -38,6 +39,30 @@ const WorkerSelector: React.FC<WorkerSelectorProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const [menuRect, setMenuRect] = useState<{
+    top: number;
+    left: number;
+    width: number;
+  } | null>(null);
+
+  const updateMenuRect = () => {
+    if (!triggerRef.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    setMenuRect({ top: rect.bottom + 8, left: rect.left, width: rect.width });
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    updateMenuRect();
+    const onScrollOrResize = () => updateMenuRect();
+    window.addEventListener('scroll', onScrollOrResize, true);
+    window.addEventListener('resize', onScrollOrResize);
+    return () => {
+      window.removeEventListener('scroll', onScrollOrResize, true);
+      window.removeEventListener('resize', onScrollOrResize);
+    };
+  }, [isOpen]);
 
   // Agrupar trabajadores por área
   const workersByArea = useMemo(() => {
@@ -109,7 +134,7 @@ const WorkerSelector: React.FC<WorkerSelectorProps> = ({
       </label>
 
       {/* Selector Button */}
-      <div className='relative'>
+      <div className='relative' ref={triggerRef}>
         <div
           role='button'
           onClick={() => setIsOpen(!isOpen)}
@@ -154,93 +179,92 @@ const WorkerSelector: React.FC<WorkerSelectorProps> = ({
         </div>
 
         {/* Dropdown */}
-        {isOpen && (
+        {isOpen && menuRect && (
           <>
-            {/* Overlay */}
-            <div className='fixed inset-0 z-10' onClick={() => setIsOpen(false)} />
-
-            {/* Menu */}
-            <div className='absolute z-20 w-full mt-2 bg-card border border-border rounded-lg shadow-lg max-h-96 flex flex-col'>
-              {/* Search */}
-              <div className='p-3 border-b border-border'>
-                <div className='relative'>
-                  <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400' />
-                  <input
-                    type='text'
-                    placeholder='Buscar por nombre, DNI, correo, área...'
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className='w-full pl-10 pr-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground'
-                    autoFocus
-                  />
+            {createPortal(
+              <div className='fixed inset-0 z-[1000]' onClick={() => setIsOpen(false)} />,
+              document.body,
+            )}
+            {createPortal(
+              <div
+                className='fixed z-[1001] bg-card border border-border rounded-lg shadow-lg max-h-96 flex flex-col'
+                style={{ top: menuRect.top, left: menuRect.left, width: menuRect.width }}
+              >
+                <div className='p-3 border-b border-border'>
+                  <div className='relative'>
+                    <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400' />
+                    <input
+                      type='text'
+                      placeholder='Buscar por nombre, DNI, correo, área...'
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className='w-full pl-10 pr-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground'
+                      autoFocus
+                    />
+                  </div>
+                  <p className='text-xs text-muted-foreground mt-2'>
+                    {totalResults} trabajador{totalResults !== 1 ? 'es' : ''} encontrado
+                    {totalResults !== 1 ? 's' : ''}
+                  </p>
                 </div>
-                <p className='text-xs text-muted-foreground mt-2'>
-                  {totalResults} trabajador{totalResults !== 1 ? 'es' : ''} encontrado
-                  {totalResults !== 1 ? 's' : ''}
-                </p>
-              </div>
-
-              {/* Results */}
-              <div className='overflow-y-auto flex-1'>
-                {totalResults === 0 ? (
-                  <div className='p-8 text-center text-muted-foreground'>
-                    <Users className='w-12 h-12 mx-auto mb-3 text-muted-foreground' />
-                    <p className='text-sm'>No se encontraron trabajadores</p>
-                    <p className='text-xs mt-1'>Intente con otros términos de búsqueda</p>
-                  </div>
-                ) : (
-                  <div className='py-2'>
-                    {Object.entries(filteredWorkers).map(([area, areaWorkers]) => (
-                      <div key={area}>
-                        {/* Area Header */}
-                        <div className='px-4 py-2 bg-muted border-b border-border sticky top-0'>
-                          <div className='flex items-center gap-2 text-xs font-medium text-foreground'>
-                            <Building2 className='w-4 h-4' />
-                            <span>{area}</span>
-                            <span className='text-muted-foreground'>({areaWorkers.length})</span>
+                <div className='overflow-y-auto flex-1'>
+                  {totalResults === 0 ? (
+                    <div className='p-8 text-center text-muted-foreground'>
+                      <Users className='w-12 h-12 mx-auto mb-3 text-muted-foreground' />
+                      <p className='text-sm'>No se encontraron trabajadores</p>
+                      <p className='text-xs mt-1'>Intente con otros términos de búsqueda</p>
+                    </div>
+                  ) : (
+                    <div className='py-2'>
+                      {Object.entries(filteredWorkers).map(([area, areaWorkers]) => (
+                        <div key={area}>
+                          <div className='px-4 py-2 bg-muted border-b border-border sticky top-0'>
+                            <div className='flex items-center gap-2 text-xs font-medium text-foreground'>
+                              <Building2 className='w-4 h-4' />
+                              <span>{area}</span>
+                              <span className='text-muted-foreground'>({areaWorkers.length})</span>
+                            </div>
                           </div>
-                        </div>
-
-                        {/* Workers in Area */}
-                        {areaWorkers.map((worker) => {
-                          const isSelected = worker.id_usuario === selectedWorkerId;
-
-                          return (
-                            <button
-                              key={worker.id_usuario}
-                              type='button'
-                              onClick={() => handleSelect(worker.id_usuario)}
-                              className={`
-                                                                w-full px-4 py-3 flex items-center gap-3
-                                                                transition-colors hover:bg-muted
-                                                                ${isSelected ? 'bg-muted' : ''}
-                                                            `}
-                            >
-                              <div className='w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0'>
-                                <Users className='w-5 h-5 text-blue-600' />
-                              </div>
-                              <div className='flex-1 text-left min-w-0'>
-                                <p className='text-sm font-medium text-foreground truncate'>
-                                  {worker.apellidos}, {worker.nombres}
-                                </p>
-                                <div className='flex items-center gap-2 text-xs text-muted-foreground'>
-                                  <span>DNI: {worker.dni}</span>
-                                  <span>•</span>
-                                  <span className='truncate'>{worker.correo}</span>
+                          {areaWorkers.map((worker) => {
+                            const isSelected = worker.id_usuario === selectedWorkerId;
+                            return (
+                              <button
+                                key={worker.id_usuario}
+                                type='button'
+                                onClick={() => handleSelect(worker.id_usuario)}
+                                className={`
+                                                                  w-full px-4 py-3 flex items-center gap-3
+                                                                  transition-colors hover:bg-muted
+                                                                  ${isSelected ? 'bg-muted' : ''}
+                                                              `}
+                              >
+                                <div className='w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0'>
+                                  <Users className='w-5 h-5 text-blue-600' />
                                 </div>
-                              </div>
-                              {isSelected && (
-                                <Check className='w-5 h-5 text-primary flex-shrink-0' />
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+                                <div className='flex-1 text-left min-w-0'>
+                                  <p className='text-sm font-medium text-foreground truncate'>
+                                    {worker.apellidos}, {worker.nombres}
+                                  </p>
+                                  <div className='flex items-center gap-2 text-xs text-muted-foreground'>
+                                    <span>DNI: {worker.dni}</span>
+                                    <span>•</span>
+                                    <span className='truncate'>{worker.correo}</span>
+                                  </div>
+                                </div>
+                                {isSelected && (
+                                  <Check className='w-5 h-5 text-primary flex-shrink-0' />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>,
+              document.body,
+            )}
           </>
         )}
       </div>
