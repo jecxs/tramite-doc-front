@@ -42,13 +42,17 @@ apiClient.interceptors.response.use(
 
       // Eliminar cookie también
       document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-      toast.error('Sesión expirada. Inicie sesión nuevamente.');
+      toast.error('Sesión expirada. Inicie sesión nuevamente.', {
+        id: 'auth:expired',
+      });
       window.location.href = '/login';
     }
 
     const message = handleApiError(error);
     if (message) {
-      toast.error(message);
+      toast.error(message, {
+        id: buildToastIdFromAxiosError(error),
+      });
     }
 
     return Promise.reject(error);
@@ -85,4 +89,11 @@ export const handleApiError = (error: unknown): string => {
 
   console.error('Error desconocido:', error);
   return 'Ocurrió un error inesperado. Por favor intente nuevamente.';
+};
+
+const buildToastIdFromAxiosError = (error: AxiosError): string => {
+  const url = error.config?.url ?? 'unknown';
+  const method = (error.config?.method ?? 'GET').toUpperCase();
+  const status = error.response?.status ?? 'no-status';
+  return `http:${method}:${url}:${status}`;
 };

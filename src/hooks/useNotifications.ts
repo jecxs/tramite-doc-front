@@ -31,6 +31,20 @@ export function useNotifications(): UseNotificationsReturn {
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const socketRef = useRef<Socket | null>(null);
+  const buildToastId = useCallback((type: string, data: unknown) => {
+    const obj =
+      typeof data === 'object' && data !== null ? (data as Record<string, unknown>) : undefined;
+    const candidate =
+      obj?.id ?? obj?.id_observacion ?? obj?.idNotificacion ?? obj?.id_notificacion ?? obj?.uuid;
+    if (candidate !== undefined) return `${type}:${String(candidate)}`;
+    const str = typeof data === 'string' ? data : JSON.stringify(obj ?? {});
+    let h = 0;
+    for (let i = 0; i < str.length; i++) {
+      h = (h << 5) - h + str.charCodeAt(i);
+      h |= 0;
+    }
+    return `${type}:${h}`;
+  }, []);
 
   // Cargar notificaciones iniciales
   const loadNotifications = useCallback(async () => {
@@ -99,6 +113,7 @@ export function useNotifications(): UseNotificationsReturn {
       toast.info('Nueva observación recibida', {
         description: data.descripcion?.substring(0, 100) || 'Tiene una nueva observación',
         duration: 5000,
+        id: buildToastId('nueva_observacion', data),
       });
 
       // Recargar notificaciones
@@ -116,6 +131,7 @@ export function useNotifications(): UseNotificationsReturn {
       toast.success('Observación resuelta', {
         description: 'Su observación ha sido respondida',
         duration: 5000,
+        id: buildToastId('observacion_resuelta', data),
       });
 
       // Recargar notificaciones
@@ -131,7 +147,7 @@ export function useNotifications(): UseNotificationsReturn {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [user, loadNotifications]);
+  }, [user, loadNotifications, buildToastId]);
 
   // Refrescar notificaciones manualmente
   const refreshNotifications = useCallback(async () => {
