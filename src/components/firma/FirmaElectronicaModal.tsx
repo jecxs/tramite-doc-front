@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { parseISO, isValid } from 'date-fns';
 import { X, AlertTriangle, FileCheck, Shield, Mail, Clock, ArrowRight } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -70,7 +71,38 @@ export default function FirmaElectronicaModal({
       setIsSubmitting(true);
       const resultado = await onSolicitarCodigo();
       setEmailEnviadoA(resultado.email_enviado_a);
-      setExpiraEn(new Date(resultado.expira_en));
+
+      const raw = resultado.expira_en;
+      let parsed: Date | null = null;
+
+      try {
+        const iso = parseISO(raw);
+        if (isValid(iso)) {
+          parsed = iso;
+        } else {
+          const normalized = /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(raw)
+            ? raw.replace(' ', 'T') + 'Z'
+            : raw;
+          const alt = new Date(normalized);
+          if (isValid(alt)) {
+            parsed = alt;
+          } else {
+            const num = Number(raw);
+            if (!Number.isNaN(num)) {
+              const epoch = new Date(num);
+              if (isValid(epoch)) parsed = epoch;
+            }
+          }
+        }
+      } catch {
+        parsed = null;
+      }
+
+      if (!parsed || !isValid(parsed)) {
+        parsed = new Date(Date.now() + 5 * 60 * 1000);
+      }
+
+      setExpiraEn(parsed);
       setPaso('verificacion');
     } catch (error: unknown) {
       if (error instanceof Error) {
