@@ -628,7 +628,7 @@ export interface ActividadReciente {
 }
 // ==================== REPORTES PERSONALIZADOS ====================
 export interface FiltrosReporte {
-  fecha_inicio?: string;
+  fecha_inicio: string;
   fecha_fin?: string;
   id_tipo_documento?: string;
   id_area?: string;
