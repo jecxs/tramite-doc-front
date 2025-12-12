@@ -479,7 +479,7 @@ export default function ReportesPage() {
           </FloatingCard>
 
           {/* Métricas Principales */}
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
             <MetricCard
               titulo='Total Enviados'
               valor={reporte.resumen.total_enviados}
@@ -492,13 +492,6 @@ export default function ReportesPage() {
               subtitulo={`${reporte.resumen.porcentaje_entregados.toFixed(1)}% del total`}
               icono={CheckCircle}
               color='bg-green-500'
-            />
-            <MetricCard
-              titulo='Pendientes'
-              valor={reporte.resumen.total_pendientes}
-              subtitulo={`${reporte.resumen.porcentaje_pendientes.toFixed(1)}% del total`}
-              icono={Clock}
-              color='bg-yellow-500'
             />
             <MetricCard
               titulo='Anulados'
