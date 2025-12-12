@@ -626,3 +626,70 @@ export interface ActividadReciente {
     cantidad: number;
   }>;
 }
+// ==================== REPORTES PERSONALIZADOS ====================
+export interface FiltrosReporte {
+  fecha_inicio?: string;
+  fecha_fin?: string;
+  id_tipo_documento?: string;
+  id_area?: string;
+}
+
+export interface ReportePersonalizado {
+  periodo: {
+    fecha_inicio: string;
+    fecha_fin: string;
+  };
+  tipo_documento?: {
+    id_tipo: string;
+    codigo: string;
+    nombre: string;
+  };
+  area?: {
+    id_area: string;
+    nombre: string;
+  };
+  resumen: {
+    total_enviados: number;
+    total_entregados: number;
+    total_pendientes: number;
+    total_abiertos: number;
+    total_leidos: number;
+    total_firmados: number;
+    total_respondidos: number;
+    total_anulados: number;
+    porcentaje_entregados: number;
+    porcentaje_pendientes: number;
+  };
+  metricas_firma: {
+    requieren_firma: number;
+    firmados: number;
+    pendientes_firma: number;
+    porcentaje_firmados: number;
+  };
+  metricas_respuesta: {
+    requieren_respuesta: number;
+    respondidos: number;
+    pendientes_respuesta: number;
+    porcentaje_respondidos: number;
+  };
+  tiempos_promedio: {
+    envio_a_apertura_horas: number;
+    envio_a_lectura_horas: number;
+    envio_a_firma_horas: number;
+    envio_a_respuesta_horas: number;
+  };
+  distribucion_por_dia: Array<{
+    fecha: string;
+    enviados: number;
+    abiertos: number;
+    leidos: number;
+    firmados: number;
+  }>;
+  trabajadores_top: Array<{
+    id_usuario: string;
+    nombre_completo: string;
+    total_recibidos: number;
+    completados: number;
+    porcentaje_completado: number;
+  }>;
+}

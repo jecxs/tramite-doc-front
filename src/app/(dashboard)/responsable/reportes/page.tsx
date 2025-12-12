@@ -134,15 +134,28 @@ export default function ReportesPage() {
     try {
       setIsLoadingTramites(true);
 
-      // 🔥 CORRECCIÓN: Convertir fechas a UTC para que coincidan con el backend
-      const fecha_inicio = new Date(filtros.fecha_inicio + 'T00:00:00');
-      const fecha_fin = filtros.fecha_fin
-        ? new Date(filtros.fecha_fin + 'T23:59:59')
-        : new Date(filtros.fecha_inicio + 'T23:59:59');
+      // 🔥 CONVERSIÓN CORRECTA: Crear fechas en zona horaria de Lima y convertir a UTC
+      // Lima está en UTC-5, así que:
+      // - fecha_inicio "2025-12-07" → "2025-12-07T00:00:00" en Lima → "2025-12-07T05:00:00.000Z" en UTC
+      // - fecha_fin "2025-12-07" → "2025-12-07T23:59:59" en Lima → "2025-12-08T04:59:59.999Z" en UTC
+
+      const [year, month, day] = filtros.fecha_inicio.split('-').map(Number);
+
+      // Crear fecha de inicio: 00:00:00 en Lima (UTC-5) = 05:00:00 UTC
+      const fecha_inicio_utc = new Date(Date.UTC(year, month - 1, day, 5, 0, 0, 0));
+
+      // Crear fecha de fin: 23:59:59 en Lima (UTC-5) = 04:59:59 UTC del día siguiente
+      let fecha_fin_utc: Date;
+      if (filtros.fecha_fin) {
+        const [yearFin, monthFin, dayFin] = filtros.fecha_fin.split('-').map(Number);
+        fecha_fin_utc = new Date(Date.UTC(yearFin, monthFin - 1, dayFin + 1, 4, 59, 59, 999));
+      } else {
+        fecha_fin_utc = new Date(Date.UTC(year, month - 1, day + 1, 4, 59, 59, 999));
+      }
 
       const filtrosProcedures: ProcedureFilters = {
-        fecha_envio_desde: fecha_inicio.toISOString(),
-        fecha_envio_hasta: fecha_fin.toISOString(),
+        fecha_envio_desde: fecha_inicio_utc.toISOString(),
+        fecha_envio_hasta: fecha_fin_utc.toISOString(),
         limite: 1000,
       };
 
@@ -155,7 +168,11 @@ export default function ReportesPage() {
         filtrosProcedures.id_area_remitente = filtros.id_area;
       }
 
-      console.log('🔍 [FRONTEND] Filtros enviados a getProcedures:', filtrosProcedures);
+      console.log('🔍 [FRONTEND] Filtros enviados a getProcedures:', {
+        ...filtrosProcedures,
+        fecha_envio_desde_readable: fecha_inicio_utc.toISOString(),
+        fecha_envio_hasta_readable: fecha_fin_utc.toISOString(),
+      });
 
       const response = await getProcedures(filtrosProcedures);
 
@@ -190,18 +207,21 @@ export default function ReportesPage() {
         filtrosAjustados.id_area = data.id_area;
       }
 
-      console.log('📊 Generando reporte con filtros:', filtrosAjustados);
+      console.log('📊 [FRONTEND] Generando reporte con filtros:', filtrosAjustados);
 
       const reporteData = await generarReportePersonalizado(filtrosAjustados);
 
-      console.log('✅ Reporte generado:', reporteData);
+      console.log('✅ [FRONTEND] Reporte generado:', {
+        total_enviados: reporteData.resumen.total_enviados,
+        periodo: reporteData.periodo,
+      });
 
       setReporte(reporteData);
 
       // Cargar trámites detallados
       await cargarTramitesDetalle(filtrosAjustados);
     } catch (error) {
-      console.error('❌ Error generando reporte:', error);
+      console.error('❌ [FRONTEND] Error generando reporte:', error);
     } finally {
       setIsLoading(false);
     }

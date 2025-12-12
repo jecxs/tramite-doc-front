@@ -52,6 +52,7 @@ export const PROCEDURE_TYPES_LABELS: Record<PROCEDURE_TYPES, string> = {
 // Procedure States
 export const PROCEDURE_STATES = {
   ENVIADO: 'ENVIADO',
+  ENTREGADO: 'ENTREGADO',
   ABIERTO: 'ABIERTO',
   LEIDO: 'LEIDO',
   RESPONDIDO: 'RESPONDIDO',
@@ -63,6 +64,7 @@ export type PROCEDURE_STATES = (typeof PROCEDURE_STATES)[keyof typeof PROCEDURE_
 
 export const PROCEDURE_STATE_LABELS: Record<PROCEDURE_STATES, string> = {
   ENVIADO: 'Enviado',
+  ENTREGADO: 'Entregado',
   ABIERTO: 'Abierto',
   LEIDO: 'Leído',
   RESPONDIDO: 'Respondido',
@@ -73,6 +75,7 @@ export const PROCEDURE_STATE_LABELS: Record<PROCEDURE_STATES, string> = {
 // Estado colors para badges
 export const PROCEDURE_STATE_COLORS: Record<PROCEDURE_STATES, string> = {
   ENVIADO: 'bg-blue-100 text-blue-800',
+  ENTREGADO: 'bg-blue-100 text-blue-800',
   ABIERTO: 'bg-purple-100 text-purple-800',
   LEIDO: 'bg-indigo-100 text-indigo-800',
   RESPONDIDO: 'bg-teal-100 text-teal-800',
@@ -123,6 +126,7 @@ export const ROUTE_PATHS = {
   RESP_NOTIFICATIONS: '/responsable/notificaciones',
   RESP_OBSERVATIONS: '/responsable/observaciones',
   RESP_ESTADISTICAS: '/responsable/estadisticas',
+  RESP_REPORTES: '/responsable/reportes',
 
   // Worker routes
   WORKER_DASHBOARD: '/trabajador',

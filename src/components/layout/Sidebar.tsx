@@ -95,6 +95,12 @@ const navItems: NavItem[] = [
     icon: <BarChart3 className='w-5 h-5' />,
     roles: [ROLES.RESP],
   },
+  {
+    label: 'Reportes',
+    href: '/responsable/reportes',
+    icon: <BarChart3 className='w-5 h-5' />,
+    roles: [ROLES.RESP, ROLES.ADMIN],
+  },
 
   // Trabajador navigation
   {
