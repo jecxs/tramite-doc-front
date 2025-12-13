@@ -77,7 +77,7 @@ const MetricCard = ({
     </div>
     <div className='space-y-1'>
       <p className='text-muted-foreground text-sm font-medium'>{titulo}</p>
-      <p className='text-foreground text-3xl font-bold'>{valor}</p>
+      <p className='text-foreground text-3xl font-bold'>{valor ?? 0}</p>
       {subtitulo && <p className='text-muted-foreground text-xs'>{subtitulo}</p>}
     </div>
   </FloatingCard>
@@ -252,12 +252,12 @@ export default function ReportesPage() {
     if (!reporte) return [];
 
     return [
-      { name: 'Pendientes', value: reporte.resumen.total_pendientes, color: '#f59e0b' },
-      { name: 'Abiertos', value: reporte.resumen.total_abiertos, color: '#3b82f6' },
-      { name: 'Leídos', value: reporte.resumen.total_leidos, color: '#8b5cf6' },
-      { name: 'Firmados', value: reporte.resumen.total_firmados, color: '#10b981' },
-      { name: 'Respondidos', value: reporte.resumen.total_respondidos, color: '#06b6d4' },
-      { name: 'Anulados', value: reporte.resumen.total_anulados, color: '#ef4444' },
+      { name: 'Pendientes', value: reporte.resumen.total_pendientes ?? 0, color: '#f59e0b' },
+      { name: 'Abiertos', value: reporte.resumen.total_abiertos ?? 0, color: '#3b82f6' },
+      { name: 'Leídos', value: reporte.resumen.total_leidos ?? 0, color: '#8b5cf6' },
+      { name: 'Firmados', value: reporte.resumen.total_firmados ?? 0, color: '#10b981' },
+      { name: 'Respondidos', value: reporte.resumen.total_respondidos ?? 0, color: '#06b6d4' },
+      { name: 'Anulados', value: reporte.resumen.total_anulados ?? 0, color: '#ef4444' },
     ].filter(d => d.value > 0);
   }, [reporte]);
 
@@ -478,38 +478,38 @@ export default function ReportesPage() {
             </div>
           </FloatingCard>
 
-          {/* Métricas Principales - ACTUALIZADO */}
+          {/* Métricas Principales - CORREGIDO CON VALIDACIÓN */}
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
             <MetricCard
               titulo='Total Enviados'
-              valor={reporte.resumen.total_enviados}
+              valor={reporte.resumen?.total_enviados ?? 0}
               icono={FileText}
               color='bg-blue-500'
             />
             <MetricCard
               titulo='Completados'
-              valor={reporte.resumen.total_completados}
-              subtitulo={`${reporte.resumen.porcentaje_completados.toFixed(1)}% finalizados correctamente`}
+              valor={reporte.resumen?.total_completados ?? 0}
+              subtitulo={`${((reporte.resumen?.porcentaje_completados ?? 0)).toFixed(1)}% finalizados correctamente`}
               icono={CheckCircle}
               color='bg-green-500'
             />
             <MetricCard
               titulo='Pendientes'
-              valor={reporte.resumen.total_pendientes}
-              subtitulo={`${reporte.resumen.porcentaje_pendientes.toFixed(1)}% sin abrir`}
+              valor={reporte.resumen?.total_pendientes ?? 0}
+              subtitulo={`${((reporte.resumen?.porcentaje_pendientes ?? 0)).toFixed(1)}% sin abrir`}
               icono={Clock}
               color='bg-yellow-500'
             />
             <MetricCard
               titulo='Anulados'
-              valor={reporte.resumen.total_anulados}
+              valor={reporte.resumen?.total_anulados ?? 0}
               icono={AlertCircle}
               color='bg-red-500'
             />
           </div>
 
-          {/* Métricas de Firma */}
-          {reporte.metricas_firma.requieren_firma > 0 && (
+          {/* Métricas de Firma - CORREGIDO */}
+          {(reporte.metricas_firma?.requieren_firma ?? 0) > 0 && (
             <FloatingCard>
               <h3 className='text-xl font-bold text-foreground mb-4 flex items-center gap-2'>
                 <FileSignature className='w-6 h-6 text-green-600' />
@@ -519,30 +519,30 @@ export default function ReportesPage() {
                 <div className='p-4 bg-muted/50 rounded-xl'>
                   <p className='text-sm text-muted-foreground mb-1'>Requieren Firma</p>
                   <p className='text-2xl font-bold text-foreground'>
-                    {reporte.metricas_firma.requieren_firma}
+                    {reporte.metricas_firma?.requieren_firma ?? 0}
                   </p>
                 </div>
                 <div className='p-4 bg-green-500/10 rounded-xl border border-green-500/20'>
                   <p className='text-sm text-muted-foreground mb-1'>Firmados</p>
                   <p className='text-2xl font-bold text-green-600'>
-                    {reporte.metricas_firma.firmados}
+                    {reporte.metricas_firma?.firmados ?? 0}
                   </p>
                   <p className='text-xs text-muted-foreground mt-1'>
-                    {reporte.metricas_firma.porcentaje_firmados.toFixed(1)}% completado
+                    {((reporte.metricas_firma?.porcentaje_firmados ?? 0)).toFixed(1)}% completado
                   </p>
                 </div>
                 <div className='p-4 bg-yellow-500/10 rounded-xl border border-yellow-500/20'>
                   <p className='text-sm text-muted-foreground mb-1'>Pendientes</p>
                   <p className='text-2xl font-bold text-yellow-600'>
-                    {reporte.metricas_firma.pendientes_firma}
+                    {reporte.metricas_firma?.pendientes_firma ?? 0}
                   </p>
                 </div>
               </div>
             </FloatingCard>
           )}
 
-          {/* Métricas de Respuesta */}
-          {reporte.metricas_respuesta.requieren_respuesta > 0 && (
+          {/* Métricas de Respuesta - CORREGIDO */}
+          {(reporte.metricas_respuesta?.requieren_respuesta ?? 0) > 0 && (
             <FloatingCard>
               <h3 className='text-xl font-bold text-foreground mb-4 flex items-center gap-2'>
                 <MessageSquare className='w-6 h-6 text-purple-600' />
@@ -552,22 +552,22 @@ export default function ReportesPage() {
                 <div className='p-4 bg-muted/50 rounded-xl'>
                   <p className='text-sm text-muted-foreground mb-1'>Requieren Respuesta</p>
                   <p className='text-2xl font-bold text-foreground'>
-                    {reporte.metricas_respuesta.requieren_respuesta}
+                    {reporte.metricas_respuesta?.requieren_respuesta ?? 0}
                   </p>
                 </div>
                 <div className='p-4 bg-purple-500/10 rounded-xl border border-purple-500/20'>
                   <p className='text-sm text-muted-foreground mb-1'>Respondidos</p>
                   <p className='text-2xl font-bold text-purple-600'>
-                    {reporte.metricas_respuesta.respondidos}
+                    {reporte.metricas_respuesta?.respondidos ?? 0}
                   </p>
                   <p className='text-xs text-muted-foreground mt-1'>
-                    {reporte.metricas_respuesta.porcentaje_respondidos.toFixed(1)}% completado
+                    {((reporte.metricas_respuesta?.porcentaje_respondidos ?? 0)).toFixed(1)}% completado
                   </p>
                 </div>
                 <div className='p-4 bg-orange-500/10 rounded-xl border border-orange-500/20'>
                   <p className='text-sm text-muted-foreground mb-1'>Pendientes</p>
                   <p className='text-2xl font-bold text-orange-600'>
-                    {reporte.metricas_respuesta.pendientes_respuesta}
+                    {reporte.metricas_respuesta?.pendientes_respuesta ?? 0}
                   </p>
                 </div>
               </div>
@@ -597,46 +597,46 @@ export default function ReportesPage() {
             )}
           </div>
 
-          {/* Tiempos Promedio */}
-          {(reporte.tiempos_promedio.envio_a_apertura_horas > 0 ||
-            reporte.tiempos_promedio.envio_a_lectura_horas > 0 ||
-            reporte.tiempos_promedio.envio_a_firma_horas > 0 ||
-            reporte.tiempos_promedio.envio_a_respuesta_horas > 0) && (
+          {/* Tiempos Promedio - CORREGIDO */}
+          {((reporte.tiempos_promedio?.envio_a_apertura_horas ?? 0) > 0 ||
+            (reporte.tiempos_promedio?.envio_a_lectura_horas ?? 0) > 0 ||
+            (reporte.tiempos_promedio?.envio_a_firma_horas ?? 0) > 0 ||
+            (reporte.tiempos_promedio?.envio_a_respuesta_horas ?? 0) > 0) && (
             <FloatingCard>
               <h3 className='text-xl font-bold text-foreground mb-4 flex items-center gap-2'>
                 <Clock className='w-6 h-6 text-orange-600' />
                 Tiempos Promedio de Procesamiento
               </h3>
               <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
-                {reporte.tiempos_promedio.envio_a_apertura_horas > 0 && (
+                {(reporte.tiempos_promedio?.envio_a_apertura_horas ?? 0) > 0 && (
                   <div className='p-4 bg-blue-500/10 rounded-xl border border-blue-500/20'>
                     <p className='text-sm text-muted-foreground mb-1'>Envío → Apertura</p>
                     <p className='text-2xl font-bold text-blue-600'>
-                      {reporte.tiempos_promedio.envio_a_apertura_horas.toFixed(1)}h
+                      {(reporte.tiempos_promedio?.envio_a_apertura_horas ?? 0).toFixed(1)}h
                     </p>
                   </div>
                 )}
-                {reporte.tiempos_promedio.envio_a_lectura_horas > 0 && (
+                {(reporte.tiempos_promedio?.envio_a_lectura_horas ?? 0) > 0 && (
                   <div className='p-4 bg-purple-500/10 rounded-xl border border-purple-500/20'>
                     <p className='text-sm text-muted-foreground mb-1'>Envío → Lectura</p>
                     <p className='text-2xl font-bold text-purple-600'>
-                      {reporte.tiempos_promedio.envio_a_lectura_horas.toFixed(1)}h
+                      {(reporte.tiempos_promedio?.envio_a_lectura_horas ?? 0).toFixed(1)}h
                     </p>
                   </div>
                 )}
-                {reporte.tiempos_promedio.envio_a_firma_horas > 0 && (
+                {(reporte.tiempos_promedio?.envio_a_firma_horas ?? 0) > 0 && (
                   <div className='p-4 bg-green-500/10 rounded-xl border border-green-500/20'>
                     <p className='text-sm text-muted-foreground mb-1'>Envío → Firma</p>
                     <p className='text-2xl font-bold text-green-600'>
-                      {reporte.tiempos_promedio.envio_a_firma_horas.toFixed(1)}h
+                      {(reporte.tiempos_promedio?.envio_a_firma_horas ?? 0).toFixed(1)}h
                     </p>
                   </div>
                 )}
-                {reporte.tiempos_promedio.envio_a_respuesta_horas > 0 && (
+                {(reporte.tiempos_promedio?.envio_a_respuesta_horas ?? 0) > 0 && (
                   <div className='p-4 bg-indigo-500/10 rounded-xl border border-indigo-500/20'>
                     <p className='text-sm text-muted-foreground mb-1'>Envío → Respuesta</p>
                     <p className='text-2xl font-bold text-indigo-600'>
-                      {reporte.tiempos_promedio.envio_a_respuesta_horas.toFixed(1)}h
+                      {(reporte.tiempos_promedio?.envio_a_respuesta_horas ?? 0).toFixed(1)}h
                     </p>
                   </div>
                 )}
@@ -740,8 +740,8 @@ export default function ReportesPage() {
             )}
           </FloatingCard>
 
-          {/* Top Trabajadores */}
-          {reporte.trabajadores_top.length > 0 && (
+          {/* Top Trabajadores - CORREGIDO */}
+          {(reporte.trabajadores_top?.length ?? 0) > 0 && (
             <FloatingCard>
               <div className='flex items-center gap-3 mb-6'>
                 <Users className='w-6 h-6 text-primary' />
@@ -753,7 +753,7 @@ export default function ReportesPage() {
                 </div>
               </div>
               <div className='space-y-3'>
-                {reporte.trabajadores_top.map((trabajador, index) => (
+                {(reporte.trabajadores_top ?? []).map((trabajador, index) => (
                   <div
                     key={trabajador.id_usuario}
                     className='flex items-center justify-between p-4 bg-muted/50 rounded-2xl border border-border hover:border-primary transition-all'
@@ -776,20 +776,20 @@ export default function ReportesPage() {
                         <p className='font-medium text-foreground'>{trabajador.nombre_completo}</p>
                         <div className='flex gap-3 text-sm text-muted-foreground mt-1'>
                 <span className='text-green-600 font-medium'>
-                  ✓ {trabajador.completados} completados
+                  ✓ {trabajador.completados ?? 0} completados
                 </span>
                           <span className='text-yellow-600 font-medium'>
-                  ⏱ {trabajador.pendientes} pendientes
+                  ⏱ {trabajador.pendientes ?? 0} pendientes
                 </span>
                           <span className='text-muted-foreground'>
-                  de {trabajador.total_recibidos} recibidos
+                  de {trabajador.total_recibidos ?? 0} recibidos
                 </span>
                         </div>
                       </div>
                     </div>
                     <div className='text-right'>
                       <p className='text-xl font-bold text-primary'>
-                        {trabajador.porcentaje_completado.toFixed(1)}%
+                        {((trabajador.porcentaje_completado ?? 0)).toFixed(1)}%
                       </p>
                       <p className='text-xs text-muted-foreground'>tasa de finalización</p>
                     </div>
