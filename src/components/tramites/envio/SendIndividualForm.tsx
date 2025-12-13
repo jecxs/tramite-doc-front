@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Send, FileText, User, MessageSquare } from 'lucide-react';
+import { Send, FileText, User, MessageSquare, Plus} from 'lucide-react';
 import Link from 'next/link';
 import { motion, Variants } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
@@ -15,6 +15,8 @@ import WorkerSelector from '@/components/ui/WorkerSelector';
 import DocumentTypeInfo from './shared/DocumentTypeInfo';
 import { User as UserType, DocumentType } from '@/types';
 import apiClient, { handleApiError } from '@/lib/api-client';
+import CreateDocumentTypeModal from '@/components/tramites/envio/CreateDocumentTypeModal';
+import { getDocumentTypes } from '@/lib/api/document-type';
 
 interface SendIndividualFormProps {
   workers: UserType[];
@@ -78,6 +80,10 @@ export default function SendIndividualForm({
     id_tipo_documento: '',
     file: null,
   });
+
+  const [isCreateTypeModalOpen, setIsCreateTypeModalOpen] = useState(false);
+  const [localDocumentTypes, setLocalDocumentTypes] = useState<DocumentType[]>(documentTypes);
+
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -162,10 +168,17 @@ export default function SendIndividualForm({
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
+  const handleDocTypeCreated = (newDocType: DocumentType) => {
+    // Agregar el nuevo tipo a la lista local
+    setLocalDocumentTypes((prev) => [...prev, newDocType]);
+    // Seleccionarlo automáticamente
+    handleInputChange('id_tipo_documento', newDocType.id_tipo);
+  };
 
   const selectedDocType = documentTypes.find((dt) => dt.id_tipo === formData.id_tipo_documento);
 
   return (
+    <>
     <motion.form
       onSubmit={handleSubmit}
       variants={containerVariants}
@@ -239,19 +252,40 @@ export default function SendIndividualForm({
             </div>
           </CardHeader>
           <CardContent className='space-y-5 pt-6'>
-            <Select
-              label='Tipo de Documento'
-              placeholder='Seleccione un tipo'
-              value={formData.id_tipo_documento}
-              onChange={(value) => handleInputChange('id_tipo_documento', value)}
-              options={documentTypes.map((type) => ({
-                value: type.id_tipo,
-                label: type.nombre,
-              }))}
-              error={errors.id_tipo_documento}
-              required
-              className='bg-secondary/50 border-input text-foreground focus:border-purple-500/50 focus:ring-purple-500/20 transition-all duration-200'
-            />
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-foreground">
+                Tipo de Documento <span className="text-red-400">*</span>
+              </label>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Select
+                    placeholder='Seleccione un tipo'
+                    value={formData.id_tipo_documento}
+                    onChange={(value) => handleInputChange('id_tipo_documento', value)}
+                    options={localDocumentTypes.map((type) => ({
+                      value: type.id_tipo,
+                      label: type.nombre,
+                    }))}
+                    error={errors.id_tipo_documento}
+                    required
+                    className='bg-secondary/50 border-input text-foreground focus:border-purple-500/50 focus:ring-purple-500/20 transition-all duration-200'
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsCreateTypeModalOpen(true)}
+                  className="h-11 px-3 bg-secondary/50 hover:bg-secondary border-input text-muted-foreground hover:text-foreground transition-all duration-200"
+                  title="Crear nuevo tipo de documento"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              {errors.id_tipo_documento && (
+                <p className="text-sm text-red-400 mt-1">{errors.id_tipo_documento}</p>
+              )}
+            </div>
 
             {selectedDocType && <DocumentTypeInfo documentType={selectedDocType} />}
 
@@ -302,5 +336,12 @@ export default function SendIndividualForm({
         </Button>
       </motion.div>
     </motion.form>
+      {/* Modal  */}
+      <CreateDocumentTypeModal
+        isOpen={isCreateTypeModalOpen}
+        onClose={() => setIsCreateTypeModalOpen(false)}
+        onSuccess={handleDocTypeCreated}
+      />
+    </>
   );
 }

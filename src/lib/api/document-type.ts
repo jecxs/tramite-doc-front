@@ -9,9 +9,6 @@ import {
 
 const DOCUMENT_TYPES_ENDPOINT = '/tipo-documento';
 
-/**
- * Obtener todos los tipos de documento
- */
 export const getDocumentTypes = async (): Promise<DocumentType[]> => {
   try {
     const response = await apiClient.get<DocumentType[]>(DOCUMENT_TYPES_ENDPOINT);
@@ -21,9 +18,6 @@ export const getDocumentTypes = async (): Promise<DocumentType[]> => {
   }
 };
 
-/**
- * Obtener un tipo de documento por ID
- */
 export const getDocumentTypeById = async (id: string): Promise<DocumentType> => {
   try {
     const response = await apiClient.get<DocumentType>(`${DOCUMENT_TYPES_ENDPOINT}/${id}`);
@@ -33,9 +27,6 @@ export const getDocumentTypeById = async (id: string): Promise<DocumentType> => 
   }
 };
 
-/**
- * Obtener un tipo de documento por código
- */
 export const getDocumentTypeByCodigo = async (codigo: string): Promise<DocumentType> => {
   try {
     const response = await apiClient.get<DocumentType>(
@@ -47,9 +38,6 @@ export const getDocumentTypeByCodigo = async (codigo: string): Promise<DocumentT
   }
 };
 
-/**
- * Obtener tipos que requieren firma
- */
 export const getDocumentTypesRequireFirma = async (): Promise<DocumentType[]> => {
   try {
     const response = await apiClient.get<DocumentType[]>(
@@ -61,9 +49,6 @@ export const getDocumentTypesRequireFirma = async (): Promise<DocumentType[]> =>
   }
 };
 
-/**
- * Obtener tipos que requieren respuesta
- */
 export const getDocumentTypesRequireRespuesta = async (): Promise<DocumentType[]> => {
   try {
     const response = await apiClient.get<DocumentType[]>(
@@ -75,9 +60,6 @@ export const getDocumentTypesRequireRespuesta = async (): Promise<DocumentType[]
   }
 };
 
-/**
- * Crear un nuevo tipo de documento (solo ADMIN)
- */
 export const createDocumentType = async (data: CreateDocumentTypeDto): Promise<DocumentType> => {
   try {
     const response = await apiClient.post<DocumentType>(DOCUMENT_TYPES_ENDPOINT, data);
@@ -87,9 +69,6 @@ export const createDocumentType = async (data: CreateDocumentTypeDto): Promise<D
   }
 };
 
-/**
- * Actualizar un tipo de documento (solo ADMIN)
- */
 export const updateDocumentType = async (
   id: string,
   data: UpdateDocumentTypeDto,
@@ -102,9 +81,6 @@ export const updateDocumentType = async (
   }
 };
 
-/**
- * Eliminar un tipo de documento (solo ADMIN)
- */
 export const deleteDocumentType = async (id: string): Promise<void> => {
   try {
     await apiClient.delete(`${DOCUMENT_TYPES_ENDPOINT}/${id}`);
@@ -113,9 +89,6 @@ export const deleteDocumentType = async (id: string): Promise<void> => {
   }
 };
 
-/**
- * Obtener estadísticas de tipos de documento (solo ADMIN)
- */
 export const getDocumentTypeStatistics = async (): Promise<EstadisticasTiposDocumentos> => {
   try {
     const response = await apiClient.get<EstadisticasTiposDocumentos>(

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Send, FileText, Users, MessageSquare } from 'lucide-react';
+import {Send, FileText, Users, MessageSquare, Plus} from 'lucide-react';
 import Link from 'next/link';
 import { motion, Variants } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
@@ -15,6 +15,7 @@ import MultiWorkerSelector from '@/components/ui/MultiWorkerSelector';
 import DocumentTypeInfo from './shared/DocumentTypeInfo';
 import { User, DocumentType } from '@/types';
 import apiClient, { handleApiError } from '@/lib/api-client';
+import CreateDocumentTypeModal from '@/components/tramites/envio/CreateDocumentTypeModal';
 
 interface SendBulkFormProps {
   workers: User[];
@@ -74,7 +75,8 @@ export default function SendBulkForm({ workers, documentTypes, onError }: SendBu
     id_tipo_documento: '',
     file: null,
   });
-
+  const [isCreateTypeModalOpen, setIsCreateTypeModalOpen] = useState(false);
+  const [localDocumentTypes, setLocalDocumentTypes] = useState<DocumentType[]>(documentTypes);
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
@@ -158,10 +160,17 @@ export default function SendBulkForm({ workers, documentTypes, onError }: SendBu
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
+  const handleDocTypeCreated = (newDocType: DocumentType) => {
+    // Agregar el nuevo tipo a la lista local
+    setLocalDocumentTypes((prev) => [...prev, newDocType]);
+    // Seleccionarlo automáticamente
+    handleInputChange('id_tipo_documento', newDocType.id_tipo);
+  };
 
-  const selectedDocType = documentTypes.find((dt) => dt.id_tipo === formData.id_tipo_documento);
+  const selectedDocType = localDocumentTypes.find((dt) => dt.id_tipo === formData.id_tipo_documento);
 
   return (
+    <>
     <motion.form
       onSubmit={handleSubmit}
       variants={containerVariants}
@@ -257,19 +266,40 @@ export default function SendBulkForm({ workers, documentTypes, onError }: SendBu
             </div>
           </CardHeader>
           <CardContent className='space-y-5 pt-6'>
-            <Select
-              label='Tipo de Documento'
-              placeholder='Seleccione un tipo'
-              value={formData.id_tipo_documento}
-              onChange={(value) => handleInputChange('id_tipo_documento', value)}
-              options={documentTypes.map((type) => ({
-                value: type.id_tipo,
-                label: type.nombre,
-              }))}
-              error={errors.id_tipo_documento}
-              required
-              className='bg-[#1E2029]/60 border-[#3D4153]/50 text-white focus:border-blue-400/60 focus:ring-1 focus:ring-blue-400/30 transition-all duration-200'
-            />
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-foreground">
+                Tipo de Documento <span className="text-red-400">*</span>
+              </label>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Select
+                    placeholder='Seleccione un tipo'
+                    value={formData.id_tipo_documento}
+                    onChange={(value) => handleInputChange('id_tipo_documento', value)}
+                    options={localDocumentTypes.map((type) => ({
+                      value: type.id_tipo,
+                      label: type.nombre,
+                    }))}
+                    error={errors.id_tipo_documento}
+                    required
+                    className='bg-secondary/50 border-input text-foreground focus:border-blue-400/60 focus:ring-blue-400/20 transition-all duration-200'
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsCreateTypeModalOpen(true)}
+                  className="h-11 px-3 bg-secondary/50 hover:bg-secondary border-input text-muted-foreground hover:text-foreground transition-all duration-200"
+                  title="Crear nuevo tipo de documento"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              {errors.id_tipo_documento && (
+                <p className="text-sm text-red-400 mt-1">{errors.id_tipo_documento}</p>
+              )}
+            </div>
 
             {selectedDocType && <DocumentTypeInfo documentType={selectedDocType} />}
 
@@ -321,5 +351,12 @@ export default function SendBulkForm({ workers, documentTypes, onError }: SendBu
         </Button>
       </motion.div>
     </motion.form>
+      {/* Modal  */}
+      <CreateDocumentTypeModal
+        isOpen={isCreateTypeModalOpen}
+        onClose={() => setIsCreateTypeModalOpen(false)}
+        onSuccess={handleDocTypeCreated}
+      />
+    </>
   );
 }
