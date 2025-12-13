@@ -8,6 +8,7 @@ import { LogOut, User, Menu, Bell, Search, Settings, ChevronRight } from 'lucide
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import NotificationBadge from '@/components/notifications/NotificationBadge';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import GlobalSearch from '@/components/layout/GlobalSearch';
 
 interface NavbarProps {
   onMenuClick: () => void;
@@ -121,18 +122,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
 
                 {/* Center - Compact search */}
                 <div className='flex-1 max-w-sm mx-4'>
-                  <div className='relative'>
-                    <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 dark:text-white/30' />
-                    <input
-                      type='text'
-                      placeholder='Buscar...'
-                      className='w-full pl-9 pr-3 py-1.5 rounded-lg text-xs border transition-all duration-200
-                        bg-white/80 border-gray-300 text-gray-900 placeholder-gray-500
-                        focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 focus:bg-white
-                        dark:bg-white/5 dark:border-white/10 dark:text-white dark:placeholder-white/30
-                        dark:focus:ring-purple-500/50 dark:focus:border-transparent'
-                    />
-                  </div>
+                  <GlobalSearch isCompact />
                 </div>
 
                 {/* Right - Compact user section */}
@@ -330,18 +320,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
 
                 {/* Center - Search bar */}
                 <div className='hidden md:flex flex-1 max-w-md mx-8'>
-                  <div className='relative w-full group'>
-                    <Search className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-white/30 group-hover:text-gray-700 dark:group-hover:text-white/50 transition-colors' />
-                    <input
-                      type='text'
-                      placeholder='Buscar trámites, documentos...'
-                      className='w-full pl-11 pr-4 py-2.5 rounded-xl text-sm border transition-all duration-200
-                        bg-white/80 border-gray-300 text-gray-900 placeholder-gray-500
-                        focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 focus:bg-white
-                        dark:bg-white/5 dark:border-white/10 dark:text-white dark:placeholder-white/30
-                        dark:focus:ring-purple-500/50 dark:focus:border-transparent dark:focus:bg-white/[0.07]'
-                    />
-                  </div>
+                  <GlobalSearch />
                 </div>
 
                 {/* Right section */}
