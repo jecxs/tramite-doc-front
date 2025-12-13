@@ -46,17 +46,22 @@ export default function ResponsableTramitesPage() {
     changeLimit,
   } = useTramites();
 
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(() => {
+    return searchParams.get('success') === 'true';
+  });
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   useEffect(() => {
     if (searchParams.get('success') === 'true') {
-      setShowSuccessMessage(true);
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
-      setTimeout(() => setShowSuccessMessage(false), 5000);
+      const timer = setTimeout(() => {
+        setShowSuccessMessage(false);
+      }, 5000);
+
+      return () => clearTimeout(timer);
     }
-  }, [searchParams]);
+  }, []);
 
   const formatDate = (dateString: string) => {
     try {
