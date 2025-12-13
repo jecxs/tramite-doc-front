@@ -651,6 +651,7 @@ export interface ReportePersonalizado {
   resumen: {
     total_enviados: number;
     total_entregados: number;
+    total_completados: number;
     total_pendientes: number;
     total_abiertos: number;
     total_leidos: number;
@@ -658,6 +659,7 @@ export interface ReportePersonalizado {
     total_respondidos: number;
     total_anulados: number;
     porcentaje_entregados: number;
+    porcentaje_completados: number;
     porcentaje_pendientes: number;
   };
   metricas_firma: {
@@ -690,6 +692,7 @@ export interface ReportePersonalizado {
     nombre_completo: string;
     total_recibidos: number;
     completados: number;
+    pendientes: number;
     porcentaje_completado: number;
   }>;
 }

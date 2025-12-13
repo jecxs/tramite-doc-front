@@ -478,8 +478,8 @@ export default function ReportesPage() {
             </div>
           </FloatingCard>
 
-          {/* Métricas Principales */}
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+          {/* Métricas Principales - ACTUALIZADO */}
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
             <MetricCard
               titulo='Total Enviados'
               valor={reporte.resumen.total_enviados}
@@ -487,11 +487,18 @@ export default function ReportesPage() {
               color='bg-blue-500'
             />
             <MetricCard
-              titulo='Entregados'
-              valor={reporte.resumen.total_entregados}
-              subtitulo={`${reporte.resumen.porcentaje_entregados.toFixed(1)}% del total`}
+              titulo='Completados'
+              valor={reporte.resumen.total_completados}
+              subtitulo={`${reporte.resumen.porcentaje_completados.toFixed(1)}% finalizados correctamente`}
               icono={CheckCircle}
               color='bg-green-500'
+            />
+            <MetricCard
+              titulo='Pendientes'
+              valor={reporte.resumen.total_pendientes}
+              subtitulo={`${reporte.resumen.porcentaje_pendientes.toFixed(1)}% sin abrir`}
+              icono={Clock}
+              color='bg-yellow-500'
             />
             <MetricCard
               titulo='Anulados'
@@ -738,7 +745,12 @@ export default function ReportesPage() {
             <FloatingCard>
               <div className='flex items-center gap-3 mb-6'>
                 <Users className='w-6 h-6 text-primary' />
-                <h3 className='text-xl font-bold text-foreground'>Top 10 Trabajadores</h3>
+                <div>
+                  <h3 className='text-xl font-bold text-foreground'>Top 10 Trabajadores</h3>
+                  <p className='text-sm text-muted-foreground'>
+                    Ranking por tasa de finalización de trámites según requisitos
+                  </p>
+                </div>
               </div>
               <div className='space-y-3'>
                 {reporte.trabajadores_top.map((trabajador, index) => (
@@ -762,15 +774,24 @@ export default function ReportesPage() {
                       </div>
                       <div>
                         <p className='font-medium text-foreground'>{trabajador.nombre_completo}</p>
-                        <p className='text-sm text-muted-foreground'>
-                          {trabajador.completados} de {trabajador.total_recibidos} completados
-                        </p>
+                        <div className='flex gap-3 text-sm text-muted-foreground mt-1'>
+                <span className='text-green-600 font-medium'>
+                  ✓ {trabajador.completados} completados
+                </span>
+                          <span className='text-yellow-600 font-medium'>
+                  ⏱ {trabajador.pendientes} pendientes
+                </span>
+                          <span className='text-muted-foreground'>
+                  de {trabajador.total_recibidos} recibidos
+                </span>
+                        </div>
                       </div>
                     </div>
                     <div className='text-right'>
                       <p className='text-xl font-bold text-primary'>
                         {trabajador.porcentaje_completado.toFixed(1)}%
                       </p>
+                      <p className='text-xs text-muted-foreground'>tasa de finalización</p>
                     </div>
                   </div>
                 ))}

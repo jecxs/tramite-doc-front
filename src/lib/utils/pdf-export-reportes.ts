@@ -70,12 +70,17 @@ export const exportarReporteAPDF = async (
     body: [
       ['Total Enviados', reporte.resumen.total_enviados.toString(), '-'],
       [
-        'Total Entregados',
+        'Completados (finalizados correctamente)',
+        reporte.resumen.total_completados.toString(),
+        `${reporte.resumen.porcentaje_completados.toFixed(1)}%`,
+      ],
+      [
+        'Entregados (llegaron al trabajador)',
         reporte.resumen.total_entregados.toString(),
         `${reporte.resumen.porcentaje_entregados.toFixed(1)}%`,
       ],
       [
-        'Pendientes de Entrega',
+        'Pendientes (sin abrir)',
         reporte.resumen.total_pendientes.toString(),
         `${reporte.resumen.porcentaje_pendientes.toFixed(1)}%`,
       ],
@@ -257,22 +262,20 @@ export const exportarReporteAPDF = async (
 
   // === TOP TRABAJADORES ===
   if (reporte.trabajadores_top.length > 0) {
-    doc.addPage();
-    yPos = 20;
-
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('Top 10 Trabajadores', 14, yPos);
+    doc.text('Top 10 Trabajadores (por tasa de finalización)', 14, yPos);
     yPos += 7;
 
     autoTable(doc, {
       startY: yPos,
-      head: [['#', 'Trabajador', 'Recibidos', 'Completados', '% Completado']],
+      head: [['#', 'Trabajador', 'Recibidos', 'Completados', 'Pendientes', '% Completado']],
       body: reporte.trabajadores_top.map((t, index) => [
         (index + 1).toString(),
         t.nombre_completo,
         t.total_recibidos.toString(),
         t.completados.toString(),
+        t.pendientes.toString(),
         `${t.porcentaje_completado.toFixed(1)}%`,
       ]),
       theme: 'striped',
