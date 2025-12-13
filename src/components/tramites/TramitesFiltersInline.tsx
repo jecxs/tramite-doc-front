@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Search, ChevronDown, ChevronUp, X } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { ProcedureFilters } from '@/types';
@@ -15,38 +15,62 @@ interface TramitesFiltersInlineProps {
 }
 
 export default function TramitesFiltersInline({
-  onApplyFilters,
-  onClearFilters,
-  currentFilters = {},
-  showAdvanced,
-  onToggleAdvanced,
-}: TramitesFiltersInlineProps) {
+                                                onApplyFilters,
+                                                onClearFilters,
+                                                currentFilters = {},
+                                                showAdvanced,
+                                                onToggleAdvanced,
+                                              }: TramitesFiltersInlineProps) {
   const [search, setSearch] = useState(currentFilters.search || '');
   const [selectedEstado, setSelectedEstado] = useState<string>(currentFilters.estado || '');
   const [requiereFirma, setRequiereFirma] = useState<boolean | undefined>(
     currentFilters.requiere_firma,
   );
 
-  // Debounce para búsqueda externa (no depende de Enter ni del panel)
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const filters: ProcedureFilters = {};
+  // Ref para evitar el debounce en el primer render
+  const isFirstRender = useRef(true);
+  const previousSearchRef = useRef(search);
 
-      filters.search = search.trim() ? search.trim() : undefined;
+  // Debounce para búsqueda
+  useEffect(() => {
+    // No ejecutar en el primer render
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      previousSearchRef.current = search;
+      return;
+    }
+
+    // Solo ejecutar si el search realmente cambió
+    if (previousSearchRef.current === search) {
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      previousSearchRef.current = search;
+
+      // Mantener todos los filtros actuales y solo actualizar search
+      const filters: ProcedureFilters = {
+        ...currentFilters,
+        search: search.trim() ? search.trim() : undefined,
+      };
 
       onApplyFilters(filters);
     }, 400);
 
     return () => clearTimeout(timeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
+  }, [search]); // Solo search como dependencia, onApplyFilters y currentFilters son estables
 
   const handleApply = () => {
-    const filters: ProcedureFilters = {};
+    const filters: ProcedureFilters = {
+      ...currentFilters, // Mantener filtros existentes
+    };
 
     filters.search = search.trim() ? search.trim() : undefined;
     if (selectedEstado) filters.estado = selectedEstado as PROCEDURE_STATES;
+    else delete filters.estado;
+
     if (requiereFirma !== undefined) filters.requiere_firma = requiereFirma;
+    else delete filters.requiere_firma;
 
     onApplyFilters(filters);
   };
@@ -59,7 +83,11 @@ export default function TramitesFiltersInline({
     if (onClearFilters) {
       onClearFilters();
     } else {
-      onApplyFilters({ search: undefined });
+      onApplyFilters({
+        search: undefined,
+        estado: undefined,
+        requiere_firma: undefined,
+      });
     }
   };
 
@@ -80,7 +108,7 @@ export default function TramitesFiltersInline({
                 placeholder='Código o asunto del trámite...'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className='w-full pl-12 pr-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white placeholder-gray-400  focus:border-transparent transition-all'
+                className='w-full pl-12 pr-4 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white placeholder-gray-400 focus:border-transparent transition-all'
               />
             </div>
           </div>

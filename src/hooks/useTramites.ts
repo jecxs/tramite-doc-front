@@ -1,5 +1,5 @@
 // src/hooks/useTramites.ts
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getProcedures } from '@/lib/api/tramites';
 import { Procedure, ProcedureFilters, PaginatedResponse, PaginationMetadata } from '@/types';
 import { handleApiError } from '@/lib/api-client';
@@ -13,7 +13,6 @@ interface UseTramitesReturn {
   applyFilters: (filters: ProcedureFilters) => void;
   clearFilters: () => void;
   currentFilters: ProcedureFilters;
-  // Helpers para paginación
   goToPage: (page: number) => void;
   changeLimit: (limit: number) => void;
 }
@@ -30,6 +29,10 @@ export function useTramites(initialFilters?: ProcedureFilters): UseTramitesRetur
     orden: 'desc',
     ...initialFilters,
   });
+
+  // Ref para evitar fetch en el primer render si no es necesario
+  const isFirstRender = useRef(true);
+  const previousFiltersRef = useRef<string>('');
 
   const fetchTramites = useCallback(async () => {
     try {
@@ -51,15 +54,36 @@ export function useTramites(initialFilters?: ProcedureFilters): UseTramitesRetur
   }, [filters]);
 
   useEffect(() => {
-    fetchTramites();
-  }, [fetchTramites]);
+    // Serializar filtros para comparación profunda
+    const currentFiltersString = JSON.stringify(filters);
+
+    // Solo hacer fetch si los filtros realmente cambiaron
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      previousFiltersRef.current = currentFiltersString;
+      fetchTramites();
+    } else if (previousFiltersRef.current !== currentFiltersString) {
+      previousFiltersRef.current = currentFiltersString;
+      fetchTramites();
+    }
+  }, [filters, fetchTramites]);
 
   const applyFilters = useCallback((newFilters: ProcedureFilters) => {
-    setFilters((prev) => ({
-      ...prev,
-      ...newFilters,
-      pagina: 1, // Reset a página 1 cuando se aplican filtros
-    }));
+    setFilters((prev) => {
+      // Merge inteligente: mantener filtros existentes y agregar/sobrescribir nuevos
+      const merged = { ...prev, ...newFilters };
+
+      // Si se están aplicando filtros nuevos (no solo búsqueda), resetear página
+      const hasNonSearchFilters = Object.keys(newFilters).some(
+        key => key !== 'search' && key !== 'pagina' && key !== 'limite'
+      );
+
+      if (hasNonSearchFilters) {
+        merged.pagina = 1;
+      }
+
+      return merged;
+    });
   }, []);
 
   const clearFilters = useCallback(() => {
@@ -79,7 +103,7 @@ export function useTramites(initialFilters?: ProcedureFilters): UseTramitesRetur
     setFilters((prev) => ({
       ...prev,
       limite: limit,
-      pagina: 1, // Reset a página 1 al cambiar el límite
+      pagina: 1,
     }));
   }, []);
 
